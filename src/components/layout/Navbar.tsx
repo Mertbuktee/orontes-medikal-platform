@@ -20,13 +20,13 @@ import {
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: "Ana Sayfa", href: "#hero" },
-  { label: "Hizmetler", href: "#hizmetler" },
-  { label: "Cihazlar", href: "#cihazlar" },
-  { label: "Elektronik Kart Tamiri", href: "#kart-tamiri" },
-  { label: "Hakkımızda", href: "#neden-biz" },
-  { label: "Blog", href: "#blog" },
-  { label: "İletişim", href: "#iletisim" },
+  { label: "Ana Sayfa", href: "/#hero" },
+  { label: "Hizmetler", href: "/#hizmetler" },
+  { label: "Cihazlar", href: "/#cihazlar" },
+  { label: "Elektronik Kart Tamiri", href: "/#kart-tamiri" },
+  { label: "Hakkımızda", href: "/#neden-biz" },
+  { label: "Blog", href: "/#blog" },
+  { label: "İletişim", href: "/#iletisim" },
 ];
 
 const contactItems = [
@@ -36,7 +36,7 @@ const contactItems = [
     href: "mailto:info@orontesteknoloji.com",
     icon: Mail,
   },
-  { label: "Bahçelievler / İstanbul", href: "#iletisim", icon: MapPin },
+  { label: "Bahçelievler / İstanbul", href: "/#iletisim", icon: MapPin },
 ];
 
 const whatsappHref = "https://wa.me/905536065703";
@@ -45,7 +45,7 @@ const serviceLinkClass =
 
 function Logo() {
   return (
-    <Link href="#hero" className="flex items-center gap-2" aria-label="Ana sayfa">
+    <Link href="/#hero" className="flex items-center gap-2" aria-label="Ana sayfa">
       <Image
         src="/images/logo/orontes-logo.png"
         alt="Orontes Medikal Platform"
@@ -123,7 +123,7 @@ export default function Navbar() {
           ))}
         </div>
         <div className="hidden items-center gap-2 xl:flex">
-          <Link href="#servis-talebi" className={serviceLinkClass}>
+          <Link href="/#servis-talebi" className={serviceLinkClass}>
             Servis Talebi
           </Link>
         </div>
@@ -154,7 +154,7 @@ export default function Navbar() {
                 ))}
               </div>
               <Link
-                href="#servis-talebi"
+                href="/#servis-talebi"
                 className={serviceLinkClass}
                 onClick={() => setOpen(false)}
               >

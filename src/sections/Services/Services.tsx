@@ -72,7 +72,7 @@ export default function Services() {
               href="#"
               className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl hover:shadow-sky-900/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
             >
-              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-500 via-orange-400 to-orange-500 opacity-80" />
+              <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-sky-500 via-orange-400 to-orange-500 opacity-80" />
               <div className="flex items-start justify-between gap-4">
                 <div className="flex size-12 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 transition-colors group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:ring-orange-100">
                   <Icon className="size-6" aria-hidden="true" />
