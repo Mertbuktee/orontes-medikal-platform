@@ -1,15 +1,13 @@
 import {
   BadgeCheck,
-  Brush,
   CheckCircle2,
   ClipboardCheck,
-  Cpu,
-  Gauge,
-  Microscope,
-  PackageCheck,
+  PackageSearch,
   PlugZap,
+  Repeat2,
+  Scale,
+  Search,
   Wrench,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -22,13 +20,37 @@ const features = [
   "Sürdürülebilir çözüm sağlar",
 ];
 
-const steps = [
-  { title: "Arıza Analizi", description: "Kart ilk incelemesi yapılır.", icon: Microscope },
-  { title: "Elektronik Ölçümler", description: "Besleme ve kritik noktalar test edilir.", icon: Gauge },
-  { title: "Komponent Değişimi", description: "Arızalı komponentler değiştirilir.", icon: Cpu },
-  { title: "Lehim ve Temizlik", description: "Profesyonel lehimleme ve IPA temizliği uygulanır.", icon: Brush },
-  { title: "Fonksiyon Testi", description: "Kart cihaz üzerinde test edilir.", icon: ClipboardCheck },
-  { title: "Teslim", description: "Kart güvenli şekilde müşteriye teslim edilir.", icon: PackageCheck },
+const decisionSteps = [
+  {
+    title: "Fiziksel Durum",
+    description: "Kartın yanık, kırık, sıvı teması ve bağlantı hasarı kontrol edilir.",
+    icon: Search,
+  },
+  {
+    title: "Arıza Tekrarı",
+    description: "Arızanın aynı koşullarda tekrar edip etmediği değerlendirilir.",
+    icon: Repeat2,
+  },
+  {
+    title: "Maliyet Değerlendirmesi",
+    description: "Onarım maliyeti cihazın kullanım değeriyle birlikte ele alınır.",
+    icon: Scale,
+  },
+  {
+    title: "Parça Bulunabilirliği",
+    description: "Gerekli komponentlerin temin edilebilirliği kontrol edilir.",
+    icon: PackageSearch,
+  },
+  {
+    title: "Test Edilebilirlik",
+    description: "Onarım sonrası kartın güvenli şekilde test edilip edilemeyeceği incelenir.",
+    icon: ClipboardCheck,
+  },
+  {
+    title: "Net Servis Önerisi",
+    description: "Onarım, değişim veya ileri değerlendirme önerisi müşteriye iletilir.",
+    icon: BadgeCheck,
+  },
 ];
 
 const equipment = [
@@ -106,21 +128,21 @@ export default function BoardRepair() {
             <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-5">
               <div>
                 <span className="inline-flex rounded-full bg-sky-400/10 px-3 py-1 text-xs font-semibold tracking-[0.16em] text-sky-200 ring-1 ring-sky-300/20">
-                  ONARIM SÜRECİ
+                  TEKNİK KARAR
                 </span>
                 <h3 className="mt-3 text-2xl font-semibold text-white">
-                  Hassas kart onarımı için kontrollü akış
+                  Onarım Kararı Nasıl Verilir?
                 </h3>
               </div>
               <div className="hidden size-12 items-center justify-center rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-500/25 sm:flex">
-                <Zap className="size-6" aria-hidden="true" />
+                <Scale className="size-6" aria-hidden="true" />
               </div>
             </div>
 
             <div className="mt-6 space-y-4">
-              {steps.map(({ title, description, icon: Icon }, index) => (
+              {decisionSteps.map(({ title, description, icon: Icon }, index) => (
                 <div key={title} className="relative flex gap-4">
-                  {index < steps.length - 1 && (
+                  {index < decisionSteps.length - 1 && (
                     <span className="absolute left-5 top-11 h-[calc(100%-1rem)] w-px bg-linear-to-b from-sky-300/50 to-orange-300/30" />
                   )}
                   <div className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-400/10 text-sky-200 ring-1 ring-sky-300/20">
