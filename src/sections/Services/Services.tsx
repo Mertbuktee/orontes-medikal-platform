@@ -1,0 +1,98 @@
+import {
+  ArrowUpRight,
+  CircuitBoard,
+  Gauge,
+  Headset,
+  Microscope,
+  PackageCheck,
+  Stethoscope,
+} from "lucide-react";
+import Link from "next/link";
+
+const services = [
+  {
+    title: "Elektronik Kart Tamiri",
+    description:
+      "Medikal cihaz kartlarında arıza tespiti, komponent değişimi ve test süreçleri.",
+    icon: CircuitBoard,
+  },
+  {
+    title: "Medikal Cihaz Bakımı",
+    description:
+      "Cihaz performansını koruyan planlı bakım, kontrol ve servis uygulamaları.",
+    icon: Stethoscope,
+  },
+  {
+    title: "Kalibrasyon",
+    description:
+      "Ölçüm doğruluğunu destekleyen cihaz kontrolü ve kalibrasyon yönlendirmesi.",
+    icon: Gauge,
+  },
+  {
+    title: "Teknik Destek",
+    description:
+      "Sağlık kuruluşları için hızlı değerlendirme ve uygulanabilir servis desteği.",
+    icon: Headset,
+  },
+  {
+    title: "Arıza Analizi",
+    description:
+      "Elektronik ve mekanik kaynaklı sorunlar için sistematik arıza incelemesi.",
+    icon: Microscope,
+  },
+  {
+    title: "Yedek Parça Temini",
+    description:
+      "Servis sürecini tamamlayan uygun parça tespiti ve tedarik desteği.",
+    icon: PackageCheck,
+  },
+];
+
+export default function Services() {
+  return (
+    <section id="hizmetler" className="bg-white py-16 sm:py-20 lg:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-orange-600">
+            Hizmetlerimiz
+          </span>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+            Hizmetlerimiz
+          </h2>
+          <p className="mt-4 text-base leading-8 text-slate-600 sm:text-lg">
+            Medikal cihazların yaşam döngüsünü destekleyen profesyonel teknik
+            servis çözümleri.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {services.map(({ title, description, icon: Icon }) => (
+            <Link
+              key={title}
+              href="#"
+              className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl hover:shadow-sky-900/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
+            >
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-500 via-orange-400 to-orange-500 opacity-80" />
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex size-12 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 transition-colors group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:ring-orange-100">
+                  <Icon className="size-6" aria-hidden="true" />
+                </div>
+                <ArrowUpRight
+                  className="size-5 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-orange-500"
+                  aria-hidden="true"
+                />
+              </div>
+
+              <h3 className="mt-6 text-lg font-semibold text-slate-950">
+                {title}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-slate-600">
+                {description}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
