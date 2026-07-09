@@ -45,7 +45,7 @@ const serviceLinkClass =
 
 function Logo() {
   return (
-    <Link href="/#hero" className="flex items-center gap-2" aria-label="Ana sayfa">
+    <Link href="#" className="flex items-center gap-2" aria-label="Ana sayfa">
       <Image
         src="/images/logo/orontes-logo.png"
         alt="Orontes Medikal Platform"
