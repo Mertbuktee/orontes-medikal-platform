@@ -36,10 +36,13 @@ const contactItems = [
     href: "mailto:info@orontesteknoloji.com",
     icon: Mail,
   },
-  { label: "Bahçelievler / İstanbul", href: "/#iletisim", icon: MapPin },
+  {
+    label: "Bahçelievler / İstanbul",
+    href: "https://maps.app.goo.gl/6RGW6dy3kK4RAax8A",
+    icon: MapPin,
+  },
 ];
 
-const whatsappHref = "https://wa.me/905536065703";
 const serviceLinkClass =
   "inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-transparent bg-primary bg-clip-padding px-2.5 text-sm font-medium text-primary-foreground transition-all outline-none select-none hover:bg-primary/80 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:translate-y-px";
 
@@ -87,6 +90,8 @@ export default function Navbar() {
               <Link
                 key={label}
                 href={href}
+                target={href.startsWith("http") ? "_blank" : undefined}
+                rel={href.startsWith("http") ? "noreferrer" : undefined}
                 className="flex items-center gap-2 text-background/85 transition-colors hover:text-background"
               >
                 <Icon className="size-4" aria-hidden="true" />
@@ -94,15 +99,6 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
-          <Link
-            href={whatsappHref}
-            className="flex items-center gap-2 text-background/85 transition-colors hover:text-background"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <Image src="/images/icons/wp.png" alt="" width={16} height={16} className="size-4 rounded-sm" aria-hidden="true" />
-            <span>WhatsApp</span>
-          </Link>
         </div>
       </div>
 
@@ -165,6 +161,8 @@ export default function Navbar() {
                   <Link
                     key={label}
                     href={href}
+                    target={href.startsWith("http") ? "_blank" : undefined}
+                    rel={href.startsWith("http") ? "noreferrer" : undefined}
                     onClick={() => setOpen(false)}
                     className="flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
                   >
@@ -173,15 +171,6 @@ export default function Navbar() {
                   </Link>
                 ))}
               </div>
-              <Link
-                href={whatsappHref}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-3 rounded-md border border-border px-3 py-3 text-sm font-medium transition-colors hover:bg-muted"
-              >
-                <Image src="/images/icons/wp.png" alt="" width={16} height={16} className="size-4 rounded-sm" aria-hidden="true" />
-                <span>WhatsApp</span>
-              </Link>
             </div>
           </SheetContent>
         </Sheet>
