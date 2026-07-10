@@ -2,7 +2,6 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 
 import { fileTypeFromBuffer } from "file-type";
-import sharp from "sharp";
 
 export const maxUploadSizeBytes = 10 * 1024 * 1024;
 export const maxImagePixels = 40_000_000;
@@ -100,6 +99,7 @@ export async function validateAndHardenUpload(
 }
 
 async function reencodeImage(buffer: Buffer, type: "jpg" | "png" | "webp") {
+  const { default: sharp } = await import("sharp");
   const image = sharp(buffer, {
     failOn: "error",
     limitInputPixels: maxImagePixels,

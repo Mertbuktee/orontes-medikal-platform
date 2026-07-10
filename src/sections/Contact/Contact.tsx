@@ -9,17 +9,21 @@ import {
   Paperclip,
   Phone,
   Send,
+  X,
 } from "lucide-react";
 import Link from "next/link";
-import { type ChangeEvent } from "react";
+import { type ChangeEvent, type FormEvent, useRef, useState } from "react";
+
+import {
+  createSubmitLock,
+  formatFileSize,
+  submitServiceRequest,
+  validateContactAttachment,
+  type ContactFieldErrors,
+} from "@/sections/Contact/contact-form-utils";
 
 const contactCards = [
-  {
-    title: "Telefon",
-    value: "0553 606 57 03",
-    href: "tel:+905536065703",
-    icon: Phone,
-  },
+  { title: "Telefon", value: "0553 606 57 03", href: "tel:+905536065703", icon: Phone },
   {
     title: "E-posta",
     value: "info@orontesteknoloji.com",
@@ -41,49 +45,124 @@ const contactCards = [
 ];
 
 const trustItems = ["Türkiye Geneli Destek", "Teknik Servis", "Elektronik Kart Tamiri"];
-const allowedImageExtensions = [".png", ".jpg", ".jpeg", ".webp", ".jfif"];
-const allowedImageTypes = ["image/png", "image/jpeg", "image/webp"];
-const formFields = [["Ad Soyad", "text", "Adınız ve soyadınız"], ["Firma/Hastane", "text", "Firma veya hastane adı"], ["Telefon", "tel", "0553 606 57 03"], ["E-posta", "email", "ornek@firma.com"]];
+const formFields = [
+  { name: "fullName", label: "Ad Soyad", type: "text", placeholder: "Adınız ve soyadınız", autoComplete: "name" },
+  { name: "company", label: "Firma/Hastane", type: "text", placeholder: "Firma veya hastane adı", autoComplete: "organization" },
+  { name: "phone", label: "Telefon", type: "tel", placeholder: "0553 606 57 03", autoComplete: "tel" },
+  { name: "email", label: "E-posta", type: "email", placeholder: "ornek@firma.com", autoComplete: "email" },
+] as const;
 
-async function hasAllowedImageSignature(file: File) {
-  const bytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
-  const isPng = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
-  const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
-  const isWebp = String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" && String.fromCharCode(...bytes.slice(8, 12)) === "WEBP";
-  return isPng || isJpeg || isWebp;
+type TextFieldName = (typeof formFields)[number]["name"] | "message" | "website";
+type FormFieldName = Exclude<TextFieldName, "website"> | "attachment";
+type TextValues = Record<TextFieldName, string>;
+
+const initialValues: TextValues = {
+  fullName: "",
+  company: "",
+  phone: "",
+  email: "",
+  message: "",
+  website: "",
+};
+const fieldOrder: FormFieldName[] = ["fullName", "company", "phone", "email", "message", "attachment"];
+
+function withoutFieldError(errors: ContactFieldErrors, name: string) {
+  const next = { ...errors };
+  delete next[name];
+  return next;
 }
 
 export default function Contact() {
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+  const [values, setValues] = useState<TextValues>(initialValues);
+  const [formStartedAt, setFormStartedAt] = useState(() => Date.now());
+  const [attachment, setAttachment] = useState<File>();
+  const [fieldErrors, setFieldErrors] = useState<ContactFieldErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string; requestId?: string }>();
+  const fieldRefs = useRef<Partial<Record<FormFieldName, HTMLInputElement | HTMLTextAreaElement>>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const submitLock = useRef(createSubmitLock());
+
+  const getError = (name: FormFieldName) => fieldErrors[name]?.[0];
+  const describedBy = (name: FormFieldName) => (getError(name) ? `${name}-error` : undefined);
+
+  const handleTextChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setValues((current) => ({ ...current, [name]: value }));
+    setFieldErrors((current) => withoutFieldError(current, name));
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    const extension = file ? `.${file.name.split(".").pop()?.toLowerCase() ?? ""}` : "";
 
     if (!file) {
-      event.target.setCustomValidity("");
+      setAttachment(undefined);
+      setFieldErrors((current) => withoutFieldError(current, "attachment"));
       return;
     }
 
-    const isAllowed =
-      allowedImageExtensions.includes(extension) &&
-      allowedImageTypes.includes(file.type) &&
-      (await hasAllowedImageSignature(file));
+    const error = validateContactAttachment(file);
 
-    if (isAllowed) {
-      event.target.setCustomValidity("");
+    if (error) {
+      setAttachment(undefined);
+      setFieldErrors((current) => ({ ...current, attachment: [error] }));
+      event.target.value = "";
       return;
     }
 
-    const error = "Bu dosya desteklenmiyor. Lütfen bir görsel dosyası yükleyin.";
-    event.target.value = "";
-    event.target.setCustomValidity(error);
-    event.target.reportValidity();
+    setAttachment(file);
+    setFieldErrors((current) => withoutFieldError(current, "attachment"));
+  };
+
+  const removeAttachment = () => {
+    setAttachment(undefined);
+    setFieldErrors((current) => withoutFieldError(current, "attachment"));
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    void submitLock.current(async () => {
+      setIsSubmitting(true);
+      setFieldErrors({});
+      setFeedback(undefined);
+
+      try {
+        const result = await submitServiceRequest({ ...values, formStartedAt, attachment });
+
+        if (result.success) {
+          setValues(initialValues);
+          setAttachment(undefined);
+          setFormStartedAt(Date.now());
+          setFeedback({ type: "success", message: result.message });
+
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
+        } else {
+          const nextErrors = result.fieldErrors ?? {};
+          const firstInvalid = fieldOrder.find((field) => nextErrors[field]?.length);
+          setFieldErrors(nextErrors);
+          setFeedback({ type: "error", message: result.message, requestId: result.requestId });
+          fieldRefs.current[firstInvalid ?? "fullName"]?.focus();
+        }
+      } catch {
+        setFeedback({
+          type: "error",
+          message: "İstek gönderilemedi. Lütfen bağlantınızı kontrol edip tekrar deneyin.",
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
+    });
   };
 
   return (
-    <section
-      id="iletisim"
-      className="relative overflow-hidden bg-white py-16 sm:py-20 lg:py-24"
-    >
+    <section id="iletisim" className="relative overflow-hidden bg-white py-16 sm:py-20 lg:py-24">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_12%,rgba(14,165,233,0.12),transparent_30%),radial-gradient(circle_at_92%_18%,rgba(249,115,22,0.12),transparent_28%),linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)]" />
 
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
@@ -102,46 +181,25 @@ export default function Contact() {
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {contactCards.map(({ title, value, href, icon: Icon }) => {
-              const content = (
-                <>
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100">
-                    <Icon className="size-5" aria-hidden="true" />
+            {contactCards.map(({ title, value, href, icon: Icon }) => (
+              <Link
+                key={title}
+                href={href}
+                className="group flex min-h-28 gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70 transition-all hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-lg"
+                target={href.startsWith("http") ? "_blank" : undefined}
+                rel={href.startsWith("http") ? "noreferrer" : undefined}
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100">
+                  <Icon className="size-5" aria-hidden="true" />
+                </span>
+                <span>
+                  <span className="block text-sm font-semibold text-slate-950">{title}</span>
+                  <span className="mt-1 block whitespace-pre-line text-sm leading-6 text-slate-600">
+                    {value}
                   </span>
-                  <span>
-                    <span className="block text-sm font-semibold text-slate-950">
-                      {title}
-                    </span>
-                    <span className="mt-1 block whitespace-pre-line text-sm leading-6 text-slate-600">
-                      {value}
-                    </span>
-                  </span>
-                </>
-              );
-
-              if (href) {
-                return (
-                  <Link
-                    key={title}
-                    href={href}
-                    className="group flex min-h-28 gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70 transition-all hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-lg"
-                    target={href.startsWith("http") ? "_blank" : undefined}
-                    rel={href.startsWith("http") ? "noreferrer" : undefined}
-                  >
-                    {content}
-                  </Link>
-                );
-              }
-
-              return (
-                <div
-                  key={title}
-                  className="flex min-h-28 gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70"
-                >
-                  {content}
-                </div>
-              );
-            })}
+                </span>
+              </Link>
+            ))}
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -175,50 +233,135 @@ export default function Contact() {
               </div>
             </div>
 
-            <form className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
-              {formFields.map(([label, type, placeholder]) => (
-                <label key={label} className="grid gap-2 text-sm font-medium text-slate-700">
-                  {label}
-                  <input
-                    type={type}
-                    placeholder={placeholder}
-                    className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
-                  />
-                </label>
-              ))}
+            <form className="grid gap-4 p-5 sm:grid-cols-2 sm:p-6" onSubmit={handleSubmit} noValidate>
+              <label className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden">
+                Website
+                <input
+                  name="website"
+                  value={values.website}
+                  onChange={handleTextChange}
+                  autoComplete="off"
+                  tabIndex={-1}
+                />
+              </label>
+              <input type="hidden" name="formStartedAt" value={formStartedAt} />
+
+              {formFields.map((field) => {
+                const error = getError(field.name);
+                return (
+                  <label key={field.name} className="grid gap-2 text-sm font-medium text-slate-700">
+                    {field.label}
+                    <input
+                      ref={(element) => {
+                        fieldRefs.current[field.name] = element ?? undefined;
+                      }}
+                      id={field.name}
+                      name={field.name}
+                      type={field.type}
+                      value={values[field.name]}
+                      placeholder={field.placeholder}
+                      autoComplete={field.autoComplete}
+                      onChange={handleTextChange}
+                      aria-invalid={Boolean(error)}
+                      aria-describedby={describedBy(field.name)}
+                      className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100 aria-invalid:border-red-300 aria-invalid:focus:border-red-400 aria-invalid:focus:ring-red-100"
+                    />
+                    {error && (
+                      <span id={`${field.name}-error`} className="text-xs font-medium text-red-600">
+                        {error}
+                      </span>
+                    )}
+                  </label>
+                );
+              })}
+
               <label className="grid gap-2 text-sm font-medium text-slate-700 sm:col-span-2">
                 Mesaj
                 <textarea
+                  ref={(element) => {
+                    fieldRefs.current.message = element ?? undefined;
+                  }}
+                  id="message"
+                  name="message"
+                  value={values.message}
+                  onChange={handleTextChange}
                   placeholder="Cihaz modeli, arıza belirtisi veya servis talebiniz hakkında kısa bilgi yazabilirsiniz."
-                  className="min-h-32 resize-y rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+                  aria-invalid={Boolean(getError("message"))}
+                  aria-describedby={describedBy("message")}
+                  className="min-h-32 resize-y rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-950 outline-none transition-colors placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-100 aria-invalid:border-red-300 aria-invalid:focus:border-red-400 aria-invalid:focus:ring-red-100"
                 />
+                {getError("message") && (
+                  <span id="message-error" className="text-xs font-medium text-red-600">
+                    {getError("message")}
+                  </span>
+                )}
               </label>
+
               <label className="grid gap-2 text-sm font-medium text-slate-700 sm:col-span-2">
-                Fotoğraf Ekle
+                Dosya Ekle
                 <span className="flex flex-col gap-3 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-4 text-sm text-slate-600 transition-colors hover:border-orange-300 hover:bg-orange-50/40 sm:flex-row sm:items-center sm:justify-between">
                   <span className="inline-flex items-center gap-2">
                     <Paperclip className="size-4 text-orange-500" aria-hidden="true" />
-                    Sorununuzu görsel ile belirtin
+                    Sorununuzu görsel veya PDF ile belirtin
                   </span>
                   <input
+                    ref={(element) => {
+                      fileInputRef.current = element;
+                      fieldRefs.current.attachment = element ?? undefined;
+                    }}
+                    id="attachment"
+                    name="attachment"
                     type="file"
-                    accept=".png,.jpg,.jpeg,.webp,.jfif"
+                    accept=".jpg,.jpeg,.jfif,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
                     onChange={handleFileChange}
+                    aria-invalid={Boolean(getError("attachment"))}
+                    aria-describedby={describedBy("attachment")}
                     className="text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-sky-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-sky-700 hover:file:bg-sky-100"
                   />
                 </span>
+                {attachment && (
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-sky-100 bg-sky-50 px-3 py-2 text-sm text-slate-700">
+                    <span className="truncate">
+                      {attachment.name} ({formatFileSize(attachment.size)})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={removeAttachment}
+                      className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-white hover:text-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
+                      aria-label="Seçili dosyayı kaldır"
+                    >
+                      <X className="size-4" aria-hidden="true" />
+                    </button>
+                  </div>
+                )}
+                {getError("attachment") && (
+                  <span id="attachment-error" className="text-xs font-medium text-red-600">
+                    {getError("attachment")}
+                  </span>
+                )}
               </label>
+
               <div className="sm:col-span-2">
                 <button
-                  type="button"
-                  className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 sm:w-auto"
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 disabled:cursor-not-allowed disabled:bg-orange-300 sm:w-auto"
                 >
-                  Servis Talebi Oluştur
+                  {isSubmitting ? "Gönderiliyor..." : "Servis Talebi Oluştur"}
                   <Send className="size-4" aria-hidden="true" />
                 </button>
-                <p className="mt-3 text-xs leading-5 text-slate-500">
-                  Form altyapısı yönetim paneli ile birlikte aktif olacaktır.
-                </p>
+                <div className="mt-3 text-xs leading-5 text-slate-500" aria-live="polite">
+                  {feedback ? (
+                    <div className={feedback.type === "success" ? "text-emerald-700" : "text-red-600"}>
+                      <p className="font-medium">{feedback.message}</p>
+                      {feedback.type === "error" && feedback.requestId && (
+                        <p className="mt-1 text-slate-500">Destek referansı: {feedback.requestId}</p>
+                      )}
+                    </div>
+                  ) : (
+                    "Form güvenli servis talebi altyapısına gönderilecektir."
+                  )}
+                </div>
               </div>
             </form>
           </div>
