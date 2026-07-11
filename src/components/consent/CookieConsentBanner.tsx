@@ -42,13 +42,13 @@ export function CookieConsentBanner() {
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium">
             <Link
               href="/cerez-politikasi"
-              className="text-sky-200 underline-offset-4 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+              className="inline-flex min-h-10 items-center text-sky-200 underline-offset-4 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
             >
               Çerez Politikası
             </Link>
             <Link
               href="/gizlilik-politikasi"
-              className="text-sky-200 underline-offset-4 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+              className="inline-flex min-h-10 items-center text-sky-200 underline-offset-4 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
             >
               Gizlilik Politikası
             </Link>

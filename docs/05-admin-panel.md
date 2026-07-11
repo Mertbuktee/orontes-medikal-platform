@@ -129,6 +129,32 @@ Yönetilebilir Alanlar
 
 ---
 
+## Hero Slider Yönetimi
+
+Yönetilebilir alanlar:
+
+- Görsel
+- Başlık
+- Açıklama
+- Badge
+- Alt metin
+- Bağlantı
+- Sıralama
+- Aktif / Pasif
+- Autoplay dahil et
+- Önizleme
+
+İşlemler:
+
+- Yeni slayt ekleme
+- Düzenleme
+- Silme
+- Sıralama
+- Aktif/pasif yapma
+- Autoplay'e dahil etme veya çıkarma
+
+---
+
 # Site Ayarları
 
 - Firma Adı
@@ -191,3 +217,68 @@ Roller
 - Müşteri Paneli
 - QR Servis Takibi
 - Raporlama
+
+---
+
+# Public Sayfa Yönetimi
+
+Yeni public bilgi mimarisi admin panelde modüler içerik yönetimine hazır olacak şekilde planlanır.
+
+Yönetilebilir sayfalar:
+
+- Ana Sayfa
+- Hizmetler
+- Cihazlar
+- Elektronik Kart Tamiri
+- Hakkımızda
+- Servis Süreci
+- Blog
+- İletişim
+- Servis Talebi
+
+Her sayfa için yönetilebilir alanlar:
+
+- Sayfa başlığı
+- Meta title
+- Meta description
+- Öne çıkan açıklama
+- İçerik blokları
+- CTA metinleri
+- Görsel / medya ilişkileri
+- Sıralama
+- Aktif / pasif durumu
+
+Anasayfa, detay sayfalarına yönlendiren özet bloklar olarak tutulur. Detay içerik ve SEO odaklı uzun metinler ilgili sayfalarda yönetilir.
+
+## Cihaz ve Hizmet İçerik Sözleşmesi
+
+Admin panelde cihaz ve hizmet içerikleri doğrudan section kodu içinde değil, veritabanı destekli içerik modelleri üzerinden yönetilecektir.
+
+Cihaz grubu alanları:
+
+- id
+- title
+- slug
+- shortDescription
+- fullDescription
+- iconKey
+- capabilities
+- isFeatured
+- order
+- isActive
+- seoTitle
+- seoDescription
+
+Hizmet alanları:
+
+- id
+- title
+- slug
+- shortDescription
+- fullDescription
+- iconKey
+- isFeatured
+- order
+- isActive
+- seoTitle
+- seoDescription

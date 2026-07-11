@@ -102,9 +102,10 @@ test("homepage visual responsive QA", async ({ page }) => {
 });
 
 async function dismissCookieBanner(page: Page) {
-  const rejectButton = page.getByRole("button", { name: "Tümünü Reddet" });
-  if ((await rejectButton.count()) === 1 && await rejectButton.isVisible()) {
+  const rejectButton = page.locator("button").filter({ hasText: /Reddet/ }).first();
+  if ((await rejectButton.count()) > 0 && await rejectButton.isVisible()) {
     await rejectButton.click();
+    await expect(rejectButton).toBeHidden();
   }
 }
 

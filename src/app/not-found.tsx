@@ -1,18 +1,11 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  Home,
-  Mail,
-  MapPin,
-  SearchX,
-  Wrench,
-} from "lucide-react";
+import { ArrowRight, Home, Mail, MapPin, SearchX, Wrench } from "lucide-react";
 
 const suggestedLinks = [
-  { label: "Hizmetler", href: "/#hizmetler" },
-  { label: "Cihazlar", href: "/#cihazlar" },
-  { label: "Elektronik Kart Tamiri", href: "/#kart-tamiri" },
-  { label: "İletişim", href: "/#iletisim" },
+  { label: "Hizmetler", href: "/hizmetler" },
+  { label: "Cihazlar", href: "/cihazlar" },
+  { label: "Elektronik Kart Tamiri", href: "/elektronik-kart-tamiri" },
+  { label: "İletişim", href: "/iletisim" },
 ];
 
 const supportItems = [
@@ -20,7 +13,7 @@ const supportItems = [
     icon: Wrench,
     title: "Teknik servis talebi",
     text: "Cihaz arızası veya bakım ihtiyacı için servis formuna geçin.",
-    href: "/#servis-talebi",
+    href: "/servis-talebi",
   },
   {
     icon: Mail,
@@ -59,7 +52,7 @@ export default function NotFound() {
           <p className="mt-5 max-w-xl text-base leading-8 text-slate-600">
             Ulaşmak istediğiniz sayfa taşınmış, kaldırılmış veya adres hatalı
             yazılmış olabilir. Ana sayfaya dönebilir ya da servis ve iletişim
-            bölümlerinden hızlıca devam edebilirsiniz.
+            sayfalarından hızlıca devam edebilirsiniz.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -71,7 +64,7 @@ export default function NotFound() {
               Ana Sayfaya Dön
             </Link>
             <Link
-              href="/#servis-talebi"
+              href="/servis-talebi"
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:border-sky-200 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
             >
               Servis Talebi Oluştur

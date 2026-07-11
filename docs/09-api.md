@@ -176,3 +176,39 @@ PATCH
 DELETE
 
 /api/admin/users
+# Public API Notları
+
+Public site mimarisi değişirken mevcut güvenli backend davranışı korunur.
+
+## Servis Talebi
+
+Endpoint:
+
+- `POST /api/service-requests`
+
+Form field adları:
+
+- fullName
+- company
+- phone
+- email
+- message
+- deviceBrand
+- deviceModel
+- deviceSerialNumber
+- attachment
+- website
+- formStartedAt
+
+Frontend:
+
+- `/servis-talebi` sayfası mevcut güvenli `ServiceRequestForm` component'ini kullanır.
+- `multipart/form-data` davranışı korunur.
+- Honeypot `website` alanı korunur.
+- `formStartedAt` alanı korunur.
+- Dosya yükleme server-side validasyonları korunur.
+
+Sitemap ve robots:
+
+- API route'ları sitemap'e eklenmez.
+- `/api/` robots tarafından disallow edilir.

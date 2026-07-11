@@ -37,10 +37,7 @@ export default function WhyUs() {
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_16%_18%,rgba(14,165,233,0.13),transparent_30%),radial-gradient(circle_at_86%_8%,rgba(249,115,22,0.12),transparent_26%),linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)]" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
-          <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-orange-600">
-            Orontes yaklaşımı
-          </span>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
             Neden Orontes?
           </h2>
           <p className="mt-4 text-base leading-8 text-slate-600 sm:text-lg">

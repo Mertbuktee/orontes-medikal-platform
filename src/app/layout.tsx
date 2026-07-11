@@ -5,6 +5,8 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { ConsentRouteScope } from "@/components/consent/ConsentRouteScope";
 import { CookieConsentProvider } from "@/components/consent/CookieConsentProvider";
+import { siteConfig } from "@/config/site";
+import { createOrganizationJsonLd } from "@/lib/seo/structured-data";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,6 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.origin),
   title: "Orontes Teknoloji | Medikal Teknik Servis",
   description:
     "Medikal cihaz teknik servisi, elektronik kart onarımı, mekanik bakım ve periyodik bakım hizmetleri.",
@@ -32,14 +35,18 @@ export default function RootLayout({
       lang="tr"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-screen flex flex-col">
+      <body className="flex min-h-screen flex-col">
         <CookieConsentProvider>
           <Navbar />
-
-          <main className="flex-1">{children}</main>
-
+          <div className="flex-1">{children}</div>
           <Footer />
           <ConsentRouteScope />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(createOrganizationJsonLd()),
+            }}
+          />
         </CookieConsentProvider>
       </body>
     </html>

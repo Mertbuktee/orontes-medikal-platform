@@ -9,14 +9,14 @@ type ContactLink = FooterLink & { icon: LucideIcon; ariaLabel: string };
 const companyName = "Orontes İnovasyon Endüstriyel Ürünler Sanayi Ticaret Ltd. Şti.";
 
 const quickLinks: FooterLink[] = [
-  { label: "Ana Sayfa", href: "#hero" },
-  { label: "Hizmetler", href: "#hizmetler" },
-  { label: "Cihazlar", href: "#cihazlar" },
-  { label: "Elektronik Kart Tamiri", href: "#kart-tamiri" },
-  { label: "Neden Orontes", href: "#neden-biz" },
-  { label: "Servis Süreci", href: "#surec" },
-  { label: "Blog", href: "#blog" },
-  { label: "İletişim", href: "#iletisim" },
+  { label: "Ana Sayfa", href: "/" },
+  { label: "Hizmetler", href: "/hizmetler" },
+  { label: "Cihazlar", href: "/cihazlar" },
+  { label: "Elektronik Kart Tamiri", href: "/elektronik-kart-tamiri" },
+  { label: "Hakkımızda", href: "/hakkimizda" },
+  { label: "Servis Süreci", href: "/servis-sureci" },
+  { label: "Blog", href: "/blog" },
+  { label: "İletişim", href: "/iletisim" },
 ];
 
 const services = [
@@ -49,7 +49,7 @@ const contactLinks: ContactLink[] = [
   },
   {
     label: "WhatsApp",
-    href: "https://wa.me/905536065703",
+    href: "https://wa.me/905536065703?text=Merhabalar%20Website%20%C3%9Czerinden%20%C4%B0leti%C5%9Fime%20Ge%C3%A7iyorum",
     icon: MessageCircle,
     ariaLabel: "Orontes ile WhatsApp üzerinden iletişime geç",
   },
@@ -70,12 +70,14 @@ const socialLinks: SocialLink[] = [
   {
     label: "Instagram",
     href: "https://instagram.com/orontesteknoloji",
-    icon: "instagram", ariaLabel: "Orontes Teknoloji Instagram hesabını aç",
+    icon: "instagram",
+    ariaLabel: "Orontes Teknoloji Instagram hesabını aç",
   },
   {
     label: "LinkedIn",
     href: "https://www.linkedin.com/company/orontes-i%CC%87novasyon-ve-end%C3%BCstriyel-%C3%BCr%C3%BCnler-san-tic-ltd-%C5%9Fti/",
-    icon: "linkedin", ariaLabel: "Orontes Teknoloji LinkedIn sayfasını aç",
+    icon: "linkedin",
+    ariaLabel: "Orontes Teknoloji LinkedIn sayfasını aç",
   },
 ];
 
@@ -95,7 +97,7 @@ function FooterAnchor({
       aria-label={ariaLabel ?? label}
       target={href.startsWith("http") ? "_blank" : undefined}
       rel={href.startsWith("http") ? "noreferrer" : undefined}
-      className="group inline-flex items-start gap-2 text-sm leading-6 text-slate-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071526]"
+      className="group inline-flex min-h-10 items-center gap-2 text-sm leading-6 text-slate-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071526]"
     >
       {children ?? (
         <>
@@ -134,10 +136,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#061423] text-white">
       <div className="relative overflow-hidden">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          aria-hidden="true"
-        >
+        <div className="pointer-events-none absolute inset-0 opacity-40" aria-hidden="true">
           <div className="absolute -left-24 top-10 size-72 rounded-full bg-sky-500/10 blur-3xl" />
           <div className="absolute bottom-0 right-0 size-80 rounded-full bg-orange-500/10 blur-3xl" />
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:36px_36px]" />
@@ -185,7 +184,11 @@ export default function Footer() {
               <div className="mt-6 flex gap-3" aria-label="Sosyal medya bağlantıları">
                 {socialLinks.map((item) => (
                   <Link
-                    key={item.href} href={item.href} aria-label={item.ariaLabel} target="_blank" rel="noreferrer"
+                    key={item.href}
+                    href={item.href}
+                    aria-label={item.ariaLabel}
+                    target="_blank"
+                    rel="noreferrer"
                     className="flex size-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] text-slate-200 transition hover:border-orange-300/35 hover:bg-orange-500/15 hover:text-orange-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071526]"
                   >
                     <SocialIcon name={item.icon} />
@@ -201,8 +204,10 @@ export default function Footer() {
               <p>
                 Powered by{" "}
                 <Link
-                  href="https://www.linkedin.com/in/mertbukte/" target="_blank" rel="noreferrer"
-                  className="font-semibold text-orange-300 transition hover:text-orange-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071526]"
+                  href="https://www.linkedin.com/in/mertbukte/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-10 items-center font-semibold text-orange-300 transition hover:text-orange-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071526]"
                 >
                   Mert BÜKTE
                 </Link>
@@ -214,14 +219,14 @@ export default function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071526]"
+                      className="inline-flex min-h-10 items-center transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071526]"
                     >
                       {link.label}
                     </Link>
                   </li>
                 ))}
                 <li>
-                  <CookieSettingsButton className="transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071526]" />
+                  <CookieSettingsButton className="inline-flex min-h-10 items-center transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071526]" />
                 </li>
               </ul>
             </nav>

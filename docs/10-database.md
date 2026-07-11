@@ -129,6 +129,31 @@ Prisma
 
 ---
 
+## HeroSlide
+
+- id
+- title
+- description
+- badge
+- imageId
+- imageAlt
+- linkUrl
+- order
+- isActive
+- includeInAutoplay
+- createdAt
+- updatedAt
+
+Planlanan ilişki:
+
+HeroSlide
+
+→
+
+Media
+
+---
+
 # AuditLog
 
 - id
@@ -218,3 +243,101 @@ Prisma
 Cache
 
 Redis
+
+---
+
+## PageContent
+
+- id
+- slug
+- title
+- metaTitle
+- metaDescription
+- excerpt
+- status
+- createdAt
+- updatedAt
+
+Planlanan ilişki:
+
+PageContent
+
+→
+
+ContentBlock
+
+## ContentBlock
+
+- id
+- pageId
+- type
+- title
+- body
+- order
+- isActive
+- createdAt
+- updatedAt
+
+## ServiceCategory
+
+- id
+- title
+- slug
+- description
+- detail
+- iconKey
+- order
+- isActive
+- createdAt
+- updatedAt
+
+## DeviceGroup
+
+- id
+- title
+- slug
+- shortDescription
+- fullDescription
+- iconKey
+- capabilities
+- isFeatured
+- order
+- isActive
+- seoTitle
+- seoDescription
+
+## ServiceCategory
+
+- id
+- title
+- slug
+- shortDescription
+- fullDescription
+- iconKey
+- isFeatured
+- order
+- isActive
+- seoTitle
+- seoDescription
+
+## BlogPost Public Fields
+
+- id
+- title
+- slug
+- excerpt
+- contentBlocks
+- category
+- coverImageId
+- status
+- publishedAt
+- seoTitle
+- seoDescription
+- description
+- capabilityChips
+- iconKey
+- featuredOnHome
+- order
+- isActive
+- createdAt
+- updatedAt

@@ -84,10 +84,7 @@ export default function Process() {
 
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.4fr_0.6fr] lg:px-8">
         <div className="min-w-0">
-          <span className="inline-flex rounded-full border border-orange-200 bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-orange-600 shadow-sm">
-            SERVİS SÜRECİ
-          </span>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
             Cihazınız Güvenli ve Planlı Bir Süreçten Geçer
           </h2>
           <p className="mt-5 text-base leading-8 text-slate-600">

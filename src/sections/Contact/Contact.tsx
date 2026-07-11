@@ -43,12 +43,7 @@ export default function Contact() {
 
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
         <div className="min-w-0 overflow-hidden">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold tracking-[0.16em] text-orange-700">
-            <MessageCircle className="size-3.5" aria-hidden="true" />
-            İLETİŞİM
-          </div>
-
-          <h2 className="mt-5 max-w-xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+          <h2 className="max-w-xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
             Bizimle İletişime Geçin
           </h2>
           <p className="mt-4 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
@@ -118,7 +113,7 @@ export default function Contact() {
               </Link>
             </div>
 
-            <div className="relative aspect-[4/3] min-h-80 bg-slate-100">
+            <div className="relative h-80 bg-slate-100 sm:aspect-[4/3] sm:h-auto sm:min-h-80">
               <iframe
                 src={mapSrc}
                 title="Orontes Medikal ofis konumu"

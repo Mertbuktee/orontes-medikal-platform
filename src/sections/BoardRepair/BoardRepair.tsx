@@ -3,7 +3,6 @@ import {
   CheckCircle2,
   ClipboardCheck,
   PackageSearch,
-  PlugZap,
   Repeat2,
   Scale,
   Search,
@@ -73,12 +72,7 @@ export default function BoardRepair() {
 
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
         <div className="flex flex-col justify-center">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-orange-300/30 bg-white/10 px-3 py-1 text-xs font-semibold tracking-[0.16em] text-orange-200 shadow-sm backdrop-blur">
-            <PlugZap className="size-3.5" aria-hidden="true" />
-            <span>ELEKTRONİK KART ONARIMI</span>
-          </div>
-
-          <h2 className="mt-5 max-w-2xl text-3xl font-semibold leading-tight text-white sm:text-5xl">
+          <h2 className="max-w-2xl text-3xl font-semibold leading-tight text-white sm:text-5xl">
             Elektronik Kart Tamirinde
             <span className="block text-orange-300">Uzman Teknik Servis</span>
           </h2>
@@ -109,13 +103,13 @@ export default function BoardRepair() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
-              href="/#servis-talebi"
+              href="/servis-talebi"
               className="inline-flex h-11 items-center justify-center rounded-lg bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
             >
               Servis Talebi
             </Link>
             <Link
-              href="/#iletisim"
+              href="/iletisim"
               className="inline-flex h-11 items-center justify-center rounded-lg border border-white/15 bg-white/10 px-5 text-sm font-semibold text-white shadow-sm backdrop-blur transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
             >
               İletişime Geç
