@@ -119,10 +119,10 @@ export default function Devices() {
             {trustItems.map((item) => (
               <div
                 key={item}
-                className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2.5 text-sm font-medium text-slate-700 shadow-sm"
+                className="flex min-w-0 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-3 py-2.5 text-sm font-medium text-slate-700 shadow-sm"
               >
                 <CheckCircle2 className="size-4 shrink-0 text-orange-500" />
-                <span>{item}</span>
+                <span className="min-w-0 text-center">{item}</span>
               </div>
             ))}
           </div>
@@ -132,7 +132,7 @@ export default function Devices() {
           {devices.map(({ title, description, chips, icon: Icon }) => (
             <div
               key={title}
-              className="group relative flex min-h-64 flex-col overflow-hidden rounded-2xl border border-white/80 bg-white/90 p-5 shadow-lg shadow-slate-900/5 transition-all duration-300 hover:-translate-y-1.5 hover:border-sky-200 hover:shadow-2xl hover:shadow-sky-900/10"
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/80 bg-white/90 p-4 shadow-lg shadow-slate-900/5 transition-all duration-300 hover:-translate-y-1.5 hover:border-sky-200 hover:shadow-2xl hover:shadow-sky-900/10 sm:min-h-64 sm:p-5"
             >
               <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-sky-500 via-orange-400 to-orange-500 opacity-80" />
               <div className="relative flex size-12 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 transition-colors group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:ring-orange-100">
@@ -149,7 +149,7 @@ export default function Devices() {
                 {chips.map((chip) => (
                   <span
                     key={chip}
-                    className="rounded-full bg-slate-50 px-2.5 py-1 text-[0.7rem] font-semibold text-slate-600 ring-1 ring-slate-200 group-hover:bg-sky-50 group-hover:text-sky-700 group-hover:ring-sky-100"
+                    className="rounded-full bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200 group-hover:bg-sky-50 group-hover:text-sky-700 group-hover:ring-sky-100"
                   >
                     {chip}
                   </span>
@@ -171,7 +171,7 @@ export default function Devices() {
           </div>
           <Link
             href="#iletisim"
-            className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 sm:mt-0"
+            className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 sm:mt-0 sm:w-auto"
           >
             Bize Ulaşın
             <ArrowRight className="size-4" aria-hidden="true" />

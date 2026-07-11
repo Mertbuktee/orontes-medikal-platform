@@ -68,13 +68,13 @@ export default function BlogPreview() {
               <h3 className="mt-6 text-xl font-semibold leading-snug text-slate-950">
                 {title}
               </h3>
-              <p className="mt-3 min-h-20 text-sm leading-7 text-slate-600">
+              <p className="mt-3 text-sm leading-7 text-slate-600 md:min-h-20">
                 {description}
               </p>
 
               <Link
                 href="#"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sky-700 transition-colors hover:text-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
+                className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-sky-700 transition-colors hover:text-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
                 aria-label={`${title} yazısını incele`}
               >
                 Yazıyı İncele

@@ -78,7 +78,7 @@ export default function BoardRepair() {
             <span>ELEKTRONİK KART ONARIMI</span>
           </div>
 
-          <h2 className="mt-5 max-w-2xl text-4xl font-semibold leading-tight text-white sm:text-5xl">
+          <h2 className="mt-5 max-w-2xl text-3xl font-semibold leading-tight text-white sm:text-5xl">
             Elektronik Kart Tamirinde
             <span className="block text-orange-300">Uzman Teknik Servis</span>
           </h2>
@@ -165,7 +165,7 @@ export default function BoardRepair() {
 
             <div className="mt-6 overflow-hidden rounded-2xl border border-orange-300/20 bg-linear-to-br from-orange-500/15 via-white/[0.06] to-sky-400/10 shadow-lg shadow-black/10">
               <div className="flex flex-col gap-4 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3">
+                <div className="flex items-start gap-3 sm:items-center">
                   <div className="flex size-11 items-center justify-center rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-500/25">
                     <Wrench className="size-5" aria-hidden="true" />
                   </div>
@@ -173,12 +173,12 @@ export default function BoardRepair() {
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-200">
                       Teslim güveni
                     </p>
-                    <h4 className="mt-1 text-lg font-semibold text-white">
+                    <h4 className="mt-1 text-base font-semibold text-white sm:text-lg">
                       Servis Sonrası Teslim Standartları
                     </h4>
                   </div>
                 </div>
-                <div className="rounded-full border border-sky-300/20 bg-sky-400/10 px-3 py-1 text-xs font-semibold text-sky-100">
+                <div className="w-fit rounded-full border border-sky-300/20 bg-sky-400/10 px-3 py-1 text-xs font-semibold text-sky-100">
                   Kontrol + Bilgilendirme + Teslim
                 </div>
               </div>

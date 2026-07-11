@@ -83,7 +83,7 @@ export default function Process() {
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_12%_16%,rgba(14,165,233,0.15),transparent_30%),radial-gradient(circle_at_88%_12%,rgba(249,115,22,0.14),transparent_28%),linear-gradient(180deg,#f8fbff_0%,#ffffff_56%,#fff7ed_100%)]" />
 
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.4fr_0.6fr] lg:px-8">
-        <div>
+        <div className="min-w-0">
           <span className="inline-flex rounded-full border border-orange-200 bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-orange-600 shadow-sm">
             SERVİS SÜRECİ
           </span>
@@ -129,11 +129,11 @@ export default function Process() {
                 <div className="absolute -left-16 top-5 hidden size-16 items-center justify-center rounded-2xl border border-white bg-slate-950 text-lg font-semibold text-white shadow-lg shadow-slate-900/15 sm:flex">
                   {number}
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex min-w-0 items-start gap-4">
                   <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 transition-colors group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:ring-orange-100">
                     <Icon className="size-6" aria-hidden="true" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-xs font-semibold text-orange-500 sm:hidden">
                       {number}
                     </span>

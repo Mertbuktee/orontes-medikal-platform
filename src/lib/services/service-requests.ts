@@ -34,9 +34,12 @@ export class LocalServiceRequestRepository implements ServiceRequestRepository {
       id,
       createdAt: new Date().toISOString(),
       fullName: input.fullName,
-      company: input.company ?? null,
+      company: input.company,
       phone: input.phone,
       email: input.email,
+      deviceBrand: input.deviceBrand ?? null,
+      deviceModel: input.deviceModel ?? null,
+      deviceSerialNumber: input.deviceSerialNumber ?? null,
       message: input.message,
       attachment: attachment
         ? {

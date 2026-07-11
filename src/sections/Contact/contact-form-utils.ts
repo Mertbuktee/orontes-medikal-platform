@@ -8,6 +8,9 @@ export type ContactFormValues = {
   company: string;
   phone: string;
   email: string;
+  deviceBrand: string;
+  deviceModel: string;
+  deviceSerialNumber: string;
   message: string;
   website: string;
   formStartedAt: number;
@@ -66,6 +69,9 @@ export function createServiceRequestFormData(values: ContactFormValues) {
   formData.set("company", values.company);
   formData.set("phone", values.phone);
   formData.set("email", values.email);
+  formData.set("deviceBrand", values.deviceBrand);
+  formData.set("deviceModel", values.deviceModel);
+  formData.set("deviceSerialNumber", values.deviceSerialNumber);
   formData.set("message", values.message);
   formData.set("website", values.website);
   formData.set("formStartedAt", String(values.formStartedAt));

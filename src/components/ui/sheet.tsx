@@ -54,7 +54,7 @@ function SheetContent({
       <Dialog.Popup
         data-slot="sheet-content"
         className={cn(
-          'bg-background text-foreground fixed inset-y-0 z-50 w-[min(88vw,22rem)] p-6 shadow-xl transition-transform duration-300 outline-none data-ending-style:translate-x-full data-starting-style:translate-x-full',
+          'bg-background text-foreground fixed inset-y-0 z-50 w-[min(92vw,22rem)] overflow-y-auto p-4 shadow-xl transition-transform duration-300 outline-none data-ending-style:translate-x-full data-starting-style:translate-x-full sm:p-6',
           side === 'right' ? 'right-0' : 'left-0',
           side === 'left' &&
             'data-ending-style:-translate-x-full data-starting-style:-translate-x-full',

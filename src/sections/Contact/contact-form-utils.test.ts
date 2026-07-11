@@ -14,6 +14,9 @@ const validValues: ContactFormValues = {
   company: "Test Hospital",
   phone: "0553 606 57 03",
   email: "test@example.com",
+  deviceBrand: "Mindray",
+  deviceModel: "BeneView T5",
+  deviceSerialNumber: "SN-12345",
   message: "Cihaz arızası hakkında servis talebi oluşturmak istiyorum.",
   website: "",
   formStartedAt: Date.now() - 3000,
@@ -42,6 +45,9 @@ describe("contact form helpers", () => {
 
     expect(result.success).toBe(true);
     expect(submittedFormData?.get("fullName")).toBe(validValues.fullName);
+    expect(submittedFormData?.get("deviceBrand")).toBe(validValues.deviceBrand);
+    expect(submittedFormData?.get("deviceModel")).toBe(validValues.deviceModel);
+    expect(submittedFormData?.get("deviceSerialNumber")).toBe(validValues.deviceSerialNumber);
     expect(submittedFormData?.get("website")).toBe("");
     expect(submittedFormData?.get("formStartedAt")).toBe(String(validValues.formStartedAt));
   });

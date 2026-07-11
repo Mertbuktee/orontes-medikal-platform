@@ -12,6 +12,9 @@ function validFormData() {
   formData.set("company", "Test Hospital");
   formData.set("phone", "0553 606 57 03");
   formData.set("email", "test@example.com");
+  formData.set("deviceBrand", "Mindray");
+  formData.set("deviceModel", "BeneView T5");
+  formData.set("deviceSerialNumber", "SN-12345");
   formData.set("message", "Cihaz arızası hakkında servis talebi oluşturmak istiyorum.");
   formData.set("formStartedAt", String(Date.now() - 3000));
   return formData;

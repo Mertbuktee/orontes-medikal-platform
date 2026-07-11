@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
@@ -43,27 +44,65 @@ const contactItems = [
   },
 ];
 
-const serviceLinkClass =
-  "inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-transparent bg-primary bg-clip-padding px-2.5 text-sm font-medium text-primary-foreground transition-all outline-none select-none hover:bg-primary/80 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:translate-y-px";
+const socialLinks = [
+  {
+    label: "Instagram",
+    href: "https://instagram.com/orontesteknoloji",
+    icon: "instagram",
+  },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/company/orontes-i%CC%87novasyon-ve-end%C3%BCstriyel-%C3%BCr%C3%BCnler-san-tic-ltd-%C5%9Fti/",
+    icon: "linkedin",
+  },
+] as const;
 
-function Logo() {
+const serviceLinkClass =
+  "inline-flex h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-transparent bg-primary bg-clip-padding px-4 text-sm font-medium text-primary-foreground transition-all outline-none select-none hover:bg-primary/80 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:translate-y-px";
+
+function Logo({ href, onClick }: { href: string; onClick?: () => void }) {
   return (
-    <Link href="#" className="flex items-center gap-2" aria-label="Ana sayfa">
+    <Link
+      href={href}
+      onClick={onClick}
+      className="relative block h-12 w-36 shrink-0 sm:h-14 sm:w-44 lg:h-24 lg:w-72 xl:h-28 xl:w-80"
+      aria-label="Ana sayfa"
+    >
       <Image
         src="/images/logo/orontes-logo.png"
         alt="Orontes Medikal Platform"
-        width={1536}
-        height={1024}
-        className="h-[7rem] w-auto sm:h-[9rem] lg:h-[12rem]"
+        fill
+        sizes="(max-width: 640px) 144px, (max-width: 1024px) 176px, (max-width: 1280px) 288px, 320px"
+        className="object-contain object-left"
         priority
       />
     </Link>
   );
 }
 
+function SocialIcon({ name }: { name: (typeof socialLinks)[number]["icon"] }) {
+  if (name === "instagram") {
+    return (
+      <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden="true">
+        <rect width="15" height="15" x="4.5" y="4.5" rx="4" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="12" cy="12" r="3.4" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="16.4" cy="7.7" r="1" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden="true">
+      <path d="M6.9 8.9H3.7v10.4h3.2V8.9ZM5.3 4A1.85 1.85 0 1 0 5.3 7.7 1.85 1.85 0 0 0 5.3 4Zm14.9 9.5c0-3.1-1.7-4.9-4.2-4.9-1.9 0-2.8 1.1-3.2 1.8V8.9H9.7v10.4h3.2v-5.1c0-1.4.3-2.7 2-2.7s1.8 1.5 1.8 2.8v5h3.2v-5.8h.3Z" />
+    </svg>
+  );
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const logoHref = pathname === "/" ? "#" : "/";
 
   useEffect(() => {
     const updateScrolled = () => setScrolled(window.scrollY > 8);
@@ -99,14 +138,28 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
+          <div className="flex items-center gap-2">
+            {socialLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`Orontes ${item.label} hesabını aç`}
+                className="flex size-8 items-center justify-center rounded-full text-background/85 transition-colors hover:bg-background/10 hover:text-background focus-visible:ring-2 focus-visible:ring-background/60 focus-visible:outline-none"
+              >
+                <SocialIcon name={item.icon} />
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 
       <nav
-        className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-20"
+        className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-24 xl:h-28"
         aria-label="Ana navigasyon"
       >
-        <Logo />
+        <Logo href={logoHref} />
         <div className="hidden items-center gap-1 xl:flex">
           {navItems.map((item) => (
             <Link
@@ -135,8 +188,8 @@ export default function Navbar() {
             <SheetDescription className="sr-only">
               Orontes Medikal Platform sayfa bağlantıları
             </SheetDescription>
-            <div className="flex flex-col gap-8">
-              <Logo />
+            <div className="flex min-h-full flex-col gap-5 pb-6">
+              <Logo href={logoHref} onClick={() => setOpen(false)} />
               <div className="flex flex-col gap-2">
                 {navItems.map((item) => (
                   <Link
@@ -156,6 +209,21 @@ export default function Navbar() {
               >
                 Servis Talebi
               </Link>
+              <div className="flex gap-3 border-t border-border pt-6">
+                {socialLinks.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`Orontes ${item.label} hesabını aç`}
+                    onClick={() => setOpen(false)}
+                    className="flex size-10 items-center justify-center rounded-xl border border-border bg-muted/40 text-foreground transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                  >
+                    <SocialIcon name={item.icon} />
+                  </Link>
+                ))}
+              </div>
               <div className="grid gap-3 border-t border-border pt-6 text-sm">
                 {contactItems.map(({ label, href, icon: Icon }) => (
                   <Link
@@ -164,10 +232,10 @@ export default function Navbar() {
                     target={href.startsWith("http") ? "_blank" : undefined}
                     rel={href.startsWith("http") ? "noreferrer" : undefined}
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
+                    className="flex min-h-11 min-w-0 items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
                   >
                     <Icon className="size-4" aria-hidden="true" />
-                    <span>{label}</span>
+                    <span className="min-w-0 break-words">{label}</span>
                   </Link>
                 ))}
               </div>
