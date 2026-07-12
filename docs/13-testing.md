@@ -65,3 +65,17 @@ npm run build
 npm run db:validate
 npm run db:generate
 ```
+## Service Request Module Tests
+
+Unit coverage includes RBAC role behavior, service request status transition policy, upload validation and public route response behavior. Database-backed module tests should use an isolated test database or transaction strategy before destructive scenarios are added.
+
+Manual local verification for the module:
+
+1. Submit a public service request without attachment.
+2. Submit a public service request with a valid image or PDF.
+3. Confirm both records appear in PostgreSQL.
+4. Confirm `/admin/service-requests` lists them after login.
+5. Open detail, update status, add an internal note and assign a user when available.
+6. Confirm authorized attachment download works and unauthenticated access fails.
+7. Archive the request and confirm it disappears from the default active listing.
+8. Confirm status history and audit rows are created without PII-heavy metadata.

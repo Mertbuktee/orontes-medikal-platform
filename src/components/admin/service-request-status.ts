@@ -12,12 +12,12 @@ export const serviceRequestStatusOptions: Array<{
   },
   {
     value: "REVIEWING",
-    label: "İncelemede",
+    label: "İnceleniyor",
     description: "Teknik ekip ön değerlendirme yapıyor.",
   },
   {
     value: "WAITING_FOR_CUSTOMER",
-    label: "Müşteri Bekleniyor",
+    label: "Müşteriden Bilgi Bekleniyor",
     description: "Ek bilgi veya onay bekleniyor.",
   },
   {
@@ -37,15 +37,29 @@ export const serviceRequestStatusOptions: Array<{
   },
   {
     value: "CANCELLED",
-    label: "İptal",
+    label: "İptal Edildi",
     description: "Talep iptal edildi.",
   },
   {
     value: "ARCHIVED",
-    label: "Arşiv",
+    label: "Arşivlendi",
     description: "Talep arşive alındı.",
   },
 ];
+
+export const serviceRequestAllowedTransitions: Record<
+  ServiceRequestStatus,
+  readonly ServiceRequestStatus[]
+> = {
+  NEW: ["REVIEWING", "CANCELLED"],
+  REVIEWING: ["WAITING_FOR_CUSTOMER", "APPROVED", "CANCELLED"],
+  WAITING_FOR_CUSTOMER: ["REVIEWING", "APPROVED", "CANCELLED"],
+  APPROVED: ["IN_REPAIR", "CANCELLED"],
+  IN_REPAIR: ["COMPLETED", "WAITING_FOR_CUSTOMER", "CANCELLED"],
+  COMPLETED: ["ARCHIVED", "IN_REPAIR"],
+  CANCELLED: ["ARCHIVED", "REVIEWING"],
+  ARCHIVED: [],
+};
 
 export function getServiceRequestStatusMeta(status: ServiceRequestStatus) {
   return (
@@ -67,6 +81,21 @@ export function getServiceRequestStatusClassName(status: ServiceRequestStatus) {
   };
 
   return classes[status];
+}
+
+export function getAllowedNextStatuses(status: ServiceRequestStatus) {
+  return serviceRequestAllowedTransitions[status];
+}
+
+export function canTransitionServiceRequestStatus(
+  fromStatus: ServiceRequestStatus,
+  toStatus: ServiceRequestStatus
+) {
+  if (fromStatus === toStatus) {
+    return true;
+  }
+
+  return serviceRequestAllowedTransitions[fromStatus].includes(toStatus);
 }
 
 export function formatFileSize(size: number) {

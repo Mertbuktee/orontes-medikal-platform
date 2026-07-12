@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Hardened service request management with granular RBAC, status transition enforcement, assignment, archive, private attachment access, dashboard summaries and local JSON import command.
 - Added the first real admin module for service requests with Prisma-backed public submissions, admin listing, detail view, status workflow, internal notes and audit-backed mutations.
 - Added secure admin authentication with Argon2id password hashing, opaque database-backed sessions, login/logout flow, login rate limiting, explicit super-admin bootstrap and authentication audit events.
 - Added Prisma 7 and PostgreSQL foundation with Docker Compose development database, initial schema, migration, seed workflow, repository contracts, Prisma client singleton and local JSON import readiness.

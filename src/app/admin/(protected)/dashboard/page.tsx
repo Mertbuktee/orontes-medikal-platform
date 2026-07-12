@@ -5,7 +5,6 @@ import {
   FileText,
   ImageIcon,
   Settings,
-  Wrench,
 } from "lucide-react";
 
 import {
@@ -13,36 +12,43 @@ import {
   type AdminNavItem,
 } from "@/components/admin/admin-navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { getServiceRequestStatusMeta } from "@/components/admin/service-request-status";
+import { requirePermission } from "@/lib/auth/admin-session";
+import { prisma } from "@/lib/database/prisma";
+import { PrismaServiceRequestRepository } from "@/lib/database/repositories/service-requests";
+import { hasPermission } from "@/lib/rbac/permissions";
 
 const readinessCards = [
   {
-    title: "Servis Talepleri",
-    description:
-      "Web formundan gelen başvurular veritabanına kaydedilir; listeleme, detay, durum ve not akışı aktiftir.",
-    state: "Aktif modül",
-    icon: ClipboardList,
-  },
-  {
     title: "İçerik Yönetimi",
-    description: "Cihaz, hizmet, blog ve sayfa içerikleri typed model ile ayrıştırıldı.",
+    description:
+      "Cihaz, hizmet, blog ve sayfa içerikleri typed model ile ayrıştırıldı.",
     state: "CRUD sonraki aşamada",
     icon: FileText,
   },
   {
     title: "Medya Kütüphanesi",
-    description: "Görsel referans mimarisi hazır; admin upload ve optimizasyon sonraki aşamada.",
+    description:
+      "Görsel referans mimarisi hazır; admin upload ve optimizasyon sonraki aşamada.",
     state: "Altyapı hazır",
     icon: ImageIcon,
   },
   {
     title: "Sistem Ayarları",
-    description: "SEO, site ayarları, roller ve güvenlik sözleşmeleri için temel hazırlandı.",
+    description:
+      "SEO, site ayarları, roller ve güvenlik sözleşmeleri için temel hazırlandı.",
     state: "Altyapı hazır",
     icon: Settings,
   },
 ];
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const session = await requirePermission("dashboard.view");
+  const canViewRequests = hasPermission(session.role, "serviceRequests.view");
+  const serviceRequestSummary = canViewRequests
+    ? await new PrismaServiceRequestRepository(prisma).getDashboardSummary()
+    : null;
+
   return (
     <div className="space-y-6">
       <AdminPageHeader
@@ -51,9 +57,33 @@ export default function AdminDashboardPage() {
         eyebrow="Dashboard"
       />
 
+      {serviceRequestSummary ? (
+        <section
+          aria-labelledby="service-request-summary-title"
+          className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+        >
+          <h2 id="service-request-summary-title" className="sr-only">
+            Servis talebi özetleri
+          </h2>
+          {(["NEW", "REVIEWING", "IN_REPAIR", "COMPLETED"] as const).map(
+            (status) => (
+              <SummaryCard
+                key={status}
+                label={getServiceRequestStatusMeta(status).label}
+                value={
+                  serviceRequestSummary.statusCounts.find(
+                    (item) => item.status === status
+                  )?._count.status ?? 0
+                }
+              />
+            )
+          )}
+        </section>
+      ) : null}
+
       <section
         aria-labelledby="admin-readiness-title"
-        className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+        className="grid gap-4 md:grid-cols-3"
       >
         <h2 id="admin-readiness-title" className="sr-only">
           Yönetim paneli hazırlık durumları
@@ -89,19 +119,43 @@ export default function AdminDashboardPage() {
               <Database className="size-5" aria-hidden="true" />
             </div>
             <div>
-              <h2 id="recent-activity-title" className="text-lg font-semibold text-slate-950">
-                Son Aktivite
+              <h2
+                id="recent-activity-title"
+                className="text-lg font-semibold text-slate-950"
+              >
+                Son Servis Talepleri
               </h2>
               <p className="text-sm text-slate-500">
-                Audit kayıtları veritabanına yazılır; raporlama ekranı sonraki aşamada açılacak.
+                Web formundan gelen son başvurular.
               </p>
             </div>
           </div>
-          <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-            <Wrench className="mx-auto size-8 text-slate-400" aria-hidden="true" />
-            <p className="mt-3 text-sm font-medium text-slate-700">
-              Henüz gösterilecek yönetim paneli aktivitesi bulunmuyor.
-            </p>
+          <div className="mt-6 space-y-3">
+            {serviceRequestSummary?.latest.length ? (
+              serviceRequestSummary.latest.map((request) => (
+                <Link
+                  key={request.id}
+                  href={`/admin/service-requests/${request.id}`}
+                  className="block rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-orange-200 hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-slate-950">
+                      {request.fullName}
+                    </p>
+                    <span className="text-xs font-semibold text-orange-700">
+                      {getServiceRequestStatusMeta(request.status).label}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-slate-500">
+                    {request.company || "Firma bilgisi yok"}
+                  </p>
+                </Link>
+              ))
+            ) : (
+              <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500">
+                Henüz gösterilecek servis talebi bulunmuyor.
+              </p>
+            )}
           </div>
         </section>
 
@@ -109,7 +163,10 @@ export default function AdminDashboardPage() {
           aria-labelledby="quick-actions-title"
           className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60"
         >
-          <h2 id="quick-actions-title" className="text-lg font-semibold text-slate-950">
+          <h2
+            id="quick-actions-title"
+            className="text-lg font-semibold text-slate-950"
+          >
             Hızlı Aksiyonlar
           </h2>
           <div className="mt-5 grid gap-3">
@@ -137,5 +194,17 @@ export default function AdminDashboardPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+function SummaryCard({ label, value }: { label: string; value: number }) {
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
+      <div className="flex size-11 items-center justify-center rounded-xl bg-orange-50 text-orange-700">
+        <ClipboardList className="size-5" aria-hidden="true" />
+      </div>
+      <h3 className="mt-4 text-sm font-medium text-slate-500">{label}</h3>
+      <p className="mt-2 text-3xl font-semibold text-slate-950">{value}</p>
+    </article>
   );
 }

@@ -418,3 +418,16 @@ Development servis talepleri halen `storage/private/service-requests/requests/` 
 - isActive
 - createdAt
 - updatedAt
+## Service Request Operations
+
+`ServiceRequest`, `Attachment`, `ServiceRequestNote` and `ServiceRequestStatusHistory` now back the first real admin module.
+
+- Public form submissions create `ServiceRequest` rows and optional `Attachment` metadata rows.
+- Uploaded file bytes stay in private storage; PostgreSQL stores only `storageKey`, MIME type, size and optional display metadata.
+- Status changes are written through repository transactions and create `ServiceRequestStatusHistory` rows.
+- Archive is the normal retention action: `archivedAt` is set and status becomes `ARCHIVED`. Hard delete is not exposed in the normal admin UI.
+- Assignment uses `assignedUserId` and is limited to active admin/service roles.
+- Internal notes are stored as plain text and never shown publicly.
+- Audit logs store safe metadata only; customer message, phone, email and file contents are excluded.
+
+The JSON importer reads local development records from `storage/private/service-requests/requests/`, reports duplicates and missing attachments, and writes only when `--apply` is supplied.

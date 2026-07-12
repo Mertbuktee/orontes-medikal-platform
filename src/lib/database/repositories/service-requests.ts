@@ -1,6 +1,8 @@
 import type {
   Attachment,
+  Prisma,
   PrismaClient,
+  Role,
   ServiceRequestStatus,
 } from "@prisma/client";
 
@@ -10,6 +12,23 @@ import type {
   ServiceRequestRepository,
 } from "@/lib/services/service-requests";
 import type { ServiceRequestInput } from "@/lib/validation/service-request";
+
+export type AdminServiceRequestSort = "newest" | "oldest" | "updated";
+
+export type AdminServiceRequestListInput = {
+  status?: ServiceRequestStatus;
+  assignedUserId?: string;
+  hasAttachment?: boolean;
+  archived?: "active" | "archived" | "all";
+  query?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  page?: number;
+  pageSize?: number;
+  sort?: AdminServiceRequestSort;
+};
+
+export const serviceRequestPageSizes = [20, 50, 100] as const;
 
 export class PrismaServiceRequestRepository
   implements ServiceRequestRepository
@@ -51,52 +70,72 @@ export class PrismaServiceRequestRepository
     };
   }
 
-  async list(input: {
-    status?: ServiceRequestStatus;
-    query?: string;
-    take?: number;
-  } = {}) {
-    const query = input.query?.trim();
+  async listAdminRequests(input: AdminServiceRequestListInput = {}) {
+    const pageSize = normalizePageSize(input.pageSize);
+    const page = normalizePage(input.page);
+    const where = buildServiceRequestWhere(input);
 
-    return this.client.serviceRequest.findMany({
-      where: {
-        archivedAt: null,
-        status: input.status,
-        ...(query
-          ? {
-              OR: [
-                { fullName: { contains: query, mode: "insensitive" } },
-                { company: { contains: query, mode: "insensitive" } },
-                { phone: { contains: query, mode: "insensitive" } },
-                { email: { contains: query, mode: "insensitive" } },
-                { deviceBrand: { contains: query, mode: "insensitive" } },
-                { deviceModel: { contains: query, mode: "insensitive" } },
-                { deviceSerialNumber: { contains: query, mode: "insensitive" } },
-              ],
-            }
-          : {}),
-      },
-      orderBy: { createdAt: "desc" },
-      take: input.take ?? 50,
-      include: {
-        attachments: true,
-        assignedUser: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
+    const [items, total] = await this.client.$transaction([
+      this.client.serviceRequest.findMany({
+        where,
+        orderBy: getOrderBy(input.sort),
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: {
+          attachments: true,
+          assignedUser: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
           },
         },
-      },
+      }),
+      this.client.serviceRequest.count({ where }),
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+    };
+  }
+
+  list(input: AdminServiceRequestListInput = {}) {
+    return this.listAdminRequests({ ...input, pageSize: input.pageSize ?? 50 }).then(
+      (result) => result.items
+    );
+  }
+
+  getStatusCounts(archived: "active" | "archived" | "all" = "active") {
+    return this.client.serviceRequest.groupBy({
+      by: ["status"],
+      where: getArchiveWhere(archived),
+      _count: { status: true },
     });
   }
 
-  getStatusCounts() {
-    return this.client.serviceRequest.groupBy({
-      by: ["status"],
-      where: { archivedAt: null },
-      _count: { status: true },
-    });
+  async getDashboardSummary() {
+    const [statusCounts, latest] = await Promise.all([
+      this.getStatusCounts("active"),
+      this.client.serviceRequest.findMany({
+        where: { archivedAt: null },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: {
+          id: true,
+          fullName: true,
+          company: true,
+          status: true,
+          createdAt: true,
+        },
+      }),
+    ]);
+
+    return { statusCounts, latest };
   }
 
   findById(id: string) {
@@ -177,6 +216,24 @@ export class PrismaServiceRequestRepository
     });
   }
 
+  assignUser(input: {
+    id: string;
+    assignedUserId: string | null;
+  }) {
+    return this.client.serviceRequest.update({
+      where: { id: input.id },
+      data: { assignedUserId: input.assignedUserId },
+    });
+  }
+
+  archive(input: { id: string; changedById: string }) {
+    return this.updateStatus({
+      id: input.id,
+      status: "ARCHIVED",
+      changedById: input.changedById,
+    });
+  }
+
   addNote(input: {
     serviceRequestId: string;
     authorId: string;
@@ -199,6 +256,107 @@ export class PrismaServiceRequestRepository
       },
     });
   }
+
+  listAssignableUsers() {
+    const assignableRoles: Role[] = ["SUPER_ADMIN", "ADMIN", "SERVICE_STAFF"];
+
+    return this.client.user.findMany({
+      where: {
+        isActive: true,
+        role: { in: assignableRoles },
+      },
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
+  }
+}
+
+function buildServiceRequestWhere(
+  input: AdminServiceRequestListInput
+): Prisma.ServiceRequestWhereInput {
+  const query = input.query?.trim().slice(0, 120);
+
+  return {
+    ...getArchiveWhere(input.archived ?? "active"),
+    status: input.status,
+    assignedUserId: input.assignedUserId || undefined,
+    createdAt:
+      input.dateFrom || input.dateTo
+        ? {
+            gte: input.dateFrom,
+            lte: input.dateTo,
+          }
+        : undefined,
+    attachments:
+      typeof input.hasAttachment === "boolean"
+        ? input.hasAttachment
+          ? { some: {} }
+          : { none: {} }
+        : undefined,
+    ...(query
+      ? {
+          OR: [
+            { id: { contains: query, mode: "insensitive" } },
+            { fullName: { contains: query, mode: "insensitive" } },
+            { company: { contains: query, mode: "insensitive" } },
+            { phone: { contains: query, mode: "insensitive" } },
+            { email: { contains: query, mode: "insensitive" } },
+            { deviceBrand: { contains: query, mode: "insensitive" } },
+            { deviceModel: { contains: query, mode: "insensitive" } },
+            { deviceSerialNumber: { contains: query, mode: "insensitive" } },
+          ],
+        }
+      : {}),
+  };
+}
+
+function getArchiveWhere(
+  archived: "active" | "archived" | "all"
+): Prisma.ServiceRequestWhereInput {
+  if (archived === "all") {
+    return {};
+  }
+
+  if (archived === "archived") {
+    return { archivedAt: { not: null } };
+  }
+
+  return { archivedAt: null };
+}
+
+function getOrderBy(
+  sort: AdminServiceRequestSort | undefined
+): Prisma.ServiceRequestOrderByWithRelationInput {
+  if (sort === "oldest") {
+    return { createdAt: "asc" };
+  }
+
+  if (sort === "updated") {
+    return { updatedAt: "desc" };
+  }
+
+  return { createdAt: "desc" };
+}
+
+export function normalizePage(value: number | undefined) {
+  if (!Number.isFinite(value) || !value || value < 1) {
+    return 1;
+  }
+
+  return Math.floor(value);
+}
+
+export function normalizePageSize(value: number | undefined) {
+  return serviceRequestPageSizes.includes(
+    value as (typeof serviceRequestPageSizes)[number]
+  )
+    ? (value as (typeof serviceRequestPageSizes)[number])
+    : 20;
 }
 
 export type AdminServiceRequestListItem = Awaited<

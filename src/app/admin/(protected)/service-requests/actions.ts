@@ -1,10 +1,11 @@
 "use server";
 
 import { ServiceRequestStatus } from "@prisma/client";
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { z } from "zod";
 
+import { canTransitionServiceRequestStatus } from "@/components/admin/service-request-status";
 import { requirePermission } from "@/lib/auth/admin-session";
 import { AdminAuthRepository } from "@/lib/auth/admin-auth-repository";
 import { getAdminRequestContext } from "@/lib/auth/request-context";
@@ -16,9 +17,18 @@ const statusSchema = z.object({
   status: z.enum(ServiceRequestStatus),
 });
 
+const assignmentSchema = z.object({
+  id: z.string().min(1),
+  assignedUserId: z.string().min(1).optional(),
+});
+
 const noteSchema = z.object({
   serviceRequestId: z.string().min(1),
-  content: z.string().trim().min(2).max(2000),
+  content: z.string().trim().min(1).max(2000),
+});
+
+const archiveSchema = z.object({
+  id: z.string().min(1),
 });
 
 export async function updateServiceRequestStatus(formData: FormData) {
@@ -32,8 +42,21 @@ export async function updateServiceRequestStatus(formData: FormData) {
     return;
   }
 
-  const requestContext = getAdminRequestContext(await headers());
+  if (parsed.data.status === "ARCHIVED") {
+    await requirePermission("serviceRequests.archive");
+  }
+
   const repository = new PrismaServiceRequestRepository(prisma);
+  const current = await repository.findById(parsed.data.id);
+
+  if (
+    !current ||
+    !canTransitionServiceRequestStatus(current.status, parsed.data.status)
+  ) {
+    return;
+  }
+
+  const requestContext = getAdminRequestContext(await headers());
   const auditRepository = new AdminAuthRepository(prisma);
   const updated = await repository.updateStatus({
     id: parsed.data.id,
@@ -48,18 +71,92 @@ export async function updateServiceRequestStatus(formData: FormData) {
       entityType: "ServiceRequest",
       entityId: updated.id,
       metadata: {
-        status: parsed.data.status,
+        fromStatus: current.status,
+        toStatus: parsed.data.status,
       },
       context: requestContext,
     });
   }
 
-  revalidatePath("/admin/service-requests");
-  revalidatePath(`/admin/service-requests/${parsed.data.id}`);
+  revalidateServiceRequestPaths(parsed.data.id);
+}
+
+export async function assignServiceRequest(formData: FormData) {
+  const session = await requirePermission("serviceRequests.assign");
+  const parsed = assignmentSchema.safeParse({
+    id: formData.get("id"),
+    assignedUserId: formData.get("assignedUserId") || undefined,
+  });
+
+  if (!parsed.success) {
+    return;
+  }
+
+  const repository = new PrismaServiceRequestRepository(prisma);
+  const requestContext = getAdminRequestContext(await headers());
+  const auditRepository = new AdminAuthRepository(prisma);
+  const updated = await repository.assignUser({
+    id: parsed.data.id,
+    assignedUserId: parsed.data.assignedUserId ?? null,
+  });
+
+  await auditRepository.appendAuditLog({
+    actorId: session.userId,
+    action: "UPDATE",
+    entityType: "ServiceRequestAssignment",
+    entityId: updated.id,
+    metadata: {
+      assignedUserId: parsed.data.assignedUserId ?? null,
+    },
+    context: requestContext,
+  });
+
+  revalidateServiceRequestPaths(parsed.data.id);
+}
+
+export async function archiveServiceRequest(formData: FormData) {
+  const session = await requirePermission("serviceRequests.archive");
+  const parsed = archiveSchema.safeParse({
+    id: formData.get("id"),
+  });
+
+  if (!parsed.success) {
+    return;
+  }
+
+  const repository = new PrismaServiceRequestRepository(prisma);
+  const current = await repository.findById(parsed.data.id);
+
+  if (!current || !canTransitionServiceRequestStatus(current.status, "ARCHIVED")) {
+    return;
+  }
+
+  const requestContext = getAdminRequestContext(await headers());
+  const auditRepository = new AdminAuthRepository(prisma);
+  const updated = await repository.archive({
+    id: parsed.data.id,
+    changedById: session.userId,
+  });
+
+  if (updated) {
+    await auditRepository.appendAuditLog({
+      actorId: session.userId,
+      action: "ARCHIVE",
+      entityType: "ServiceRequest",
+      entityId: updated.id,
+      metadata: {
+        fromStatus: current.status,
+        toStatus: "ARCHIVED",
+      },
+      context: requestContext,
+    });
+  }
+
+  revalidateServiceRequestPaths(parsed.data.id);
 }
 
 export async function addServiceRequestNote(formData: FormData) {
-  const session = await requirePermission("serviceRequests.update");
+  const session = await requirePermission("serviceRequests.notes.create");
   const parsed = noteSchema.safeParse({
     serviceRequestId: formData.get("serviceRequestId"),
     content: formData.get("content"),
@@ -89,5 +186,11 @@ export async function addServiceRequestNote(formData: FormData) {
     context: requestContext,
   });
 
-  revalidatePath(`/admin/service-requests/${parsed.data.serviceRequestId}`);
+  revalidateServiceRequestPaths(parsed.data.serviceRequestId);
+}
+
+function revalidateServiceRequestPaths(id: string) {
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/service-requests");
+  revalidatePath(`/admin/service-requests/${id}`);
 }

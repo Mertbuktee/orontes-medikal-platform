@@ -345,3 +345,18 @@ Logout is intentionally mounted at `/admin/auth/logout` because the session cook
 `ADMIN_DEV_BYPASS` is no longer part of ordinary admin development. It remains an isolated test helper and is rejected for production deployment signals.
 
 Typed content dosyaları geçicidir. Admin CRUD tamamlandığında cihaz, hizmet, blog, medya, servis talepleri, kullanıcılar, roller ve audit log kayıtları Prisma repository katmanından beslenecektir.
+## Service Request Management Flow
+
+Public submissions continue to enter through `POST /api/service-requests`. The route keeps origin checks, rate limiting, honeypot, minimum completion time, server-side field validation, file signature validation, private storage and cleanup-on-persistence-failure. After validation, request metadata is persisted through `PrismaServiceRequestRepository`; uploaded bytes remain in private storage.
+
+Admin reads and mutations use server components and server actions:
+
+1. Protected admin routes call `requirePermission()` on the server.
+2. Input is parsed with typed server-side schemas.
+3. Repository methods select explicit DTO fields instead of exposing Prisma records wholesale.
+4. Mutations write status history and audit log records where appropriate.
+5. Revalidation refreshes the affected list, dashboard and detail routes.
+
+Private service-request attachments are intentionally served from an authenticated `/admin/...` route instead of public URLs. The admin session cookie is scoped to `/admin`, so the attachment route lives under that path and performs its own permission plus ownership checks. Future object-storage adapters must preserve this private, authorized access pattern.
+
+The local JSON importer remains non-destructive: dry-run is the default, `--apply` is required for writes, duplicates are skipped, missing attachments are reported, and source JSON files are never deleted automatically.

@@ -379,4 +379,18 @@ Ilk gercek admin modulu servis talepleridir.
 - Durum degisiklikleri `ServiceRequestStatusHistory` ve `AuditLog` kaydi olusturur.
 - Internal not ekleme audit metadata'sinda not icerigini saklamaz.
 
-Private dosya storage key veya filesystem path client response'a donulmez. Guvenli admin dosya indirme/goruntuleme endpoint'i sonraki sertlestirilmis adimda acilacaktir.
+Private dosya storage key veya filesystem path client response'a donulmez.
+
+### Service Request Hardening
+
+- `VIEWER`: servis taleplerini listeleyebilir ve detay okuyabilir; mutation yapamaz.
+- `SERVICE_STAFF`: liste/detay, durum güncelleme, internal not ekleme ve yetkili attachment indirme yapabilir.
+- `ADMIN`: servis taleplerini atayabilir, arşivleyebilir ve normal operasyonları yönetebilir.
+- `SUPER_ADMIN`: tüm servis talebi izinlerine sahiptir.
+- `EDITOR`: servis talebi modülünü yönetmez.
+
+Durum geçişleri `src/components/admin/service-request-status.ts` içinde typed policy olarak tutulur ve server action içinde tekrar doğrulanır. UI seçenekleri güvenlik sınırı değildir.
+
+Private attachment erişimi `/admin/service-requests/[id]/attachments/[attachmentId]` route handler'ı ile yapılır. Endpoint geçerli admin session, `serviceRequests.attachments.view` izni ve attachment-request ownership kontrolü olmadan dosya döndürmez. Response `nosniff` ve `private, no-store` header'ları ile gelir; raw filesystem path veya storage root sızdırılmaz.
+
+Eski local JSON servis talepleri için `npm run service-requests:import` komutu dry-run modunda rapor üretir. Gerçek import için `npm run service-requests:import -- --apply` açıkça kullanılmalıdır.

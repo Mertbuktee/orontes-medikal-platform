@@ -13,7 +13,10 @@ describe("admin RBAC contracts", () => {
     expect(rolePermissions.ADMIN).toContain("settings.manage");
     expect(rolePermissions.EDITOR).toContain("blog.manage");
     expect(rolePermissions.SERVICE_STAFF).toContain("serviceRequests.view");
-    expect(rolePermissions.VIEWER).toEqual(["dashboard.view"]);
+    expect(rolePermissions.VIEWER).toEqual([
+      "dashboard.view",
+      "serviceRequests.view",
+    ]);
   });
 
   it("gives SUPER_ADMIN every permission", () => {
@@ -31,8 +34,23 @@ describe("admin RBAC contracts", () => {
   it("limits SERVICE_STAFF to service request workflow access", () => {
     expect(hasPermission("SERVICE_STAFF", "serviceRequests.view")).toBe(true);
     expect(hasPermission("SERVICE_STAFF", "serviceRequests.update")).toBe(true);
+    expect(hasPermission("SERVICE_STAFF", "serviceRequests.notes.create")).toBe(
+      true
+    );
+    expect(hasPermission("SERVICE_STAFF", "serviceRequests.attachments.view")).toBe(
+      true
+    );
+    expect(hasPermission("SERVICE_STAFF", "serviceRequests.assign")).toBe(false);
+    expect(hasPermission("SERVICE_STAFF", "serviceRequests.archive")).toBe(false);
     expect(hasPermission("SERVICE_STAFF", "serviceRequests.delete")).toBe(false);
     expect(hasPermission("SERVICE_STAFF", "blog.manage")).toBe(false);
+  });
+
+  it("allows VIEWER to inspect requests without mutating them", () => {
+    expect(hasPermission("VIEWER", "serviceRequests.view")).toBe(true);
+    expect(hasPermission("VIEWER", "serviceRequests.update")).toBe(false);
+    expect(hasPermission("VIEWER", "serviceRequests.notes.create")).toBe(false);
+    expect(hasPermission("VIEWER", "serviceRequests.attachments.view")).toBe(false);
   });
 
   it("hasPermission returns role-specific decisions", () => {
@@ -44,6 +62,7 @@ describe("admin RBAC contracts", () => {
 
   it("canAccessAdminRoute evaluates protected admin paths", () => {
     expect(canAccessAdminRoute("VIEWER", "/admin/dashboard")).toBe(true);
+    expect(canAccessAdminRoute("VIEWER", "/admin/service-requests")).toBe(true);
     expect(canAccessAdminRoute("VIEWER", "/admin/blog")).toBe(false);
     expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/service-requests")).toBe(true);
     expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/devices")).toBe(false);

@@ -142,3 +142,15 @@ Audit logging plan:
 - User and role changes
 
 Audit kayıtları `src/lib/audit/audit-log.ts` içindeki typed contract üzerinden başlayacak, production aşamasında veritabanına yazılacaktır.
+## Admin Service Request Security
+
+- Public uploads remain private and are never exposed through permanent public URLs.
+- Admin attachment downloads require a valid admin session, `serviceRequests.attachments.view` permission and request/attachment ownership match.
+- Attachment responses use stored server-validated MIME type, `X-Content-Type-Options: nosniff` and `Cache-Control: private, no-store`.
+- Customer message and internal notes are rendered as plain text only; HTML is never trusted.
+- Audit metadata must not include customer message, phone, email, raw filenames, raw storage paths, session tokens, password hashes or file contents.
+- `VIEWER` can inspect requests but cannot mutate, note, assign, archive or download attachments.
+- `SERVICE_STAFF` can work the request flow but cannot assign or archive.
+- `ADMIN` and `SUPER_ADMIN` can assign and archive.
+
+Filesystem and database changes are not treated as a single atomic operation. When storage succeeds and database persistence fails, the route attempts safe storage cleanup. Future object storage should keep the same cleanup/outbox discipline.

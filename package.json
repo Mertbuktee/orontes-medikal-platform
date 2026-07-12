@@ -15,7 +15,8 @@
     "db:studio": "node node_modules/prisma/build/index.js studio",
     "db:seed": "node node_modules/prisma/build/index.js db seed",
     "db:validate": "node node_modules/prisma/build/index.js validate",
-    "admin:bootstrap": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/admin-bootstrap.ts"
+    "admin:bootstrap": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/admin-bootstrap.ts",
+    "service-requests:import": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/service-requests-import.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

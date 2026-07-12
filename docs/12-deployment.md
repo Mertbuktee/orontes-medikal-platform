@@ -365,3 +365,11 @@ Public siteye bundan sonra yalnızca şu nedenlerle dönülmelidir:
 - SEO/canlı yayın gereği production ayarlarını tamamlamak
 
 Bir sonraki büyük geliştirme: Admin Panel Foundation.
+## Service Request Operations Deployment Notes
+
+- `storage/private/service-requests/` kalıcı disk veya object storage ile korunmalıdır.
+- PostgreSQL backup ve private storage backup aynı retention politikasına göre planlanmalıdır; yalnız DB backup dosya içeriklerini kurtarmaz.
+- Local JSON import production öncesi yalnız backup alındıktan sonra ve önce dry-run raporu incelenerek çalıştırılmalıdır.
+- Import komutu varsayılan olarak yazmaz: `npm run service-requests:import`.
+- Gerçek import için bilinçli apply gerekir: `npm run service-requests:import -- --apply`.
+- Admin attachment erişimi public CDN veya static hosting üzerinden verilmemelidir; yetkili `/admin/...` route handler veya gelecekte signed/private object storage adapter kullanılmalıdır.
