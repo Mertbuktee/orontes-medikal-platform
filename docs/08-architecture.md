@@ -360,3 +360,5 @@ Admin reads and mutations use server components and server actions:
 Private service-request attachments are intentionally served from an authenticated `/admin/...` route instead of public URLs. The admin session cookie is scoped to `/admin`, so the attachment route lives under that path and performs its own permission plus ownership checks. Future object-storage adapters must preserve this private, authorized access pattern.
 
 The local JSON importer remains non-destructive: dry-run is the default, `--apply` is required for writes, duplicates are skipped, missing attachments are reported, and source JSON files are never deleted automatically.
+
+Service request domain events are exposed through a typed publisher interface. The current publisher is no-op by design; notification delivery will be implemented in a later notification module without changing the public form or admin action contracts.

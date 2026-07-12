@@ -45,6 +45,36 @@ try {
       failedLoginCount: 0,
     },
   });
+
+  await prisma.serviceRequest.upsert({
+    where: { id: "visual-qa-service-request" },
+    create: {
+      id: "visual-qa-service-request",
+      fullName: "Visual QA Kullanıcı",
+      company: "Visual QA Hastanesi",
+      phone: "0553 000 00 00",
+      email: "visual-qa-request@orontes.local",
+      deviceBrand: "QA Marka",
+      deviceModel: "QA Model",
+      deviceSerialNumber: "QA-001",
+      message:
+        "Bu kayıt yalnızca admin servis talebi ekranlarının visual QA kontrolü için oluşturulmuştur.",
+      status: "REVIEWING",
+    },
+    update: {
+      fullName: "Visual QA Kullanıcı",
+      company: "Visual QA Hastanesi",
+      phone: "0553 000 00 00",
+      email: "visual-qa-request@orontes.local",
+      deviceBrand: "QA Marka",
+      deviceModel: "QA Model",
+      deviceSerialNumber: "QA-001",
+      message:
+        "Bu kayıt yalnızca admin servis talebi ekranlarının visual QA kontrolü için oluşturulmuştur.",
+      status: "REVIEWING",
+      archivedAt: null,
+    },
+  });
 } finally {
   await prisma.$disconnect();
 }

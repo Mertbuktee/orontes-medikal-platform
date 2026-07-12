@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { NextResponse } from "next/server";
 
+import { noopServiceRequestEventPublisher } from "@/lib/domain/service-request-events";
 import {
   FileValidationError,
   validateAndHardenUpload,
@@ -133,7 +134,12 @@ export function createServiceRequestHandler({
       }
 
       try {
-        await repository.save(parsed.data, storedAttachment);
+        const savedRequest = await repository.save(parsed.data, storedAttachment);
+        await noopServiceRequestEventPublisher.publish({
+          type: "service_request.created",
+          serviceRequestId: savedRequest.id,
+          hasAttachment: Boolean(storedAttachment),
+        });
       } catch (error) {
         if (storedAttachment) {
           await storage

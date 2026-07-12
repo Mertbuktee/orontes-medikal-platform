@@ -174,6 +174,37 @@ export class AdminAuthRepository {
       },
     });
   }
+
+  listServiceRequestAuditEvents(serviceRequestId: string, take = 12) {
+    return this.client.auditLog.findMany({
+      where: {
+        OR: [
+          { entityType: "ServiceRequest", entityId: serviceRequestId },
+          {
+            entityType: "ServiceRequestAssignment",
+            entityId: serviceRequestId,
+          },
+          {
+            metadata: {
+              path: ["serviceRequestId"],
+              equals: serviceRequestId,
+            },
+          },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+      take,
+      include: {
+        actor: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+  }
 }
 
 export function normalizeAdminEmail(email: string) {

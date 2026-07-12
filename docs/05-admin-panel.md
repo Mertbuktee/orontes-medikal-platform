@@ -394,3 +394,10 @@ Durum geçişleri `src/components/admin/service-request-status.ts` içinde typed
 Private attachment erişimi `/admin/service-requests/[id]/attachments/[attachmentId]` route handler'ı ile yapılır. Endpoint geçerli admin session, `serviceRequests.attachments.view` izni ve attachment-request ownership kontrolü olmadan dosya döndürmez. Response `nosniff` ve `private, no-store` header'ları ile gelir; raw filesystem path veya storage root sızdırılmaz.
 
 Eski local JSON servis talepleri için `npm run service-requests:import` komutu dry-run modunda rapor üretir. Gerçek import için `npm run service-requests:import -- --apply` açıkça kullanılmalıdır.
+
+### Service Request Final Hardening
+
+- Durum güncelleme ve arşivleme formları isteğe bağlı internal gerekçe alır; gerekçe yalnız audit metadata içinde saklanır.
+- `audit.view` izni olan adminler servis talebi detayında kompakt audit özetini görebilir.
+- Notification altyapısı için `ServiceRequestEventPublisher` sözleşmesi eklendi; mevcut implementasyon bilinçli olarak no-op'tur ve e-posta/SMS gönderimi yapmaz.
+- Visual QA artık servis talebi liste ve detay ekranlarını synthetic veriyle desktop/mobile olarak yakalar.

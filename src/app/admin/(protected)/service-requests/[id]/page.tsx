@@ -22,6 +22,7 @@ import {
   getServiceRequestStatusMeta,
 } from "@/components/admin/service-request-status";
 import { requirePermission } from "@/lib/auth/admin-session";
+import { AdminAuthRepository } from "@/lib/auth/admin-auth-repository";
 import { prisma } from "@/lib/database/prisma";
 import { PrismaServiceRequestRepository } from "@/lib/database/repositories/service-requests";
 import { hasPermission } from "@/lib/rbac/permissions";
@@ -43,6 +44,7 @@ export default async function ServiceRequestDetailPage({
   const session = await requirePermission("serviceRequests.view");
   const { id } = await params;
   const repository = new PrismaServiceRequestRepository(prisma);
+  const auditRepository = new AdminAuthRepository(prisma);
   const [request, assignableUsers] = await Promise.all([
     repository.findById(id),
     repository.listAssignableUsers(),
@@ -56,12 +58,16 @@ export default async function ServiceRequestDetailPage({
   const canAssign = hasPermission(session.role, "serviceRequests.assign");
   const canArchive = hasPermission(session.role, "serviceRequests.archive");
   const canAddNote = hasPermission(session.role, "serviceRequests.notes.create");
+  const canViewAudit = hasPermission(session.role, "audit.view");
   const canViewAttachment = hasPermission(
     session.role,
     "serviceRequests.attachments.view"
   );
   const statusMeta = getServiceRequestStatusMeta(request.status);
   const allowedNextStatuses = getAllowedNextStatuses(request.status);
+  const auditEvents = canViewAudit
+    ? await auditRepository.listServiceRequestAuditEvents(request.id)
+    : [];
 
   return (
     <div className="space-y-6">
@@ -241,6 +247,16 @@ export default async function ServiceRequestDetailPage({
                     </option>
                   ))}
                 </select>
+                <label className="sr-only" htmlFor="service-request-status-reason">
+                  Durum değişikliği gerekçesi
+                </label>
+                <textarea
+                  id="service-request-status-reason"
+                  name="reason"
+                  maxLength={500}
+                  placeholder="İsteğe bağlı iç gerekçe ekleyin."
+                  className="min-h-20 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 outline-none placeholder:text-slate-400 focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
+                />
                 <button
                   type="submit"
                   className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
@@ -256,8 +272,18 @@ export default async function ServiceRequestDetailPage({
             )}
 
             {canArchive && allowedNextStatuses.includes("ARCHIVED") ? (
-              <form action={archiveServiceRequest} className="mt-3">
+              <form action={archiveServiceRequest} className="mt-3 space-y-3">
                 <input type="hidden" name="id" value={request.id} />
+                <label className="sr-only" htmlFor="archive-reason">
+                  Arşiv gerekçesi
+                </label>
+                <textarea
+                  id="archive-reason"
+                  name="reason"
+                  maxLength={500}
+                  placeholder="Arşiv gerekçesi ekleyin."
+                  className="min-h-20 w-full rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-950 outline-none placeholder:text-rose-400 focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
+                />
                 <button
                   type="submit"
                   className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-5 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
@@ -368,6 +394,36 @@ export default async function ServiceRequestDetailPage({
               )}
             </div>
           </section>
+
+          {canViewAudit ? (
+            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
+              <h2 className="text-lg font-semibold text-slate-950">
+                Audit Özeti
+              </h2>
+              <div className="mt-4 space-y-3">
+                {auditEvents.length ? (
+                  auditEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                    >
+                      <p className="text-sm font-semibold text-slate-950">
+                        {event.action} - {event.entityType}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {event.actor?.name ?? "Sistem"} -{" "}
+                        {formatDate(event.createdAt)}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">
+                    Bu talep için audit kaydı bulunmuyor.
+                  </p>
+                )}
+              </div>
+            </section>
+          ) : null}
         </aside>
       </div>
     </div>

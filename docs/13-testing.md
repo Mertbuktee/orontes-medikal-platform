@@ -79,3 +79,5 @@ Manual local verification for the module:
 6. Confirm authorized attachment download works and unauthenticated access fails.
 7. Archive the request and confirm it disappears from the default active listing.
 8. Confirm status history and audit rows are created without PII-heavy metadata.
+
+Visual QA now also captures synthetic admin service-request list and detail states. These screenshots must not include real customer data or private customer attachments.

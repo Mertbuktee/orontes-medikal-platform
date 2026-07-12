@@ -11,10 +11,12 @@ import { AdminAuthRepository } from "@/lib/auth/admin-auth-repository";
 import { getAdminRequestContext } from "@/lib/auth/request-context";
 import { prisma } from "@/lib/database/prisma";
 import { PrismaServiceRequestRepository } from "@/lib/database/repositories/service-requests";
+import { noopServiceRequestEventPublisher } from "@/lib/domain/service-request-events";
 
 const statusSchema = z.object({
   id: z.string().min(1),
   status: z.enum(ServiceRequestStatus),
+  reason: z.string().trim().max(500).optional(),
 });
 
 const assignmentSchema = z.object({
@@ -29,6 +31,7 @@ const noteSchema = z.object({
 
 const archiveSchema = z.object({
   id: z.string().min(1),
+  reason: z.string().trim().max(500).optional(),
 });
 
 export async function updateServiceRequestStatus(formData: FormData) {
@@ -36,6 +39,7 @@ export async function updateServiceRequestStatus(formData: FormData) {
   const parsed = statusSchema.safeParse({
     id: formData.get("id"),
     status: formData.get("status"),
+    reason: formData.get("reason") || undefined,
   });
 
   if (!parsed.success) {
@@ -73,8 +77,16 @@ export async function updateServiceRequestStatus(formData: FormData) {
       metadata: {
         fromStatus: current.status,
         toStatus: parsed.data.status,
+        reason: parsed.data.reason || undefined,
       },
       context: requestContext,
+    });
+
+    await noopServiceRequestEventPublisher.publish({
+      type: "service_request.status_changed",
+      serviceRequestId: updated.id,
+      fromStatus: current.status,
+      toStatus: parsed.data.status,
     });
   }
 
@@ -118,6 +130,7 @@ export async function archiveServiceRequest(formData: FormData) {
   const session = await requirePermission("serviceRequests.archive");
   const parsed = archiveSchema.safeParse({
     id: formData.get("id"),
+    reason: formData.get("reason") || undefined,
   });
 
   if (!parsed.success) {
@@ -147,8 +160,16 @@ export async function archiveServiceRequest(formData: FormData) {
       metadata: {
         fromStatus: current.status,
         toStatus: "ARCHIVED",
+        reason: parsed.data.reason || undefined,
       },
       context: requestContext,
+    });
+
+    await noopServiceRequestEventPublisher.publish({
+      type: "service_request.status_changed",
+      serviceRequestId: updated.id,
+      fromStatus: current.status,
+      toStatus: "ARCHIVED",
     });
   }
 
@@ -184,6 +205,12 @@ export async function addServiceRequestNote(formData: FormData) {
       serviceRequestId: parsed.data.serviceRequestId,
     },
     context: requestContext,
+  });
+
+  await noopServiceRequestEventPublisher.publish({
+    type: "service_request.note_added",
+    serviceRequestId: parsed.data.serviceRequestId,
+    noteId: note.id,
   });
 
   revalidateServiceRequestPaths(parsed.data.serviceRequestId);

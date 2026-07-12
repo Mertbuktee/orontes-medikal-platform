@@ -300,7 +300,60 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     note: "Dashboard shell renders after real admin login for visual QA.",
   });
 
+  await page.goto("/admin/service-requests", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Servis Talepleri", exact: true })
+  ).toBeVisible();
+  const serviceRequestsDesktopPath = path.join(
+    adminDir,
+    "admin-service-requests-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: serviceRequestsDesktopPath });
+  results.push({
+    name: "admin-service-requests-1440x900",
+    screenshotPath: serviceRequestsDesktopPath,
+    status: "PASS",
+    note: "Service request list renders with synthetic visual QA data.",
+  });
+
+  await page.goto("/admin/service-requests/visual-qa-service-request", {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(
+    page.getByRole("heading", { name: "Visual QA Kullanıcı" })
+  ).toBeVisible();
+  const serviceRequestDetailDesktopPath = path.join(
+    adminDir,
+    "admin-service-request-detail-1440x900.png"
+  );
+  await page.screenshot({
+    fullPage: true,
+    path: serviceRequestDetailDesktopPath,
+  });
+  results.push({
+    name: "admin-service-request-detail-1440x900",
+    screenshotPath: serviceRequestDetailDesktopPath,
+    status: "PASS",
+    note: "Service request detail renders with status, note, assignment and audit sections.",
+  });
+
   await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto("/admin/service-requests", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Servis Talepleri", exact: true })
+  ).toBeVisible();
+  const serviceRequestsMobilePath = path.join(
+    adminDir,
+    "admin-service-requests-375x667.png"
+  );
+  await page.screenshot({ fullPage: true, path: serviceRequestsMobilePath });
+  results.push({
+    name: "admin-service-requests-375x667",
+    screenshotPath: serviceRequestsMobilePath,
+    status: "PASS",
+    note: "Service request list remains usable on mobile.",
+  });
+
   await page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" });
   await loginAsVisualQaAdmin(page);
   const mobileAdminMenu = page.getByRole("button", { name: "Admin menüsünü aç" });
