@@ -292,6 +292,46 @@ Ek manuel kontroller:
 
 ## Feature Freeze Notes
 
+## PostgreSQL / Prisma Deployment Flow
+
+Zorunlu production environment:
+
+- `DATABASE_URL`
+- `APP_ENV=production`
+- `APP_ORIGIN=https://orontesteknoloji.com`
+- `TRUST_PROXY=true`
+
+Production database:
+
+- Managed PostgreSQL veya guvenilir self-hosted PostgreSQL kullanilmali.
+- Connection string secret manager veya platform env sistemi ile verilmeli.
+- `DATABASE_URL` repo, client bundle veya log icinde gorunmemeli.
+- Pooling ihtiyaci deploy platformuna gore planlanmali. Serverless ortamlarda pooler veya Prisma'nin onerilen deployment stratejisi degerlendirilmelidir.
+
+Migration akisi:
+
+```bash
+npm run db:generate
+npm run db:deploy
+npm run build
+```
+
+Kurallar:
+
+- Production'da `db:migrate` yerine `db:deploy` kullanilir.
+- `prisma migrate reset` production'da kullanilmaz.
+- Migration oncesi backup alinmali.
+- En az bir restore testi canliya gecmeden once yapilmali.
+- Seed canli ortamda fake admin, fake servis talebi veya fake musteri verisi olusturmamalidir.
+- Initial admin bootstrap ayri ve denetlenebilir komutla uygulanmalidir.
+
+Backup/restore:
+
+- Gunluk otomatik backup planlanmali.
+- Backup retention suresi KVKK ve operasyon ihtiyacina gore kararlastirilmali.
+- Restore proseduru dokumante edilmeli ve periyodik test edilmelidir.
+- Object storage ve PostgreSQL yedeklerinin tutarliligi ayrica planlanmalidir.
+
 Public site şu an şu durumdadır:
 
 - Çok sayfalı mimari hazır.

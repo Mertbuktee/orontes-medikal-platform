@@ -295,4 +295,36 @@ Gerçek session altyapısı uygulanana kadar protected admin route'ları oturum 
 
 ## Future Prisma Repository
 
+## Prisma / PostgreSQL Layer
+
+Database foundation `prisma/schema.prisma` ile tanimlanir. Runtime access yalnizca server-side calisan repository katmani uzerinden yapilir.
+
+Temel dosyalar:
+
+- `prisma/schema.prisma`: PostgreSQL model, enum, relation ve index sozlesmeleri.
+- `prisma.config.ts`: Prisma CLI datasource, migration ve seed ayarlari.
+- `prisma/seed.ts`: idempotent development seed.
+- `src/lib/database/prisma.ts`: server-only PrismaClient singleton.
+- `src/lib/database/repositories/*`: UI ve route'lardan ayrilmis repository contract/adapters.
+- `src/lib/database/importers/service-request-json-importer.ts`: local JSON servis talepleri icin dry-run import temeli.
+
+Public sayfalar simdilik database'e bagli degildir. Public typed content katmani admin CRUD hazir olana kadar korunur; sonrasinda veri kaynagi repository uzerinden PostgreSQL'e tasinir.
+
+Repository sinirlari:
+
+- UI component icinde Prisma query yazilmaz.
+- API route ve server action katmani once validation yapar, sonra repository cagirir.
+- Password hash, file content, secret veya raw filesystem path DTO olarak disari verilmez.
+- Service request dosya kayitlari database'de yalniz storage key, MIME type ve boyut metadata'si olarak tutulur.
+
+Local development akisi:
+
+```bash
+docker compose up -d postgres
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+npm run dev
+```
+
 Typed content dosyaları geçicidir. Admin CRUD tamamlandığında cihaz, hizmet, blog, medya, servis talepleri, kullanıcılar, roller ve audit log kayıtları Prisma repository katmanından beslenecektir.

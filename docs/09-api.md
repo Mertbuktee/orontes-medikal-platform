@@ -210,5 +210,29 @@ Frontend:
 
 Sitemap ve robots:
 
+## Future Database-Backed Admin APIs
+
+Admin API'lari gercek auth/session ve server-side RBAC tamamlandiktan sonra Prisma repository katmanina baglanacaktir.
+
+Planlanan temel API gruplari:
+
+- `GET /api/admin/service-requests`: servis talepleri listeleme, filtreleme ve durumlara gore sorgulama.
+- `GET /api/admin/service-requests/:id`: talep detayi, attachment metadata, notlar ve durum gecmisi.
+- `PATCH /api/admin/service-requests/:id`: durum, atama ve arsivleme islemleri.
+- `POST /api/admin/service-requests/:id/notes`: internal note ekleme.
+- `GET/POST/PATCH /api/admin/devices`: cihaz grubu yonetimi.
+- `GET/POST/PATCH /api/admin/services`: hizmet yonetimi.
+- `GET/POST/PATCH /api/admin/hero-slides`: hero slider yonetimi.
+- `GET/POST/PATCH /api/admin/blog`: blog kategori ve yazi yonetimi.
+- `GET/POST/PATCH /api/admin/settings`: site ayarlari.
+- `GET /api/admin/audit-log`: audit log goruntuleme.
+
+Kurallar:
+
+- Admin mutation endpoint'leri session, permission ve CSRF stratejisi olmadan acilmamalidir.
+- Prisma query'leri route dosyalarina dagitilmaz; repository adapter'lari kullanilir.
+- `passwordHash`, session token, raw upload path veya file content response'a eklenmez.
+- Audit log metadata'sinda parola, token, dosya icerigi, telefon/e-posta/mesaj gibi hassas veriler tutulmaz.
+
 - API route'ları sitemap'e eklenmez.
 - `/api/` robots tarafından disallow edilir.

@@ -42,6 +42,35 @@ compliance.
 
 ## Admin Security Foundation
 
+## Database Security
+
+`DATABASE_URL` yalnizca server ortam degiskeni olarak tutulur. Client component, browser bundle, public config veya response icinde gosterilmez.
+
+Kurallar:
+
+- Prisma client yalniz server-side import edilir.
+- `src/lib/database/prisma.ts` browser ortaminda calisirsa hata verir.
+- Repository DTO'lari `passwordHash` dondurmez.
+- Plain password database modelinde yer almaz.
+- Parola hashleme ve dogrulama bir sonraki auth gorevinde server-side uygulanacaktir.
+- Database credential loglanmaz.
+- External input once Zod veya ilgili validation katmanindan gecirilir.
+- Mass-assignment kalibi kullanilmaz; repository data alanlari acikca maplenir.
+- Upload file content PostgreSQL'e yazilmaz.
+- Attachment ve Media kayitlari private/object storage key metadata'si tutar.
+
+Audit log hassasiyetleri:
+
+- Audit metadata'sinda password, password hash, session token, file content, raw private path, telefon, e-posta veya mesaj icerigi tutulmaz.
+- IP address ve user agent gerekirse minimum operasyonel guvenlik amaciyla tutulur.
+- Audit log kayitlari uygulama davranisi olarak immutable planlanir.
+
+Production authorization:
+
+- Prisma repository varligi tek basina yetki kontrolu degildir.
+- Admin API'lari server-side session ve permission kontrolu olmadan acilmamalidir.
+- Client-side RBAC gosterim yardimcisidir; guvenlik siniri degildir.
+
 Admin panelde client-side guard güvenlik sınırı değildir. Protected admin
 route'ları için gerçek server-side session doğrulaması zorunludur.
 
