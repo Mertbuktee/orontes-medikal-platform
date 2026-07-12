@@ -41,6 +41,10 @@ export type HeroMediaSeedRecord = {
   mimeType: "image/jpeg";
   size: number;
   altText: string;
+  title: string;
+  description: string;
+  category: "HERO";
+  usageType: "IMAGE";
 };
 
 export type HeroSlideSeedRecord = {
@@ -110,6 +114,10 @@ export function getHeroSeedRecords(items: HeroSlide[] = heroSlides) {
         mimeType: "image/jpeg",
         size: 0,
         altText: slide.imageAlt,
+        title: slide.title,
+        description: slide.description,
+        category: "HERO",
+        usageType: "IMAGE",
       } satisfies HeroMediaSeedRecord,
       slide: {
         id: slide.id,

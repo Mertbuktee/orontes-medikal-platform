@@ -154,3 +154,20 @@ Audit kayıtları `src/lib/audit/audit-log.ts` içindeki typed contract üzerind
 - `ADMIN` and `SUPER_ADMIN` can assign and archive.
 
 Filesystem and database changes are not treated as a single atomic operation. When storage succeeds and database persistence fails, the route attempts safe storage cleanup. Future object storage should keep the same cleanup/outbox discipline.
+
+## Admin Media Library Security
+
+- General media uploads are stored under `storage/private/media/` in development and remain separate from `storage/private/service-requests/`.
+- Service-request attachments are not listed in the media library and must not be exposed through media delivery routes.
+- The media upload flow validates extension, reported MIME type and detected magic bytes server-side.
+- JPEG, PNG and WebP files are decoded and re-encoded with Sharp, metadata is stripped where possible, only one page/frame is processed and an input pixel limit is enforced.
+- SVG, HTML, JavaScript, executables, archives, Office macro formats and unknown file types are rejected.
+- Media files use UUID-based storage keys; original filenames are display-only metadata.
+- Duplicate detection uses a SHA-256 content hash of the hardened image output, not the filename.
+- Public media delivery resolves by `Media` ID and variant only; local filesystem paths and raw storage keys are never returned to clients.
+- Delivery responses use `X-Content-Type-Options: nosniff`, ETag and immutable cache headers for hardened public variants.
+- Archived media returns 404 from public delivery routes.
+- Raw uploads are not public. Only hardened variants are deliverable.
+- Media metadata updates cannot mutate storage keys, MIME type or binary content through generic form input.
+- Hard delete is restricted to unused media and authorized roles. Filesystem and database deletion are not considered a single atomic transaction; production object storage should use an outbox/retry strategy for deletion failures.
+- Audit metadata for media actions may contain media ID, category, MIME type, size, variant count and duplicate reuse status. It must never contain file bytes, raw private paths, session tokens or secrets.

@@ -46,6 +46,32 @@ enum AuditAction {
   ACCOUNT_LOCKED
 }
 
+enum MediaCategory {
+  GENERAL
+  HERO
+  DEVICE
+  SERVICE
+  BLOG
+  SEO
+  BRAND
+  LEGAL
+}
+
+enum MediaUsageType {
+  IMAGE
+  DOCUMENT
+  LOGO
+  FAVICON
+  OPEN_GRAPH
+}
+
+enum MediaVariantType {
+  ORIGINAL
+  THUMBNAIL
+  MEDIUM
+  LARGE
+}
+
 model User {
   id                    String                        @id @default(cuid())
   name                  String                        @db.VarChar(120)
@@ -211,16 +237,43 @@ model Media {
   width          Int?
   height         Int?
   altText        String?
+  title          String      @default("Untitled media") @db.VarChar(150)
+  description    String?
+  category       MediaCategory @default(GENERAL)
+  usageType      MediaUsageType @default(IMAGE)
+  contentHash    String?     @unique @db.VarChar(64)
+  archivedAt     DateTime?
   uploadedById   String?
   uploadedBy     User?       @relation("MediaUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+  variants       MediaVariant[]
   heroSlides     HeroSlide[] @relation("HeroSlideImage")
   blogPostCovers BlogPost[]  @relation("BlogPostCoverImage")
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
   @@index([uploadedById])
+  @@index([category])
+  @@index([usageType])
   @@index([mimeType])
   @@index([createdAt])
+  @@index([archivedAt])
+}
+
+model MediaVariant {
+  id         String           @id @default(cuid())
+  mediaId    String
+  media      Media            @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  variant    MediaVariantType
+  storageKey String           @unique
+  mimeType   String           @db.VarChar(120)
+  width      Int?
+  height     Int?
+  size       Int
+  createdAt  DateTime         @default(now())
+
+  @@unique([mediaId, variant])
+  @@index([mediaId])
+  @@index([variant])
 }
 
 model HeroSlide {

@@ -57,6 +57,10 @@ describe("admin RBAC contracts", () => {
     expect(hasPermission("ADMIN", "settings.manage")).toBe(true);
     expect(hasPermission("ADMIN", "users.manage")).toBe(false);
     expect(hasPermission("EDITOR", "seo.manage")).toBe(true);
+    expect(hasPermission("EDITOR", "media.view")).toBe(true);
+    expect(hasPermission("EDITOR", "media.upload")).toBe(true);
+    expect(hasPermission("EDITOR", "media.update")).toBe(true);
+    expect(hasPermission("EDITOR", "media.delete")).toBe(false);
     expect(hasPermission("EDITOR", "roles.manage")).toBe(false);
   });
 
@@ -66,6 +70,8 @@ describe("admin RBAC contracts", () => {
     expect(canAccessAdminRoute("VIEWER", "/admin/blog")).toBe(false);
     expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/service-requests")).toBe(true);
     expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/devices")).toBe(false);
+    expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/media")).toBe(false);
+    expect(canAccessAdminRoute("EDITOR", "/admin/media")).toBe(true);
     expect(canAccessAdminRoute("SUPER_ADMIN", "/admin/audit-log")).toBe(true);
   });
 });

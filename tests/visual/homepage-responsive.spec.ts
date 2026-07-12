@@ -337,6 +337,35 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     note: "Service request detail renders with status, note, assignment and audit sections.",
   });
 
+  await page.goto("/admin/media", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Medya Kütüphanesi", exact: true })
+  ).toBeVisible();
+  const mediaDesktopPath = path.join(adminDir, "admin-media-1440x900.png");
+  await page.screenshot({ fullPage: true, path: mediaDesktopPath });
+  results.push({
+    name: "admin-media-1440x900",
+    screenshotPath: mediaDesktopPath,
+    status: "PASS",
+    note: "Media library list and upload panel render with synthetic data.",
+  });
+
+  await page.goto("/admin/media/visual-qa-media", {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(page.getByRole("heading", { name: "Visual QA Medya" })).toBeVisible();
+  const mediaDetailDesktopPath = path.join(
+    adminDir,
+    "admin-media-detail-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: mediaDetailDesktopPath });
+  results.push({
+    name: "admin-media-detail-1440x900",
+    screenshotPath: mediaDetailDesktopPath,
+    status: "PASS",
+    note: "Media detail renders preview, metadata, variants and usage state.",
+  });
+
   await page.setViewportSize({ width: 375, height: 667 });
   await page.goto("/admin/service-requests", { waitUntil: "domcontentloaded" });
   await expect(
@@ -352,6 +381,19 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     screenshotPath: serviceRequestsMobilePath,
     status: "PASS",
     note: "Service request list remains usable on mobile.",
+  });
+
+  await page.goto("/admin/media", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Medya Kütüphanesi", exact: true })
+  ).toBeVisible();
+  const mediaMobilePath = path.join(adminDir, "admin-media-375x667.png");
+  await page.screenshot({ fullPage: true, path: mediaMobilePath });
+  results.push({
+    name: "admin-media-375x667",
+    screenshotPath: mediaMobilePath,
+    status: "PASS",
+    note: "Media library remains usable on mobile.",
   });
 
   await page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" });

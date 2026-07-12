@@ -401,3 +401,16 @@ Eski local JSON servis talepleri için `npm run service-requests:import` komutu 
 - `audit.view` izni olan adminler servis talebi detayında kompakt audit özetini görebilir.
 - Notification altyapısı için `ServiceRequestEventPublisher` sözleşmesi eklendi; mevcut implementasyon bilinçli olarak no-op'tur ve e-posta/SMS gönderimi yapmaz.
 - Visual QA artık servis talebi liste ve detay ekranlarını synthetic veriyle desktop/mobile olarak yakalar.
+
+## Media Library Module
+
+Medya kütüphanesi `/admin/media` ve `/admin/media/[id]` route'larıyla başlatıldı.
+
+- `media.view`: medya liste ve detay okuma.
+- `media.upload`: güvenli admin upload.
+- `media.update`: metadata update, archive ve restore.
+- `media.delete`: yalnız kullanılmayan medyayı hard delete.
+
+Desteklenen ilk formatlar JPEG, PNG ve WebP'tir. SVG, HTML, JavaScript, arşiv ve bilinmeyen formatlar kabul edilmez. Upload edilen görseller `sharp` ile decode/re-encode edilir, metadata strip edilir ve `ORIGINAL`, `THUMBNAIL`, `MEDIUM`, `LARGE` varyantları üretilir.
+
+Servis talebi attachment dosyaları medya kütüphanesine dahil edilmez; iki domain ayrı storage dizinleri ve ayrı erişim politikaları kullanır.

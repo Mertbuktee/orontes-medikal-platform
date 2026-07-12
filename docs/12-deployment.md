@@ -373,3 +373,29 @@ Bir sonraki büyük geliştirme: Admin Panel Foundation.
 - Import komutu varsayılan olarak yazmaz: `npm run service-requests:import`.
 - Gerçek import için bilinçli apply gerekir: `npm run service-requests:import -- --apply`.
 - Admin attachment erişimi public CDN veya static hosting üzerinden verilmemelidir; yetkili `/admin/...` route handler veya gelecekte signed/private object storage adapter kullanılmalıdır.
+## Media Library Deployment Notes
+
+Development media storage:
+
+- General media files are written under `storage/private/media/`.
+- Hardened variants are split into `originals/`, `thumbnails/`, `medium/` and `large/`.
+- This directory must be persisted in local/staging environments where uploads should survive restarts.
+
+Production media storage:
+
+- Move the `LocalMediaStorageAdapter` contract to private S3-compatible object storage before relying on multi-instance production uploads.
+- Public buckets must not expose raw uploads or private storage keys.
+- Public website images should be delivered through a controlled media URL helper, a CDN/object URL policy or a signed/public-object abstraction.
+- CDN caching should target hardened immutable variants, not unprocessed uploads.
+- PostgreSQL backups do not include file bytes; object storage backups and database backups must be planned together.
+- Deleting media is not database-atomic with object storage deletion. Use an outbox/retry deletion workflow before exposing high-volume destructive operations.
+- SVG remains intentionally unsupported until a dedicated sanitization strategy exists.
+- Service-request attachments must stay outside the media library and must not be migrated into public media storage.
+
+Launch checks for media:
+
+- Upload JPEG, PNG and WebP from the admin panel.
+- Confirm thumbnail, medium, large and original hardened variants are created.
+- Confirm `/media/[id]/[variant]` works for active media and returns 404 for archived media.
+- Confirm raw storage paths are not reachable from the browser.
+- Confirm duplicate uploads do not create duplicate file bytes unnecessarily.

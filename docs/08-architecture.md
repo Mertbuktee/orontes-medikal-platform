@@ -362,3 +362,16 @@ Private service-request attachments are intentionally served from an authenticat
 The local JSON importer remains non-destructive: dry-run is the default, `--apply` is required for writes, duplicates are skipped, missing attachments are reported, and source JSON files are never deleted automatically.
 
 Service request domain events are exposed through a typed publisher interface. The current publisher is no-op by design; notification delivery will be implemented in a later notification module without changing the public form or admin action contracts.
+
+## Media Library Flow
+
+General media files use a separate storage domain under `storage/private/media/`:
+
+- `originals/`
+- `thumbnails/`
+- `medium/`
+- `large/`
+
+Admin upload actions validate the file server-side, harden images, generate variants, write storage files, then persist `Media` and `MediaVariant` records. If database persistence fails after storage writes, newly written files are removed.
+
+Public delivery is handled by `/media/[id]/[variant]`. The route resolves by Media ID and variant only, rejects archived media, reads through the storage adapter and never exposes raw filesystem paths or storage keys. Existing public hero images remain unchanged until the Hero CRUD migration explicitly switches them to media delivery.

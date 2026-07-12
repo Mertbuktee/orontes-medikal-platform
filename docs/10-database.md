@@ -431,3 +431,23 @@ Development servis talepleri halen `storage/private/service-requests/requests/` 
 - Audit logs store safe metadata only; customer message, phone, email and file contents are excluded.
 
 The JSON importer reads local development records from `storage/private/service-requests/requests/`, reports duplicates and missing attachments, and writes only when `--apply` is supplied.
+
+## Media Library Models
+
+`Media` now stores general media metadata for admin-managed images:
+
+- `title`, `description`, `altText`
+- `category`
+- `usageType`
+- `contentHash`
+- `archivedAt`
+- relation to `MediaVariant`
+
+`MediaVariant` stores hardened derivative records:
+
+- `ORIGINAL`
+- `THUMBNAIL`
+- `MEDIUM`
+- `LARGE`
+
+Binary image data is not stored in PostgreSQL. `Media.storageKey` points to the hardened original variant metadata, while each variant has its own unique storage key. Hero slides and blog covers reference `Media`; service-request attachments remain a separate model and are not part of the media library.

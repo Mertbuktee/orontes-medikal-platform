@@ -3,7 +3,6 @@ import {
   BookOpenText,
   Boxes,
   ClipboardList,
-  FileText,
   Home,
   ImageIcon,
   LayoutDashboard,
@@ -61,7 +60,7 @@ export const adminNavItems: AdminNavItem[] = [
     title: "Medya",
     href: "/admin/media",
     icon: ImageIcon,
-    requiredPermission: "media.manage",
+    requiredPermission: "media.view",
   },
   {
     title: "Ana Sayfa Yönetimi",
@@ -108,9 +107,9 @@ export const adminQuickActionItems = [
     icon: ClipboardList,
   },
   {
-    title: "Yeni Blog Yazısı",
-    href: "/admin/blog",
-    icon: FileText,
+    title: "Medya Kütüphanesi",
+    href: "/admin/media",
+    icon: ImageIcon,
   },
   {
     title: "Cihaz Grubu Ekle",

@@ -166,13 +166,18 @@ DELETE
 
 ## Media
 
-GET
+Media library currently uses App Router pages and server actions:
 
-POST
+- `GET /admin/media`: server-rendered admin gallery/list.
+- `GET /admin/media/:id`: server-rendered admin detail.
+- `uploadMedia(formData)`: server action requiring `media.upload`.
+- `updateMediaMetadata(formData)`: server action requiring `media.update`.
+- `archiveMedia(formData)`: server action requiring `media.update`.
+- `restoreMedia(formData)`: server action requiring `media.update`.
+- `deleteUnusedMedia(formData)`: server action requiring `media.delete`.
+- `GET /media/:id/:variant`: controlled public hardened image delivery.
 
-DELETE
-
-/api/admin/media
+No raw upload path, private storage path or service-request attachment URL is exposed.
 
 ---
 

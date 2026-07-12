@@ -81,3 +81,24 @@ Manual local verification for the module:
 8. Confirm status history and audit rows are created without PII-heavy metadata.
 
 Visual QA now also captures synthetic admin service-request list and detail states. These screenshots must not include real customer data or private customer attachments.
+
+## Media Library Tests
+
+Media tests cover the shared upload foundation without using customer attachments:
+
+- JPEG, PNG and WebP processing.
+- SVG and unknown file rejection.
+- Server-side MIME, extension and magic-byte enforcement.
+- Sharp derivative generation for original, thumbnail, medium and large variants.
+- No unnecessary upscale for small images.
+- Local private media storage path isolation.
+- Media page-size allowlist behavior.
+- Duplicate detection, archive/delete and usage queries should be covered with isolated database integration tests as the media CRUD surface grows.
+
+Visual QA captures:
+
+- `/admin/media` desktop gallery.
+- `/admin/media` mobile layout.
+- `/admin/media/[id]` media detail.
+
+Synthetic visual QA media must be clearly test-only and stored under `storage/private/media/`. Service-request attachments are never used as media visual fixtures.

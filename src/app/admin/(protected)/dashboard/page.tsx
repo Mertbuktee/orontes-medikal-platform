@@ -5,6 +5,7 @@ import {
   FileText,
   ImageIcon,
   Settings,
+  type LucideIcon,
 } from "lucide-react";
 
 import {
@@ -15,6 +16,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { getServiceRequestStatusMeta } from "@/components/admin/service-request-status";
 import { requirePermission } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/database/prisma";
+import { PrismaMediaRepository } from "@/lib/database/repositories/media";
 import { PrismaServiceRequestRepository } from "@/lib/database/repositories/service-requests";
 import { hasPermission } from "@/lib/rbac/permissions";
 
@@ -29,8 +31,8 @@ const readinessCards = [
   {
     title: "Medya Kütüphanesi",
     description:
-      "Görsel referans mimarisi hazır; admin upload ve optimizasyon sonraki aşamada.",
-    state: "Altyapı hazır",
+      "Görsel varyant, güvenli upload ve public delivery altyapısı devrede.",
+    state: "Aktif modül",
     icon: ImageIcon,
   },
   {
@@ -45,9 +47,15 @@ const readinessCards = [
 export default async function AdminDashboardPage() {
   const session = await requirePermission("dashboard.view");
   const canViewRequests = hasPermission(session.role, "serviceRequests.view");
-  const serviceRequestSummary = canViewRequests
-    ? await new PrismaServiceRequestRepository(prisma).getDashboardSummary()
-    : null;
+  const canViewMedia = hasPermission(session.role, "media.view");
+  const [serviceRequestSummary, mediaSummary] = await Promise.all([
+    canViewRequests
+      ? new PrismaServiceRequestRepository(prisma).getDashboardSummary()
+      : Promise.resolve(null),
+    canViewMedia
+      ? new PrismaMediaRepository(prisma).getDashboardSummary()
+      : Promise.resolve(null),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -69,6 +77,7 @@ export default async function AdminDashboardPage() {
             (status) => (
               <SummaryCard
                 key={status}
+                icon={ClipboardList}
                 label={getServiceRequestStatusMeta(status).label}
                 value={
                   serviceRequestSummary.statusCounts.find(
@@ -108,6 +117,41 @@ export default async function AdminDashboardPage() {
           </article>
         ))}
       </section>
+
+      {mediaSummary ? (
+        <section className="grid gap-4 md:grid-cols-[260px_1fr]">
+          <SummaryCard
+            icon={ImageIcon}
+            label="Aktif Medya"
+            value={mediaSummary.totalActive}
+          />
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
+            <h2 className="text-lg font-semibold text-slate-950">
+              Son Yüklenen Medyalar
+            </h2>
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              {mediaSummary.latest.length ? (
+                mediaSummary.latest.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/admin/media/${item.id}`}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm font-semibold text-slate-800 transition hover:border-orange-200 hover:bg-orange-50"
+                  >
+                    <span className="line-clamp-1">{item.title}</span>
+                    <span className="mt-1 block text-xs text-slate-500">
+                      {item.mimeType}
+                    </span>
+                  </Link>
+                ))
+              ) : (
+                <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500 md:col-span-2 xl:col-span-5">
+                  Henüz medya dosyası yok.
+                </p>
+              )}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <section
@@ -172,7 +216,9 @@ export default async function AdminDashboardPage() {
           <div className="mt-5 grid gap-3">
             {adminQuickActionItems.map((item: AdminNavItem) => {
               const Icon = item.icon;
-              const isActive = item.href === "/admin/service-requests";
+              const isActive =
+                item.href === "/admin/service-requests" ||
+                item.href === "/admin/media";
 
               return (
                 <Link
@@ -197,11 +243,19 @@ export default async function AdminDashboardPage() {
   );
 }
 
-function SummaryCard({ label, value }: { label: string; value: number }) {
+function SummaryCard({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: number;
+}) {
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
       <div className="flex size-11 items-center justify-center rounded-xl bg-orange-50 text-orange-700">
-        <ClipboardList className="size-5" aria-hidden="true" />
+        <Icon className="size-5" aria-hidden="true" />
       </div>
       <h3 className="mt-4 text-sm font-medium text-slate-500">{label}</h3>
       <p className="mt-2 text-3xl font-semibold text-slate-950">{value}</p>
