@@ -8,7 +8,7 @@ import {
   maxImagePixels,
   maxUploadSizeBytes,
   sanitizeOriginalFilename,
-} from "@/lib/security/file-upload";
+} from "../security/file-upload.ts";
 
 export class MediaValidationError extends Error {
   constructor(message = "Invalid media upload") {

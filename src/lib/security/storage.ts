@@ -1,7 +1,7 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import type { StoredUpload } from "@/lib/security/file-upload";
+import type { StoredUpload } from "./file-upload.ts";
 
 export type StoredFileRecord = {
   storageKey: string;
@@ -16,14 +16,13 @@ export interface FileStorageAdapter {
 }
 
 export class LocalPrivateStorageAdapter implements FileStorageAdapter {
+  private readonly root: string;
+
   constructor(
-    private readonly root = path.join(
-      process.cwd(),
-      "storage",
-      "private",
-      "service-requests"
-    )
-  ) {}
+    root = path.join(process.cwd(), "storage", "private", "service-requests")
+  ) {
+    this.root = root;
+  }
 
   async save(file: StoredUpload) {
     const resolvedRoot = path.resolve(this.root);

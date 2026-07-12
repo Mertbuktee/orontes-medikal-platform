@@ -3,7 +3,7 @@ import path from "node:path";
 
 import type { MediaVariantType } from "@prisma/client";
 
-import { resolveStorageTarget } from "@/lib/security/storage";
+import { resolveStorageTarget } from "../security/storage.ts";
 
 export type MediaStoredFile = {
   storageKey: string;
@@ -26,9 +26,11 @@ const directoryByVariant: Record<MediaVariantType, string> = {
 };
 
 export class LocalMediaStorageAdapter {
-  constructor(
-    private readonly root = path.join(process.cwd(), "storage", "private", "media")
-  ) {}
+  private readonly root: string;
+
+  constructor(root = path.join(process.cwd(), "storage", "private", "media")) {
+    this.root = root;
+  }
 
   async save(file: MediaFileToStore): Promise<MediaStoredFile> {
     const directory = directoryByVariant[file.variant];
