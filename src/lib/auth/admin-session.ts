@@ -1,17 +1,31 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { hasPermission, type Permission, type Role } from "@/lib/rbac/permissions";
+import {
+  AdminAuthRepository,
+  type AuthenticatedAdminSession,
+} from "@/lib/auth/admin-auth-repository";
+import { ADMIN_SESSION_COOKIE_NAME } from "@/lib/auth/session-cookie";
+import { hashAdminSessionToken } from "@/lib/auth/session-token";
+import { assertServerOnly } from "@/lib/auth/server-only";
+import {
+  canAccessAdminRoute,
+  hasPermission,
+  type Permission,
+} from "@/lib/rbac/permissions";
 
-export type AdminSessionMode = "authenticated" | "development-bypass";
+assertServerOnly("admin session");
 
-export type AdminSession = {
-  actorId: string | null;
-  role: Role;
+export type AdminSessionMode = "authenticated";
+
+export type AdminSession = AuthenticatedAdminSession & {
+  actorId: string;
   mode: AdminSessionMode;
 };
 
 export type AdminAccessDecision =
   | { status: "allow"; session: AdminSession }
+  | { status: "forbidden" }
   | { status: "redirect"; location: "/admin/login" };
 
 export function isAdminDevBypassEnabled(env: NodeJS.ProcessEnv = process.env) {
@@ -21,40 +35,43 @@ export function isAdminDevBypassEnabled(env: NodeJS.ProcessEnv = process.env) {
   return env.ADMIN_DEV_BYPASS === "true" && !isProductionDeployment;
 }
 
-export async function getCurrentAdminSession(
-  env: NodeJS.ProcessEnv = process.env
-): Promise<AdminSession | null> {
-  if (isAdminDevBypassEnabled(env)) {
-    return {
-      actorId: null,
-      role: "SUPER_ADMIN",
-      mode: "development-bypass",
-    };
+export async function getCurrentAdminSession(): Promise<AdminSession | null> {
+  const cookieStore = await cookies();
+  const rawToken = cookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value;
+
+  if (!rawToken) {
+    return null;
   }
 
-  return null;
+  const repository = await getAdminAuthRepository();
+  const session = await repository.findValidSessionByTokenHash(
+    hashAdminSessionToken(rawToken)
+  );
+
+  if (!session) {
+    return null;
+  }
+
+  return {
+    ...session,
+    actorId: session.userId,
+    mode: "authenticated",
+  };
 }
 
 export function getAdminAccessDecision(
   session: AdminSession | null,
-  env: NodeJS.ProcessEnv = process.env
+  pathname = "/admin/dashboard"
 ): AdminAccessDecision {
-  if (session) {
-    return { status: "allow", session };
+  if (!session) {
+    return { status: "redirect", location: "/admin/login" };
   }
 
-  if (isAdminDevBypassEnabled(env)) {
-    return {
-      status: "allow",
-      session: {
-        actorId: null,
-        role: "SUPER_ADMIN",
-        mode: "development-bypass",
-      },
-    };
+  if (!canAccessAdminRoute(session.role, pathname)) {
+    return { status: "forbidden" };
   }
 
-  return { status: "redirect", location: "/admin/login" };
+  return { status: "allow", session };
 }
 
 export async function requireAdminSession() {
@@ -71,8 +88,13 @@ export async function requirePermission(permission: Permission) {
   const session = await requireAdminSession();
 
   if (!hasPermission(session.role, permission)) {
-    redirect("/admin/login");
+    redirect("/admin/forbidden");
   }
 
   return session;
+}
+
+async function getAdminAuthRepository() {
+  const { prisma } = await import("@/lib/database/prisma");
+  return new AdminAuthRepository(prisma);
 }

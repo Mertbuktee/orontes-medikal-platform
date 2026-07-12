@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const useExternalServer = process.env.PLAYWRIGHT_EXTERNAL_SERVER === "true";
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
 
 export default defineConfig({
   testDir: "./tests/visual",
@@ -11,7 +12,7 @@ export default defineConfig({
   fullyParallel: false,
   reporter: [["list"]],
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL,
     trace: "retain-on-failure",
     browserName: "chromium",
     ...devices["Desktop Chrome"],
@@ -21,7 +22,7 @@ export default defineConfig({
     : {
         webServer: {
           command: "node scripts/visual-qa-server.mjs",
-          url: "http://localhost:3000",
+          url: baseURL,
           env: {
             ...process.env,
             ADMIN_DEV_BYPASS: "true",

@@ -1,5 +1,44 @@
 # Security Notes
 
+## Secure Admin Authentication
+
+Admin authentication uses database-backed opaque sessions.
+
+Password policy:
+
+- Hash algorithm: Argon2id.
+- Minimum password length: 12 characters.
+- Maximum password length: 128 characters.
+- Passwords are never logged, returned, seeded as defaults or stored in plaintext.
+
+Session policy:
+
+- Cookie name: `orontes_admin_session`.
+- Cookie attributes: HttpOnly, SameSite=Lax, Path=/admin, Secure in production.
+- The browser stores only the raw opaque token.
+- PostgreSQL stores only a SHA-256 hash of the token.
+- Default session lifetime: 10 hours, configurable with `ADMIN_SESSION_MAX_AGE_SECONDS`.
+- Expired, revoked and inactive-user sessions are rejected.
+
+Login protection:
+
+- Login POSTs require same-origin validation.
+- Errors remain generic; account existence is not disclosed.
+- Login attempts are rate-limited per normalized email and trusted client IP.
+- The current in-memory login limiter is suitable for local development only; production should use Redis or an equivalent shared store.
+
+Bootstrap:
+
+- Initial admin creation is explicit through `npm run admin:bootstrap`.
+- Required env values: `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_BOOTSTRAP_NAME`, `ADMIN_BOOTSTRAP_PASSWORD`.
+- Bootstrap refuses weak passwords and does not create duplicate super admins.
+- Bootstrap variables must be removed from the deployment environment after use.
+
+Audit:
+
+- LOGIN, LOGIN_FAILURE and LOGOUT are persisted.
+- Audit metadata must never contain passwords, raw session tokens, token hashes, password hashes or full request bodies.
+
 ## Cookie Consent Foundation
 
 The public website stores cookie preferences in a first-party cookie named
@@ -81,7 +120,7 @@ Current foundation:
 - `requireAdminSession()` gerçek oturum yoksa `/admin/login` yönlendirmesi yapar.
 - `requirePermission()` gelecek permission kontrolleri için contract sağlar.
 - `ADMIN_DEV_BYPASS` varsayılan kapalıdır.
-- `ADMIN_DEV_BYPASS=true` sadece production dışı ortamda geliştirme/test amacıyla çalışır.
+- `ADMIN_DEV_BYPASS` normal admin gelistirme akisi icin kullanilmaz; production disinda yalniz izole test sozlesmesi olarak kalir.
 
 Future session requirements:
 

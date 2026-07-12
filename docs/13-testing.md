@@ -1,5 +1,22 @@
 # Testing Strategy
 
+## Admin Authentication Tests
+
+Authentication tests cover server-side security contracts without requiring real browser credentials:
+
+- Argon2id password hashing and verification.
+- Password policy minimum and maximum length.
+- High-entropy opaque session token generation.
+- Raw session token is not stored in database DTOs.
+- Expired, revoked and inactive-user sessions fail validation.
+- Login rate limit activates and resets after a successful login.
+- Bootstrap refuses missing variables and weak passwords.
+- Bootstrap does not create duplicate super admins.
+- RBAC checks keep `SUPER_ADMIN` fully privileged and prevent `VIEWER` management access.
+- Audit metadata helpers reject password/token/hash shaped data.
+
+Database-backed login route testing should use a dedicated test database or transaction strategy. Destructive resets must never run against production data.
+
 ## Database Tests
 
 Database foundation testleri varsayilan olarak live production database gerektirmez. Unit testler schema sozlesmesi, seed donusumu, repository DTO guvenligi ve local JSON import dry-run davranisini dogrular.

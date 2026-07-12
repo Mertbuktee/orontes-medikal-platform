@@ -65,11 +65,32 @@ Alanlar
 
 ## Authentication
 
-POST /api/admin/login
+POST /api/admin/auth/login
 
-POST /api/admin/logout
+POST /admin/auth/logout
 
-GET /api/admin/me
+GET /api/admin/me (planned)
+
+### POST /api/admin/auth/login
+
+Accepts JSON credentials:
+
+- `email`
+- `password`
+
+Security behavior:
+
+- Same-origin POST only.
+- Argon2id password verification.
+- Generic error message for missing account, inactive account or wrong password.
+- Login rate limit by normalized email plus trusted client IP.
+- On success, creates an opaque database-backed session and sets `orontes_admin_session`.
+
+### POST /admin/auth/logout
+
+Revokes the current database session, clears `orontes_admin_session` and redirects to `/admin/login`.
+
+This route intentionally lives under `/admin` because the admin session cookie uses `Path=/admin`. GET requests must not perform logout mutation.
 
 ---
 

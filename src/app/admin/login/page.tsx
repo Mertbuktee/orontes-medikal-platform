@@ -1,20 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
 
 import { AdminLoginForm } from "@/components/admin/AdminLoginForm";
+import { getCurrentAdminSession } from "@/lib/auth/admin-session";
 
 export const metadata: Metadata = {
   title: "Admin Girişi | Orontes Teknoloji",
-  description:
-    "Orontes Teknoloji yönetim paneli giriş ekranı. Kimlik doğrulama altyapısı sonraki aşamada etkinleştirilecektir.",
+  description: "Orontes Teknoloji yönetim paneli giriş ekranı.",
   robots: {
     index: false,
     follow: false,
   },
 };
 
-export default function AdminLoginPage() {
+export default async function AdminLoginPage() {
+  const session = await getCurrentAdminSession();
+
+  if (session) {
+    redirect("/admin/dashboard");
+  }
+
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-950 sm:px-6 lg:px-8">
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
@@ -30,11 +37,11 @@ export default function AdminLoginPage() {
           </h1>
           <p className="mt-5 max-w-xl text-base leading-8 text-slate-300">
             Site içeriği, servis talepleri, SEO ayarları ve medya yönetimi için
-            hazırlanmış admin temel mimarisi.
+            hazırlanmış admin yönetim alanı.
           </p>
           <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-sm leading-7 text-slate-300">
-            Bu ekran gerçek kimlik doğrulama tamamlanmadan üretim güvenlik
-            sınırı olarak kullanılmaz.
+            Giriş işlemleri güvenli oturum, rate limit ve audit log altyapısıyla
+            korunur.
           </div>
           <Link
             href="/"
@@ -52,8 +59,8 @@ export default function AdminLoginPage() {
             Admin Girişi
           </h2>
           <p className="mt-3 text-sm leading-7 text-slate-600">
-            E-posta ve şifre alanları sonraki aşamada gerçek oturum altyapısına
-            bağlanacaktır.
+            Yönetim paneline erişmek için yetkili e-posta ve şifrenizle giriş
+            yapın.
           </p>
           <AdminLoginForm />
         </section>

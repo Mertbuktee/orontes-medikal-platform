@@ -13,7 +13,7 @@ export function AdminSidebar({ currentPath }: AdminSidebarProps) {
         <Link
           href="/admin/dashboard"
           className="flex min-h-11 items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#061423]"
-          aria-label="Orontes yönetim paneli ana sayfası"
+          aria-label="Orontes yonetim paneli ana sayfasi"
         >
           <span className="flex size-11 items-center justify-center rounded-xl bg-orange-500 text-sm font-bold text-white shadow-lg shadow-orange-500/25">
             O
@@ -23,14 +23,14 @@ export function AdminSidebar({ currentPath }: AdminSidebarProps) {
               Orontes
             </span>
             <span className="block text-base font-semibold text-white">
-              Yönetim Paneli
+              Yonetim Paneli
             </span>
           </span>
         </Link>
       </div>
 
       <nav
-        aria-label="Admin yönetim menüsü"
+        aria-label="Admin yonetim menusu"
         className="flex-1 overflow-y-auto px-4 py-5"
       >
         <AdminNavList currentPath={currentPath} />
@@ -42,7 +42,7 @@ export function AdminSidebar({ currentPath }: AdminSidebarProps) {
             Oturum
           </p>
           <p className="mt-2 text-sm text-slate-300">
-            Kimlik doğrulama altyapısı sonraki aşamada etkinleştirilecek.
+            Admin erisimi veritabanli oturum ve rol kontrolleriyle korunur.
           </p>
         </div>
       </div>

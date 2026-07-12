@@ -326,7 +326,7 @@ Navigation içeriği `src/components/admin/admin-navigation.ts` içinde typed co
 
 ### Geliştirme Bypass Politikası
 
-`ADMIN_DEV_BYPASS=true` yalnızca geliştirme ortamında protected admin shell'i görsel olarak açmak için kullanılabilir. Varsayılan kapalıdır. Production deployment sinyali (`APP_ENV=production` veya `VERCEL_ENV=production`) varken bypass etkinleşmez.
+`ADMIN_DEV_BYPASS` normal admin gelistirme akisi icin kullanilmaz. Varsayilan kapali kalir ve production deployment sinyali (`APP_ENV=production` veya `VERCEL_ENV=production`) varken gecersizdir.
 
 ### Sonraki Uygulama Sırası
 
@@ -337,3 +337,32 @@ Navigation içeriği `src/components/admin/admin-navigation.ts` içinde typed co
 5. Cihaz, hizmet, blog ve homepage CRUD.
 6. SEO ve site ayarları yönetimi.
 7. Audit log persistence ve raporlama.
+
+## Secure Admin Authentication Milestone
+
+Admin login artik gercek veritabani kaydina baglidir.
+
+- `/admin/login`: e-posta/parola ile giris yapar, basarili giriste `/admin/dashboard` adresine yonlendirir.
+- `/api/admin/auth/login`: login POST endpoint'i. Parola veya kullanici varligi hakkinda ayirt edici hata dondurmez.
+- `/admin/auth/logout`: POST logout endpoint'i. Session cookie `Path=/admin` oldugu icin logout route'u da admin path altindadir.
+- `orontes_admin_session`: HttpOnly, SameSite=Lax, production'da Secure, raw opaque token tasiyan admin session cookie'sidir.
+
+Session token davranisi:
+
+- Raw token yalniz cookie icinde bulunur.
+- PostgreSQL'de yalniz SHA-256 token hash'i saklanir.
+- Expired, revoked veya inactive user session'lari authenticate etmez.
+- Logout mevcut session'i revoke eder ve cookie'yi temizler.
+
+`ADMIN_DEV_BYPASS` artik normal admin gelistirme akisi icin gerekli degildir. Helper yalnizca test sozlesmesi olarak izole edilir ve production deployment sinyali varken gecersizdir.
+
+Ilk admin kullanicisi seed ile uretilmez. Bootstrap komutu bilerek ve gecici env degerleriyle calistirilir:
+
+```bash
+ADMIN_BOOTSTRAP_EMAIL="admin@example.com" \
+ADMIN_BOOTSTRAP_NAME="Admin" \
+ADMIN_BOOTSTRAP_PASSWORD="strong-password" \
+npm run admin:bootstrap
+```
+
+Bootstrap parolasi kaynak koda veya production config dosyasina yazilmaz; islemden sonra ortam degiskenleri temizlenmelidir.

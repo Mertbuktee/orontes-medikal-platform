@@ -287,6 +287,7 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
 
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" });
+  await loginAsVisualQaAdmin(page);
   await expect(
     page.getByRole("heading", { name: "Yönetim Paneli", exact: true })
   ).toBeVisible();
@@ -296,11 +297,12 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     name: "admin-dashboard-1440x900",
     screenshotPath: dashboardDesktopPath,
     status: "PASS",
-    note: "Dashboard shell renders with ADMIN_DEV_BYPASS for visual QA.",
+    note: "Dashboard shell renders after real admin login for visual QA.",
   });
 
   await page.setViewportSize({ width: 375, height: 667 });
   await page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" });
+  await loginAsVisualQaAdmin(page);
   const mobileAdminMenu = page.getByRole("button", { name: "Admin menüsünü aç" });
   await expect(mobileAdminMenu).toBeVisible();
   await mobileAdminMenu.click();
@@ -318,6 +320,24 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
   });
 
   return results;
+}
+
+async function loginAsVisualQaAdmin(page: Page) {
+  if (!page.url().includes("/admin/login")) {
+    return;
+  }
+
+  const email = process.env.VISUAL_QA_ADMIN_EMAIL;
+  const password = process.env.VISUAL_QA_ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    throw new Error("Visual QA admin credentials were not provisioned.");
+  }
+
+  await page.locator('input[name="email"]').fill(email);
+  await page.locator('input[name="password"]').fill(password);
+  await page.locator('button[type="submit"]').click();
+  await page.waitForURL("**/admin/dashboard");
 }
 
 function formatViewport(viewport: Viewport) {

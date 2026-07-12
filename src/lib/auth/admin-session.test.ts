@@ -2,17 +2,27 @@ import { describe, expect, it } from "vitest";
 
 import {
   getAdminAccessDecision,
-  getCurrentAdminSession,
   isAdminDevBypassEnabled,
+  type AdminSession,
 } from "@/lib/auth/admin-session";
+
+const session = {
+  id: "session_1",
+  userId: "user_1",
+  actorId: "user_1",
+  role: "VIEWER",
+  name: "Viewer",
+  email: "viewer@example.com",
+  expiresAt: new Date("2026-01-01T00:00:00.000Z"),
+  mode: "authenticated",
+} satisfies AdminSession;
 
 describe("admin auth boundary", () => {
   it("keeps ADMIN_DEV_BYPASS disabled by default", () => {
     expect(isAdminDevBypassEnabled({})).toBe(false);
   });
 
-  it("allows development bypass only when explicitly enabled outside production", () => {
-    expect(isAdminDevBypassEnabled({ ADMIN_DEV_BYPASS: "true" })).toBe(true);
+  it("does not allow ADMIN_DEV_BYPASS in production", () => {
     expect(
       isAdminDevBypassEnabled({
         ADMIN_DEV_BYPASS: "true",
@@ -27,8 +37,8 @@ describe("admin auth boundary", () => {
     ).toBe(false);
   });
 
-  it("redirects protected admin routes when no session and bypass is false", () => {
-    const decision = getAdminAccessDecision(null, {});
+  it("redirects protected admin routes when no session exists", () => {
+    const decision = getAdminAccessDecision(null);
 
     expect(decision).toEqual({
       status: "redirect",
@@ -36,13 +46,15 @@ describe("admin auth boundary", () => {
     });
   });
 
-  it("returns a clearly marked development bypass session when enabled", async () => {
-    const session = await getCurrentAdminSession({ ADMIN_DEV_BYPASS: "true" });
+  it("allows authenticated users to access routes permitted by their role", () => {
+    const decision = getAdminAccessDecision(session, "/admin/dashboard");
 
-    expect(session).toMatchObject({
-      role: "SUPER_ADMIN",
-      mode: "development-bypass",
-      actorId: null,
-    });
+    expect(decision.status).toBe("allow");
+  });
+
+  it("returns forbidden for authenticated users without route permission", () => {
+    const decision = getAdminAccessDecision(session, "/admin/users");
+
+    expect(decision).toEqual({ status: "forbidden" });
   });
 });

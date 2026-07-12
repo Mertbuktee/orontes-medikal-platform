@@ -260,6 +260,22 @@ Log kuralları:
 - Request ID loglanabilir.
 - Dosya path'i client response içinde dönmemeli.
 
+## Admin Authentication Deployment
+
+Before enabling the admin panel in production:
+
+- Set `DATABASE_URL` in the hosting environment.
+- Set `APP_ENV=production` and an HTTPS `APP_ORIGIN`.
+- Ensure HTTPS is active so `orontes_admin_session` is sent with `Secure`.
+- Run production migrations with `npm run db:deploy`.
+- Create the first super admin with `npm run admin:bootstrap` using temporary, secret environment variables.
+- Remove `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_BOOTSTRAP_NAME` and `ADMIN_BOOTSTRAP_PASSWORD` after bootstrap.
+- Do not use default credentials; none are shipped with the app.
+- Replace local/in-memory login rate limiting with Redis or a shared production adapter before multi-instance deployment.
+- Keep `ADMIN_SESSION_MAX_AGE_SECONDS` explicit if the default 10-hour admin session is not desired.
+
+Logout uses `/admin/auth/logout` because the admin session cookie is scoped to `/admin`.
+
 ## Verification Commands
 
 Canlı öncesi her release için:

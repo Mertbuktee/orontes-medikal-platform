@@ -24,27 +24,25 @@ export function AdminTopbar({ currentPath, sessionMode }: AdminTopbarProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          {sessionMode === "development-bypass" ? (
-            <span className="hidden rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700 sm:inline-flex">
-              Dev bypass aktif
-            </span>
-          ) : null}
           <div className="hidden text-right sm:block">
             <p className="text-sm font-semibold text-slate-900">
               Admin oturumu
             </p>
             <p className="text-xs text-slate-500">
-              Gerçek kimlik doğrulama bekleniyor
+              {sessionMode === "authenticated"
+                ? "Guvenli oturum aktif"
+                : "Oturum durumu bilinmiyor"}
             </p>
           </div>
-          <button
-            type="button"
-            disabled
-            aria-label="Çıkış özelliği sonraki aşamada etkinleşecek"
-            className="inline-flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-400"
-          >
-            <LogOut className="size-4" aria-hidden="true" />
-          </button>
+          <form action="/admin/auth/logout" method="post">
+            <button
+              type="submit"
+              aria-label="Admin oturumundan cikis yap"
+              className="inline-flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+            >
+              <LogOut className="size-4" aria-hidden="true" />
+            </button>
+          </form>
         </div>
       </div>
     </header>

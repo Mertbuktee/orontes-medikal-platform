@@ -1,7 +1,8 @@
 import { Settings } from "lucide-react";
 
-import { adminNavItems } from "@/components/admin/admin-navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { adminNavItems } from "@/components/admin/admin-navigation";
+import { requirePermission } from "@/lib/auth/admin-session";
 
 type AdminModulePageProps = {
   params: Promise<{
@@ -15,6 +16,11 @@ export default async function AdminModulePlaceholderPage({
   const { module = [] } = await params;
   const href = `/admin/${module.join("/")}`;
   const navItem = adminNavItems.find((item) => item.href === href);
+
+  if (navItem?.requiredPermission) {
+    await requirePermission(navItem.requiredPermission);
+  }
+
   const title = navItem?.title ?? "Admin Modülü";
 
   return (

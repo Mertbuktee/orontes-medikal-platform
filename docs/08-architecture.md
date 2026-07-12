@@ -287,7 +287,7 @@ Public layout yalnızca web sitesi ziyaretçilerine ait Navbar, Footer, cookie c
 - `requireAdminSession()`
 - `requirePermission()`
 
-Gerçek session altyapısı uygulanana kadar protected admin route'ları oturum yoksa `/admin/login` adresine yönlenir. Geliştirme ortamında `ADMIN_DEV_BYPASS=true` ile admin shell görsel test için açılabilir.
+Protected admin route'lari oturum yoksa `/admin/login` adresine yonlenir. `ADMIN_DEV_BYPASS` normal gelistirme akisi icin kullanilmaz; test helper olarak izoledir ve production sinyali varken gecersizdir.
 
 ## RBAC Layer
 
@@ -326,5 +326,22 @@ npm run db:migrate
 npm run db:seed
 npm run dev
 ```
+
+## Secure Admin Auth / Session Flow
+
+Admin authentication is server-side and database-backed.
+
+1. `/admin/login` submits credentials to `/api/admin/auth/login`.
+2. The login endpoint validates input, applies same-origin protection and login rate limiting.
+3. Password verification uses Argon2id against `User.passwordHash`.
+4. A 256-bit opaque session token is generated after a valid login.
+5. Only the SHA-256 token hash is stored in `AdminSession`.
+6. The raw token is sent only as the HttpOnly `orontes_admin_session` cookie with `Path=/admin`.
+7. Protected admin layouts call `requireAdminSession()` on the server.
+8. Server-side permission checks call `requirePermission(permission)` before sensitive modules render.
+
+Logout is intentionally mounted at `/admin/auth/logout` because the session cookie is scoped to `/admin`. Admin APIs and future server actions must not query Prisma directly from UI components; they should validate input, require session/permission, then call repositories.
+
+`ADMIN_DEV_BYPASS` is no longer part of ordinary admin development. It remains an isolated test helper and is rejected for production deployment signals.
 
 Typed content dosyaları geçicidir. Admin CRUD tamamlandığında cihaz, hizmet, blog, medya, servis talepleri, kullanıcılar, roller ve audit log kayıtları Prisma repository katmanından beslenecektir.

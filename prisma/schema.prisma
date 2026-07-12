@@ -33,6 +33,7 @@ enum ContentStatus {
 
 enum AuditAction {
   LOGIN
+  LOGIN_FAILURE
   LOGOUT
   CREATE
   UPDATE
@@ -40,6 +41,9 @@ enum AuditAction {
   PUBLISH
   ARCHIVE
   STATUS_CHANGE
+  SESSION_REVOKED
+  PASSWORD_CHANGED
+  ACCOUNT_LOCKED
 }
 
 model User {
@@ -50,8 +54,12 @@ model User {
   role                  Role                          @default(VIEWER)
   isActive              Boolean                       @default(true)
   lastLoginAt           DateTime?
+  passwordChangedAt     DateTime?
+  failedLoginCount      Int                           @default(0)
+  lockedUntil           DateTime?
   createdAt             DateTime                      @default(now())
   updatedAt             DateTime                      @updatedAt
+  adminSessions         AdminSession[]                @relation("AdminUserSessions")
   assignedRequests      ServiceRequest[]              @relation("AssignedServiceRequests")
   authoredNotes         ServiceRequestNote[]          @relation("ServiceRequestNoteAuthor")
   statusChanges         ServiceRequestStatusHistory[] @relation("ServiceRequestStatusChanger")
@@ -64,6 +72,25 @@ model User {
   @@index([email])
   @@index([role])
   @@index([isActive])
+  @@index([lockedUntil])
+}
+
+model AdminSession {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation("AdminUserSessions", fields: [userId], references: [id], onDelete: Restrict)
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+  revokedAt  DateTime?
+  ipAddress  String?   @db.VarChar(64)
+  userAgent  String?   @db.VarChar(512)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+  @@index([userId, revokedAt, expiresAt])
 }
 
 model ServiceRequest {
@@ -267,8 +294,8 @@ model SiteSetting {
 
 model AuditLog {
   id         String      @id @default(cuid())
-  actorId    String
-  actor      User        @relation("AuditLogActor", fields: [actorId], references: [id], onDelete: Restrict)
+  actorId    String?
+  actor      User?       @relation("AuditLogActor", fields: [actorId], references: [id], onDelete: SetNull)
   action     AuditAction
   entityType String      @db.VarChar(120)
   entityId   String?

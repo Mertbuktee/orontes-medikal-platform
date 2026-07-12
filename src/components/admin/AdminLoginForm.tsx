@@ -3,24 +3,73 @@
 import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import { FormEvent, useState } from "react";
 
+type LoginResponse = {
+  success: boolean;
+  message?: string;
+  redirectTo?: string;
+};
+
+const defaultErrorMessage = "E-posta veya şifre hatalı.";
+
 export function AdminLoginForm() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setMessage("Kimlik doğrulama altyapısı henüz aktif değil.");
+
+    if (submitting) {
+      return;
+    }
+
+    setSubmitting(true);
+    setMessage("");
+
+    const formData = new FormData(event.currentTarget);
+
+    try {
+      const response = await fetch("/api/admin/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.get("email"),
+          password: formData.get("password"),
+        }),
+      });
+      const payload = (await response.json().catch(() => null)) as
+        | LoginResponse
+        | null;
+
+      if (response.ok && payload?.success && payload.redirectTo) {
+        window.location.assign(payload.redirectTo);
+        return;
+      }
+
+      setMessage(payload?.message ?? defaultErrorMessage);
+    } catch {
+      setMessage("Giriş yapılamadı. Lütfen bağlantınızı kontrol edin.");
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  const hasError = Boolean(message);
 
   return (
     <form
       onSubmit={handleSubmit}
       className="mt-8 space-y-5"
-      aria-describedby="admin-login-note admin-login-status"
+      aria-describedby="admin-login-status"
       noValidate
     >
       <div>
-        <label htmlFor="admin-email" className="text-sm font-semibold text-slate-800">
+        <label
+          htmlFor="admin-email"
+          className="text-sm font-semibold text-slate-800"
+        >
           E-posta
         </label>
         <div className="mt-2 flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 shadow-sm focus-within:border-orange-300 focus-within:ring-2 focus-within:ring-orange-100">
@@ -30,6 +79,9 @@ export function AdminLoginForm() {
             name="email"
             type="email"
             autoComplete="email"
+            required
+            aria-invalid={hasError}
+            aria-describedby="admin-login-status"
             className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
             placeholder="admin@orontes..."
           />
@@ -44,12 +96,18 @@ export function AdminLoginForm() {
           Şifre
         </label>
         <div className="mt-2 flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 shadow-sm focus-within:border-orange-300 focus-within:ring-2 focus-within:ring-orange-100">
-          <LockKeyhole className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
+          <LockKeyhole
+            className="size-4 shrink-0 text-slate-400"
+            aria-hidden="true"
+          />
           <input
             id="admin-password"
             name="password"
             type={passwordVisible ? "text" : "password"}
             autoComplete="current-password"
+            required
+            aria-invalid={hasError}
+            aria-describedby="admin-login-status"
             className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400"
             placeholder="Şifreniz"
           />
@@ -72,16 +130,17 @@ export function AdminLoginForm() {
         id="admin-login-status"
         role="status"
         aria-live="polite"
-        className="min-h-6 text-sm text-slate-600"
+        className="min-h-6 text-sm font-medium text-red-600"
       >
         {message}
       </div>
 
       <button
         type="submit"
-        className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+        disabled={submitting}
+        className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
       >
-        Giriş Yap
+        {submitting ? "Giriş Yapılıyor..." : "Giriş Yap"}
       </button>
 
       <button
@@ -90,10 +149,6 @@ export function AdminLoginForm() {
       >
         Şifremi Unuttum
       </button>
-
-      <p id="admin-login-note" className="text-sm leading-6 text-slate-500">
-        Kimlik doğrulama altyapısı sonraki aşamada etkinleştirilecektir.
-      </p>
     </form>
   );
 }

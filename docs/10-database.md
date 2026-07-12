@@ -331,7 +331,7 @@ Prisma 7 ve PostgreSQL icin definitive schema `prisma/schema.prisma` altindadir.
 - `Role`: SUPER_ADMIN, ADMIN, EDITOR, SERVICE_STAFF, VIEWER
 - `ServiceRequestStatus`: NEW, REVIEWING, WAITING_FOR_CUSTOMER, APPROVED, IN_REPAIR, COMPLETED, CANCELLED, ARCHIVED
 - `ContentStatus`: DRAFT, PUBLISHED, ARCHIVED
-- `AuditAction`: LOGIN, LOGOUT, CREATE, UPDATE, DELETE, PUBLISH, ARCHIVE, STATUS_CHANGE
+- `AuditAction`: LOGIN, LOGOUT, LOGIN_FAILURE, SESSION_REVOKED, PASSWORD_CHANGED, ACCOUNT_LOCKED, CREATE, UPDATE, DELETE, PUBLISH, ARCHIVE, STATUS_CHANGE
 
 ### Core Models
 
@@ -347,6 +347,7 @@ Prisma 7 ve PostgreSQL icin definitive schema `prisma/schema.prisma` altindadir.
 - `BlogCategory`: blog kategori sozlugu.
 - `BlogPost`: blog yazisi, JSON content, status, kategori, cover media, author ve SEO alanlari.
 - `SiteSetting`: typed application-level parsing gerektiren JSON ayar degeri. Secret'lar burada tutulmaz.
+- `AdminSession`: opaque admin session token hash'i, expiry, revocation, last seen, IP ve user-agent metadata'si.
 - `AuditLog`: immutable davranisla planlanan guvenlik/yonetim olay kayitlari.
 
 ### Index And Uniqueness
@@ -355,10 +356,12 @@ Prisma 7 ve PostgreSQL icin definitive schema `prisma/schema.prisma` altindadir.
 - `DeviceGroup.slug`, `Service.slug`, `BlogCategory.slug`, `BlogPost.slug` unique tutulur.
 - `Attachment.storageKey` ve `Media.storageKey` unique tutulur.
 - Status, assigned user, active/featured/order, created date, entity ve actor alanlari sorgu performansi icin indexlenir.
+- `AdminSession.tokenHash` unique tutulur. `userId`, `expiresAt`, `revokedAt` ve aktif session sorgulari icin composite index bulunur.
 
 ### Relation And Delete Policies
 
-- User silmek audit tarihcesini sessizce yok etmez; `AuditLog.actor` restrict davranisindadir.
+- User silmek audit tarihcesini sessizce yok etmez; `AuditLog.actor` kullanici silinirse `SetNull` davranisiyla tarihceyi korur.
+- User session'lari user'a baglidir; kullanici silme yerine kullaniciyi pasife alma ve session revoke etme tercih edilir.
 - Blog author, note author ve status changer iliskileri restrict davranisindadir.
 - Service request kayitlari normalde fiziksel silinmez; `ARCHIVED` status veya `archivedAt` kullanilir.
 - Service request fiziksel silinirse attachment/note/history kayitlari cascade temizlenir; storage dosya silme uygulama katmaninda koordine edilir.
@@ -390,7 +393,7 @@ Kurallar:
 - `prisma migrate reset` otomatik calistirilmaz.
 - Production migration oncesi database backup alinmali ve restore testi dogrulanmalidir.
 - Seed production admin parolasi veya fake musteri verisi olusturmaz.
-- Initial admin bootstrap ayri, kontrollu ve hash tabanli bir sonraki auth gorevinde ele alinacaktir.
+- Initial admin bootstrap `npm run admin:bootstrap` ile bilincli calistirilir; seed fake/default admin parolasi olusturmaz.
 
 ### Local JSON Migration Readiness
 

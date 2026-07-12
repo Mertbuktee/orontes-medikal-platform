@@ -64,16 +64,20 @@ export type AuditLogInput = {
   actorId: string;
   action:
     | "LOGIN"
+    | "LOGIN_FAILURE"
     | "LOGOUT"
     | "CREATE"
     | "UPDATE"
     | "DELETE"
     | "PUBLISH"
     | "ARCHIVE"
-    | "STATUS_CHANGE";
+    | "STATUS_CHANGE"
+    | "SESSION_REVOKED"
+    | "PASSWORD_CHANGED"
+    | "ACCOUNT_LOCKED";
   entityType: string;
   entityId?: string;
-  metadata?: JsonValue;
+  metadata?: Exclude<JsonValue, null>;
   ipAddress?: string;
   userAgent?: string;
 };
