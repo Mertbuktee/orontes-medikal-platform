@@ -25,8 +25,16 @@ type ViewportResult = {
   mobileMenu?: "pass" | "not-applicable";
 };
 
+type AdminVisualResult = {
+  name: string;
+  screenshotPath: string;
+  status: "PASS" | "REVIEW";
+  note: string;
+};
+
 const outputRoot = "visual-qa";
 const homepageDir = path.join(outputRoot, "homepage");
+const adminDir = path.join(outputRoot, "admin");
 const reportPath = path.join(outputRoot, "responsive-report.md");
 const viewports: Viewport[] = [
   { width: 320, height: 568 },
@@ -58,6 +66,7 @@ const focusedSections = [
 
 test("homepage visual responsive QA", async ({ page }) => {
   await mkdir(homepageDir, { recursive: true });
+  await mkdir(adminDir, { recursive: true });
 
   const results: ViewportResult[] = [];
 
@@ -98,7 +107,9 @@ test("homepage visual responsive QA", async ({ page }) => {
     }
   }
 
-  await writeFile(reportPath, createMarkdownReport(results), "utf8");
+  const adminResults = await captureAdminScreenshots(page);
+
+  await writeFile(reportPath, createMarkdownReport(results, adminResults), "utf8");
 });
 
 async function dismissCookieBanner(page: Page) {
@@ -246,11 +257,77 @@ async function captureMobileMenu(page: Page, viewport: Viewport) {
   await expect(page.getByRole("dialog")).toBeHidden();
 }
 
+async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]> {
+  const results: AdminVisualResult[] = [];
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/admin/login", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Admin Girişi" })).toBeVisible();
+  await expect(page.getByText("ÇEREZ TERCİHLERİ")).toHaveCount(0);
+  const loginDesktopPath = path.join(adminDir, "admin-login-1440x900.png");
+  await page.screenshot({ fullPage: true, path: loginDesktopPath });
+  results.push({
+    name: "admin-login-1440x900",
+    screenshotPath: loginDesktopPath,
+    status: "PASS",
+    note: "Admin login renders without public cookie consent UI.",
+  });
+
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto("/admin/login", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("textbox", { name: "E-posta" })).toBeVisible();
+  const loginMobilePath = path.join(adminDir, "admin-login-375x667.png");
+  await page.screenshot({ fullPage: true, path: loginMobilePath });
+  results.push({
+    name: "admin-login-375x667",
+    screenshotPath: loginMobilePath,
+    status: "PASS",
+    note: "Mobile login fields remain visible and accessible.",
+  });
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Yönetim Paneli", exact: true })
+  ).toBeVisible();
+  const dashboardDesktopPath = path.join(adminDir, "admin-dashboard-1440x900.png");
+  await page.screenshot({ fullPage: true, path: dashboardDesktopPath });
+  results.push({
+    name: "admin-dashboard-1440x900",
+    screenshotPath: dashboardDesktopPath,
+    status: "PASS",
+    note: "Dashboard shell renders with ADMIN_DEV_BYPASS for visual QA.",
+  });
+
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" });
+  const mobileAdminMenu = page.getByRole("button", { name: "Admin menüsünü aç" });
+  await expect(mobileAdminMenu).toBeVisible();
+  await mobileAdminMenu.click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  const dashboardMobileMenuPath = path.join(
+    adminDir,
+    "admin-dashboard-375x667-mobile-menu.png"
+  );
+  await page.screenshot({ fullPage: false, path: dashboardMobileMenuPath });
+  results.push({
+    name: "admin-dashboard-375x667-mobile-menu",
+    screenshotPath: dashboardMobileMenuPath,
+    status: "PASS",
+    note: "Admin mobile navigation opens in the protected shell.",
+  });
+
+  return results;
+}
+
 function formatViewport(viewport: Viewport) {
   return `${viewport.width}x${viewport.height}`;
 }
 
-function createMarkdownReport(results: ViewportResult[]) {
+function createMarkdownReport(
+  results: ViewportResult[],
+  adminResults: AdminVisualResult[]
+) {
   const rows = results
     .map((result) => {
       const status =
@@ -281,6 +358,18 @@ function createMarkdownReport(results: ViewportResult[]) {
       result.missingAnchorTargets.length > 0
   );
 
+  const adminRows = adminResults
+    .map((result) =>
+      [
+        `### ${result.name} - ${result.status}`,
+        "",
+        `- Screenshot: \`${result.screenshotPath.replaceAll("\\", "/")}\``,
+        `- Note: ${result.note}`,
+        "",
+      ].join("\n")
+    )
+    .join("\n");
+
   return [
     "# Responsive Visual QA Report",
     "",
@@ -289,6 +378,9 @@ function createMarkdownReport(results: ViewportResult[]) {
     `Pass/fail summary: ${failures.length === 0 ? "PASS" : "FAIL"}`,
     "",
     rows,
+    "## Admin Visual QA",
+    "",
+    adminRows,
   ].join("\n");
 }
 

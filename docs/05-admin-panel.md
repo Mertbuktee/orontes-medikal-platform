@@ -282,3 +282,58 @@ Hizmet alanları:
 - isActive
 - seoTitle
 - seoDescription
+
+---
+
+## Admin Foundation Milestone
+
+Bu aşamada admin panelin üretim mimarisine uygun temeli kurulmuştur. Gerçek kimlik doğrulama, Prisma/PostgreSQL CRUD ve dosya yönetimi henüz uygulanmamıştır.
+
+### Route Yapısı
+
+- `/admin`: geçici olarak `/admin/dashboard` adresine yönlenir.
+- `/admin/login`: herkese açık admin giriş UI ekranıdır.
+- `/admin/dashboard`: protected admin shell içinde dashboard iskeletidir.
+- `/admin/*`: gelecekteki modüller için protected placeholder sayfasına düşer.
+
+Public site route group altında tutulur:
+
+- `src/app/(public)/layout.tsx`: Navbar, Footer, cookie consent ve public JSON-LD.
+- `src/app/admin/layout.tsx`: admin root metadata, public UI içermez.
+- `src/app/admin/(protected)/layout.tsx`: oturum boundary ve admin shell.
+
+### Admin Layout Bileşenleri
+
+- `AdminShell`
+- `AdminSidebar`
+- `AdminTopbar`
+- `AdminMobileNav`
+- `AdminBreadcrumbs`
+- `AdminPageHeader`
+- `AdminLoginForm`
+
+Navigation içeriği `src/components/admin/admin-navigation.ts` içinde typed config olarak tutulur. Sidebar render mantığı ile modül sözleşmesi birbirinden ayrıdır.
+
+### RBAC Rolleri
+
+- `SUPER_ADMIN`
+- `ADMIN`
+- `EDITOR`
+- `SERVICE_STAFF`
+- `VIEWER`
+
+İzinler `src/lib/rbac/permissions.ts` altında tutulur. Bu helper'lar UI ve gelecek server-side kontroller için sözleşmedir; tek başına nihai güvenlik sınırı değildir.
+
+### Geliştirme Bypass Politikası
+
+`ADMIN_DEV_BYPASS=true` yalnızca geliştirme ortamında protected admin shell'i görsel olarak açmak için kullanılabilir. Varsayılan kapalıdır. Production deployment sinyali (`APP_ENV=production` veya `VERCEL_ENV=production`) varken bypass etkinleşmez.
+
+### Sonraki Uygulama Sırası
+
+1. Gerçek server-side session altyapısı.
+2. Prisma/PostgreSQL şemaları.
+3. Servis talepleri listeleme ve durum yönetimi.
+4. Medya kütüphanesi ve güvenli admin upload.
+5. Cihaz, hizmet, blog ve homepage CRUD.
+6. SEO ve site ayarları yönetimi.
+7. Audit log persistence ve raporlama.

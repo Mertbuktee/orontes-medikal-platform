@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const useExternalServer = process.env.PLAYWRIGHT_EXTERNAL_SERVER === "true";
+
 export default defineConfig({
   testDir: "./tests/visual",
   timeout: 300_000,
@@ -14,10 +16,18 @@ export default defineConfig({
     browserName: "chromium",
     ...devices["Desktop Chrome"],
   },
-  webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: true,
-    timeout: 180_000,
-  },
+  ...(useExternalServer
+    ? {}
+    : {
+        webServer: {
+          command: "node scripts/visual-qa-server.mjs",
+          url: "http://localhost:3000",
+          env: {
+            ...process.env,
+            ADMIN_DEV_BYPASS: "true",
+          },
+          reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === "true",
+          timeout: 180_000,
+        },
+      }),
 });

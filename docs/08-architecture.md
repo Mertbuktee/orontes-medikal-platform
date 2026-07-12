@@ -257,3 +257,42 @@ Bu katman ileride PostgreSQL/Prisma ve admin panel yönetimiyle değiştirilecek
 - `/servis-talebi`: güvenli servis talebi formu
 
 İletişim sayfasında ikinci bir form kopyası oluşturulmaz.
+
+## Public / Admin Route Separation
+
+App Router uzun vadeli yapı route group ayrımıyla düzenlenir:
+
+```text
+src/app/
+├── (public)/
+│   ├── layout.tsx
+│   └── page.tsx
+├── admin/
+│   ├── layout.tsx
+│   ├── login/
+│   └── (protected)/
+│       ├── layout.tsx
+│       ├── dashboard/
+│       └── [...module]/
+└── api/
+```
+
+Public layout yalnızca web sitesi ziyaretçilerine ait Navbar, Footer, cookie consent ve public structured data içerir. Admin layout public UI içermez.
+
+## Admin Auth Boundary
+
+`src/lib/auth/admin-session.ts` geçici auth contract katmanıdır.
+
+- `getCurrentAdminSession()`
+- `requireAdminSession()`
+- `requirePermission()`
+
+Gerçek session altyapısı uygulanana kadar protected admin route'ları oturum yoksa `/admin/login` adresine yönlenir. Geliştirme ortamında `ADMIN_DEV_BYPASS=true` ile admin shell görsel test için açılabilir.
+
+## RBAC Layer
+
+`src/lib/rbac/permissions.ts` rolleri, izinleri ve route erişim sözleşmesini tanımlar. Bu katman gelecekte server-side session ve Prisma repository ile birlikte uygulanacaktır.
+
+## Future Prisma Repository
+
+Typed content dosyaları geçicidir. Admin CRUD tamamlandığında cihaz, hizmet, blog, medya, servis talepleri, kullanıcılar, roller ve audit log kayıtları Prisma repository katmanından beslenecektir.

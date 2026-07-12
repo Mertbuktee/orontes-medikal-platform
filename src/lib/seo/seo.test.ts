@@ -90,12 +90,19 @@ describe("public SEO architecture", () => {
   it("public app routes have page files", () => {
     for (const route of publicRoutes) {
       if (route.path === "/") {
-        expect(existsSync(path.join(workspaceRoot, "src/app/page.tsx"))).toBe(true);
+        expect(existsSync(path.join(workspaceRoot, "src/app/(public)/page.tsx"))).toBe(true);
         continue;
       }
 
       expect(
-        existsSync(path.join(workspaceRoot, "src/app", route.path.slice(1), "page.tsx"))
+        existsSync(
+          path.join(
+            workspaceRoot,
+            "src/app/(public)",
+            route.path.slice(1),
+            "page.tsx"
+          )
+        )
       ).toBe(true);
     }
   });
@@ -107,7 +114,7 @@ describe("public SEO architecture", () => {
       "src/sections/Services/Services.tsx",
       "src/sections/Devices/Devices.tsx",
       "src/sections/BlogPreview/BlogPreview.tsx",
-      "src/app/not-found.tsx",
+      "src/app/(public)/not-found.tsx",
     ];
 
     for (const file of sourceFiles) {

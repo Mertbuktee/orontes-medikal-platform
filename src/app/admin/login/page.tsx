@@ -1,0 +1,63 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
+
+import { AdminLoginForm } from "@/components/admin/AdminLoginForm";
+
+export const metadata: Metadata = {
+  title: "Admin Girişi | Orontes Teknoloji",
+  description:
+    "Orontes Teknoloji yönetim paneli giriş ekranı. Kimlik doğrulama altyapısı sonraki aşamada etkinleştirilecektir.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
+export default function AdminLoginPage() {
+  return (
+    <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-950 sm:px-6 lg:px-8">
+      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="rounded-3xl bg-[#061423] p-8 text-white shadow-2xl shadow-slate-300/50 sm:p-10">
+          <div className="inline-flex size-14 items-center justify-center rounded-2xl bg-orange-500 shadow-lg shadow-orange-500/25">
+            <ShieldCheck className="size-7" aria-hidden="true" />
+          </div>
+          <p className="mt-8 text-sm font-semibold uppercase tracking-[0.18em] text-orange-200">
+            Orontes Admin
+          </p>
+          <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
+            Yönetim paneli giriş alanı
+          </h1>
+          <p className="mt-5 max-w-xl text-base leading-8 text-slate-300">
+            Site içeriği, servis talepleri, SEO ayarları ve medya yönetimi için
+            hazırlanmış admin temel mimarisi.
+          </p>
+          <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-sm leading-7 text-slate-300">
+            Bu ekran gerçek kimlik doğrulama tamamlanmadan üretim güvenlik
+            sınırı olarak kullanılmaz.
+          </div>
+          <Link
+            href="/"
+            className="mt-8 inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+          >
+            Public siteye dön
+          </Link>
+        </section>
+
+        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70 sm:p-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-600">
+            Güvenli giriş
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
+            Admin Girişi
+          </h2>
+          <p className="mt-3 text-sm leading-7 text-slate-600">
+            E-posta ve şifre alanları sonraki aşamada gerçek oturum altyapısına
+            bağlanacaktır.
+          </p>
+          <AdminLoginForm />
+        </section>
+      </div>
+    </main>
+  );
+}

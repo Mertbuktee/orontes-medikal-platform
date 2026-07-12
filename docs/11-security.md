@@ -39,3 +39,38 @@ Future marketing or remarketing integrations must be gated behind
 Legal policy text and real policy URLs must be reviewed before production. This
 technical implementation does not by itself constitute KVKK, GDPR or other legal
 compliance.
+
+## Admin Security Foundation
+
+Admin panelde client-side guard güvenlik sınırı değildir. Protected admin
+route'ları için gerçek server-side session doğrulaması zorunludur.
+
+Current foundation:
+
+- Admin public UI'dan route group ile ayrılmıştır.
+- Admin layout Navbar, Footer veya cookie consent banner render etmez.
+- `requireAdminSession()` gerçek oturum yoksa `/admin/login` yönlendirmesi yapar.
+- `requirePermission()` gelecek permission kontrolleri için contract sağlar.
+- `ADMIN_DEV_BYPASS` varsayılan kapalıdır.
+- `ADMIN_DEV_BYPASS=true` sadece production dışı ortamda geliştirme/test amacıyla çalışır.
+
+Future session requirements:
+
+- HttpOnly session cookie
+- Secure cookie in production
+- SameSite policy
+- Server-side session lookup
+- Password hashing
+- Rate limit for login attempts
+- CSRF strategy for state-changing admin actions
+- Role and permission checks on every server mutation
+
+Audit logging plan:
+
+- Login / logout
+- Create / update / delete
+- Publish / archive
+- Service request status changes
+- User and role changes
+
+Audit kayıtları `src/lib/audit/audit-log.ts` içindeki typed contract üzerinden başlayacak, production aşamasında veritabanına yazılacaktır.
