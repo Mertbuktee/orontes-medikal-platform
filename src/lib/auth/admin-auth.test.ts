@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { containsSensitiveAuditMetadata } from "@/lib/auth/audit-safety";
 import {
   canCreateInitialSuperAdmin,
+  isBootstrapBlockingSuperAdmin,
   parseAdminBootstrapEnv,
 } from "@/lib/auth/bootstrap";
 import {
@@ -143,6 +144,13 @@ describe("secure admin authentication foundation", () => {
   it("bootstrap avoids duplicate super admins", () => {
     expect(canCreateInitialSuperAdmin(0)).toBe(true);
     expect(canCreateInitialSuperAdmin(1)).toBe(false);
+  });
+
+  it("does not treat the visual QA admin as a bootstrap blocker", () => {
+    expect(isBootstrapBlockingSuperAdmin("visual-qa-admin@orontes.local")).toBe(
+      false
+    );
+    expect(isBootstrapBlockingSuperAdmin("admin@example.com")).toBe(true);
   });
 
   it("keeps audit metadata free from sensitive keys", () => {

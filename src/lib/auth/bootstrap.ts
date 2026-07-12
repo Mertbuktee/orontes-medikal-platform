@@ -28,6 +28,10 @@ export function canCreateInitialSuperAdmin(existingSuperAdminCount: number) {
   return existingSuperAdminCount === 0;
 }
 
+export function isBootstrapBlockingSuperAdmin(email: string) {
+  return email.trim().toLowerCase() !== "visual-qa-admin@orontes.local";
+}
+
 function requireEnv(env: NodeJS.ProcessEnv, name: string) {
   const value = env[name]?.trim();
 

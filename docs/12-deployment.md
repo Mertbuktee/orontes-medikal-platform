@@ -270,6 +270,8 @@ Before enabling the admin panel in production:
 - Run production migrations with `npm run db:deploy`.
 - Create the first super admin with `npm run admin:bootstrap` using temporary, secret environment variables.
 - Remove `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_BOOTSTRAP_NAME` and `ADMIN_BOOTSTRAP_PASSWORD` after bootstrap.
+- Use `npm run admin:list-users` instead of ad-hoc `psql` commands when checking admin accounts; it avoids shell quoting problems and never prints password hashes.
+- Use `npm run admin:rotate-password` with `ADMIN_ROTATE_CONFIRM=ROTATE_ADMIN_PASSWORD` for deliberate password rotation. This revokes active sessions for the target user.
 - Do not use default credentials; none are shipped with the app.
 - Replace local/in-memory login rate limiting with Redis or a shared production adapter before multi-instance deployment.
 - Keep `ADMIN_SESSION_MAX_AGE_SECONDS` explicit if the default 10-hour admin session is not desired.

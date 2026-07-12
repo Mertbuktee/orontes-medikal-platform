@@ -356,16 +356,34 @@ Session token davranisi:
 
 `ADMIN_DEV_BYPASS` artik normal admin gelistirme akisi icin gerekli degildir. Helper yalnizca test sozlesmesi olarak izole edilir ve production deployment sinyali varken gecersizdir.
 
-Ilk admin kullanicisi seed ile uretilmez. Bootstrap komutu bilerek ve gecici env degerleriyle calistirilir:
+Ilk admin kullanicisi seed ile uretilmez. Bootstrap komutu bilerek ve gecici env degerleriyle calistirilir.
 
-```bash
-ADMIN_BOOTSTRAP_EMAIL="admin@example.com" \
-ADMIN_BOOTSTRAP_NAME="Admin" \
-ADMIN_BOOTSTRAP_PASSWORD="strong-password" \
+PowerShell:
+
+```powershell
+$env:ADMIN_BOOTSTRAP_EMAIL="admin@example.com"
+$env:ADMIN_BOOTSTRAP_NAME="Admin"
+$env:ADMIN_BOOTSTRAP_PASSWORD="strong-password"
 npm run admin:bootstrap
+Remove-Item Env:ADMIN_BOOTSTRAP_PASSWORD
 ```
 
-Bootstrap parolasi kaynak koda veya production config dosyasina yazilmaz; islemden sonra ortam degiskenleri temizlenmelidir.
+Bootstrap parolasi kaynak koda veya production config dosyasina yazilmaz; islemden sonra ortam degiskenleri temizlenmelidir. Visual QA test kullanicisi bootstrap kontrolunu kilitlemez.
+
+Operasyon komutlari:
+
+- `npm run admin:list-users`: admin kullanicilarini password hash veya session bilgisi gostermeden listeler.
+- `npm run admin:rotate-password`: mevcut adminin parolasini explicit confirmation ile degistirir ve aktif oturumlarini revoke eder.
+
+PowerShell parola rotate:
+
+```powershell
+$env:ADMIN_ROTATE_EMAIL="admin@example.com"
+$env:ADMIN_ROTATE_PASSWORD="new-strong-password"
+$env:ADMIN_ROTATE_CONFIRM="ROTATE_ADMIN_PASSWORD"
+npm run admin:rotate-password
+Remove-Item Env:ADMIN_ROTATE_PASSWORD
+```
 
 ## Service Requests Admin Module
 

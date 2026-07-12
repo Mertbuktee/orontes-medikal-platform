@@ -18,7 +18,10 @@ async function main() {
   const { email, name, password } = parseAdminBootstrapEnv();
 
   const existingSuperAdminCount = await prisma.user.count({
-    where: { role: "SUPER_ADMIN" },
+    where: {
+      role: "SUPER_ADMIN",
+      email: { not: "visual-qa-admin@orontes.local" },
+    },
   });
 
   if (!canCreateInitialSuperAdmin(existingSuperAdminCount)) {
