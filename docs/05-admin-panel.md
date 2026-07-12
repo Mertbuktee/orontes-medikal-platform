@@ -366,3 +366,17 @@ npm run admin:bootstrap
 ```
 
 Bootstrap parolasi kaynak koda veya production config dosyasina yazilmaz; islemden sonra ortam degiskenleri temizlenmelidir.
+
+## Service Requests Admin Module
+
+Ilk gercek admin modulu servis talepleridir.
+
+- Public `/api/service-requests` endpoint'i artik `PrismaServiceRequestRepository` ile PostgreSQL'e yazar.
+- `/admin/service-requests`: aktif servis taleplerini listeler, durum ve arama filtresi sunar.
+- `/admin/service-requests/[id]`: talep detayi, musteri bilgileri, cihaz bilgileri, attachment metadata, internal notlar ve durum gecmisini gosterir.
+- Durum guncelleme ve internal not ekleme server action olarak calisir.
+- Her mutation kendi icinde `serviceRequests.update` permission kontrolu yapar.
+- Durum degisiklikleri `ServiceRequestStatusHistory` ve `AuditLog` kaydi olusturur.
+- Internal not ekleme audit metadata'sinda not icerigini saklamaz.
+
+Private dosya storage key veya filesystem path client response'a donulmez. Guvenli admin dosya indirme/goruntuleme endpoint'i sonraki sertlestirilmis adimda acilacaktir.

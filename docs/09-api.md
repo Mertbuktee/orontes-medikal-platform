@@ -231,16 +231,24 @@ Frontend:
 
 Sitemap ve robots:
 
+## Admin Service Request Operations
+
+Servis talebi admin akisi su an App Router server component ve server action yapisi ile calisir.
+
+- `/admin/service-requests`: listeleme, arama ve durum filtresi.
+- `/admin/service-requests/[id]`: detay, attachment metadata, notlar ve durum gecmisi.
+- `updateServiceRequestStatus(formData)`: server action, `serviceRequests.update` izni gerektirir.
+- `addServiceRequestNote(formData)`: server action, `serviceRequests.update` izni gerektirir.
+
+Bu islemler Prisma repository katmanini kullanir; UI component icinde dogrudan Prisma sorgusu dagitilmaz.
+
 ## Future Database-Backed Admin APIs
 
-Admin API'lari gercek auth/session ve server-side RBAC tamamlandiktan sonra Prisma repository katmanina baglanacaktir.
+Admin API'lari ve server action'lari gercek auth/session ve server-side RBAC ile Prisma repository katmanina baglanir.
 
 Planlanan temel API gruplari:
 
-- `GET /api/admin/service-requests`: servis talepleri listeleme, filtreleme ve durumlara gore sorgulama.
-- `GET /api/admin/service-requests/:id`: talep detayi, attachment metadata, notlar ve durum gecmisi.
-- `PATCH /api/admin/service-requests/:id`: durum, atama ve arsivleme islemleri.
-- `POST /api/admin/service-requests/:id/notes`: internal note ekleme.
+- `GET/PATCH /api/admin/service-requests`: ileride headless/API ihtiyaci olursa mevcut server action/repository sozlesmesi uzerinden acilabilir.
 - `GET/POST/PATCH /api/admin/devices`: cihaz grubu yonetimi.
 - `GET/POST/PATCH /api/admin/services`: hizmet yonetimi.
 - `GET/POST/PATCH /api/admin/hero-slides`: hero slider yonetimi.

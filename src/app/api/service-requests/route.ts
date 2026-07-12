@@ -8,7 +8,6 @@ import { isSameOriginRequest } from "@/lib/security/origin";
 import { type FileStorageAdapter, LocalPrivateStorageAdapter } from "@/lib/security/storage";
 import {
   type ServiceRequestRepository,
-  LocalServiceRequestRepository,
 } from "@/lib/services/service-requests";
 import {
   hasUnexpectedFields,
@@ -20,10 +19,16 @@ export const runtime = "nodejs";
 
 const minimumCompletionMs = 2000;
 export const maxRequestSizeBytes = 12 * 1024 * 1024;
-const storage = new LocalPrivateStorageAdapter();
-const repository = new LocalServiceRequestRepository();
+export async function POST(request: Request) {
+  const { prisma } = await import("@/lib/database/prisma");
+  const { PrismaServiceRequestRepository } = await import(
+    "@/lib/database/repositories/service-requests"
+  );
+  const storage = new LocalPrivateStorageAdapter();
+  const repository = new PrismaServiceRequestRepository(prisma);
 
-export const POST = createServiceRequestHandler({ storage, repository });
+  return createServiceRequestHandler({ storage, repository })(request);
+}
 
 export function createServiceRequestHandler({
   storage,

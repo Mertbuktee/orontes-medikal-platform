@@ -17,8 +17,9 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 const readinessCards = [
   {
     title: "Servis Talepleri",
-    description: "Güvenli form altyapısı hazır; listeleme ve durum yönetimi sonraki aşamada.",
-    state: "Veritabanı bağlantısı bekleniyor",
+    description:
+      "Web formundan gelen başvurular veritabanına kaydedilir; listeleme, detay, durum ve not akışı aktiftir.",
+    state: "Aktif modül",
     icon: ClipboardList,
   },
   {
@@ -91,13 +92,15 @@ export default function AdminDashboardPage() {
               <h2 id="recent-activity-title" className="text-lg font-semibold text-slate-950">
                 Son Aktivite
               </h2>
-              <p className="text-sm text-slate-500">Audit kayıtları sonraki aşamada bağlanacak.</p>
+              <p className="text-sm text-slate-500">
+                Audit kayıtları veritabanına yazılır; raporlama ekranı sonraki aşamada açılacak.
+              </p>
             </div>
           </div>
           <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
             <Wrench className="mx-auto size-8 text-slate-400" aria-hidden="true" />
             <p className="mt-3 text-sm font-medium text-slate-700">
-              Henüz yönetim paneli aktivitesi bulunmuyor.
+              Henüz gösterilecek yönetim paneli aktivitesi bulunmuyor.
             </p>
           </div>
         </section>
@@ -112,6 +115,7 @@ export default function AdminDashboardPage() {
           <div className="mt-5 grid gap-3">
             {adminQuickActionItems.map((item: AdminNavItem) => {
               const Icon = item.icon;
+              const isActive = item.href === "/admin/service-requests";
 
               return (
                 <Link
@@ -124,7 +128,7 @@ export default function AdminDashboardPage() {
                     {item.title}
                   </span>
                   <span className="rounded-full bg-white px-2.5 py-1 text-xs text-slate-500 shadow-sm">
-                    Yakında
+                    {isActive ? "Aç" : "Yakında"}
                   </span>
                 </Link>
               );
