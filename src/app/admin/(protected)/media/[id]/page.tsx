@@ -15,7 +15,13 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { requirePermission } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/database/prisma";
 import { PrismaMediaRepository } from "@/lib/database/repositories/media";
-import { mediaCategories, mediaUsageTypes } from "@/lib/media/media-types";
+import {
+  mediaCategories,
+  mediaCategoryLabels,
+  mediaUsageTypeLabels,
+  mediaUsageTypes,
+  mediaVariantLabels,
+} from "@/lib/media/media-types";
 import { hasPermission } from "@/lib/rbac/permissions";
 
 import {
@@ -97,7 +103,7 @@ export default async function AdminMediaDetailPage({
                   className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-orange-200 hover:bg-orange-50"
                 >
                   <p className="text-sm font-semibold text-slate-950">
-                    {variant.variant}
+                    {mediaVariantLabels[variant.variant]}
                   </p>
                   <p className="mt-1 text-sm text-slate-500">
                     {variant.width ?? "-"}x{variant.height ?? "-"} -{" "}
@@ -259,12 +265,24 @@ function Select({
       >
         {options.map((option) => (
           <option key={option} value={option}>
-            {option}
+            {getSelectLabel(name, option)}
           </option>
         ))}
       </select>
     </label>
   );
+}
+
+function getSelectLabel(name: string, value: string) {
+  if (name === "category" && value in mediaCategoryLabels) {
+    return mediaCategoryLabels[value as keyof typeof mediaCategoryLabels];
+  }
+
+  if (name === "usageType" && value in mediaUsageTypeLabels) {
+    return mediaUsageTypeLabels[value as keyof typeof mediaUsageTypeLabels];
+  }
+
+  return value;
 }
 
 function ActionButton({

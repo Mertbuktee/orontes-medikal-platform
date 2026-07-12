@@ -4,7 +4,12 @@ import { UploadCloud, X } from "lucide-react";
 import { useRef, useState, useTransition } from "react";
 
 import { uploadMedia } from "@/app/admin/(protected)/media/actions";
-import { mediaCategories, mediaUsageTypes } from "@/lib/media/media-types";
+import {
+  mediaCategories,
+  mediaCategoryLabels,
+  mediaUsageTypeLabels,
+  mediaUsageTypes,
+} from "@/lib/media/media-types";
 
 const maxClientFileSize = 10 * 1024 * 1024;
 const acceptedTypes = ["image/jpeg", "image/png", "image/webp"];
@@ -75,7 +80,7 @@ export function MediaUploadForm() {
           >
             {mediaCategories.map((category) => (
               <option key={category} value={category}>
-                {category}
+                {mediaCategoryLabels[category]}
               </option>
             ))}
           </select>
@@ -89,7 +94,7 @@ export function MediaUploadForm() {
           >
             {mediaUsageTypes.map((usageType) => (
               <option key={usageType} value={usageType}>
-                {usageType}
+                {mediaUsageTypeLabels[usageType]}
               </option>
             ))}
           </select>

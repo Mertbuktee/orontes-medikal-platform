@@ -16,7 +16,9 @@ import {
 } from "@/lib/database/repositories/media";
 import {
   mediaCategories,
+  mediaCategoryLabels,
   mediaPageSizes,
+  mediaUsageTypeLabels,
   mediaUsageTypes,
 } from "@/lib/media/media-types";
 
@@ -63,7 +65,7 @@ export default async function AdminMediaPage({
             <option value="">Tüm kategoriler</option>
             {mediaCategories.map((category) => (
               <option key={category} value={category}>
-                {category}
+                {mediaCategoryLabels[category]}
               </option>
             ))}
           </SelectFilter>
@@ -71,7 +73,7 @@ export default async function AdminMediaPage({
             <option value="">Tüm kullanımlar</option>
             {mediaUsageTypes.map((usageType) => (
               <option key={usageType} value={usageType}>
-                {usageType}
+                {mediaUsageTypeLabels[usageType]}
               </option>
             ))}
           </SelectFilter>
@@ -174,7 +176,7 @@ export default async function AdminMediaPage({
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
                       <span className="rounded-full bg-sky-50 px-2.5 py-1 text-sky-700">
-                        {media.category}
+                        {mediaCategoryLabels[media.category]}
                       </span>
                       <span className="rounded-full bg-orange-50 px-2.5 py-1 text-orange-700">
                         {media.width}x{media.height}
