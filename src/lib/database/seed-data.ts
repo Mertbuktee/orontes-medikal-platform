@@ -55,6 +55,8 @@ export type HeroSlideSeedRecord = {
   imageId: string;
   imageAlt: string;
   linkUrl: string | null;
+  linkLabel: string | null;
+  objectPosition: string;
   order: number;
   isActive: boolean;
   includeInAutoplay: boolean;
@@ -127,6 +129,8 @@ export function getHeroSeedRecords(items: HeroSlide[] = heroSlides) {
         imageId,
         imageAlt: slide.imageAlt,
         linkUrl: slide.linkUrl ?? null,
+        linkLabel: slide.linkLabel ?? null,
+        objectPosition: slide.objectPosition ?? "center",
         order: slide.order,
         isActive: slide.isActive,
         includeInAutoplay: slide.includeInAutoplay,

@@ -13,6 +13,7 @@ export const heroSlides = [
     order: 1,
     isActive: true,
     includeInAutoplay: true,
+    objectPosition: "center",
   },
   {
     id: "monitor-repair",
@@ -26,6 +27,7 @@ export const heroSlides = [
     order: 2,
     isActive: true,
     includeInAutoplay: true,
+    objectPosition: "center",
   },
   {
     id: "ventilator-service",
@@ -39,6 +41,7 @@ export const heroSlides = [
     order: 3,
     isActive: true,
     includeInAutoplay: true,
+    objectPosition: "center",
   },
   {
     id: "measurement-and-testing",
@@ -52,6 +55,7 @@ export const heroSlides = [
     order: 4,
     isActive: true,
     includeInAutoplay: true,
+    objectPosition: "center",
   },
   {
     id: "technical-workshop",
@@ -65,5 +69,6 @@ export const heroSlides = [
     order: 5,
     isActive: true,
     includeInAutoplay: true,
+    objectPosition: "center",
   },
 ] satisfies HeroSlide[];

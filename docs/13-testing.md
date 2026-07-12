@@ -102,3 +102,16 @@ Visual QA captures:
 - `/admin/media/[id]` media detail.
 
 Synthetic visual QA media must be clearly test-only and stored under `storage/private/media/`. Service-request attachments are never used as media visual fixtures.
+
+## Hero Slider Tests
+
+Hero Slider coverage includes:
+
+- active slide filtering and ordering
+- autoplay skip behavior for manually reachable slides
+- reduced-motion, hover/focus and visibility pause logic
+- safe link and object-position validation
+- slider settings bounds
+- RBAC permissions for Hero slider management
+
+Database-backed Hero slide repository behavior should use isolated database integration tests before destructive reorder/delete scenarios are expanded.

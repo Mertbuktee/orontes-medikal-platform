@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ClipboardList,
   Database,
@@ -7,18 +6,30 @@ import {
   Settings,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import {
   adminQuickActionItems,
   type AdminNavItem,
 } from "@/components/admin/admin-navigation";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { getServiceRequestStatusMeta } from "@/components/admin/service-request-status";
 import { requirePermission } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/database/prisma";
+import { PrismaHeroSlideRepository } from "@/lib/database/repositories/hero-slides";
 import { PrismaMediaRepository } from "@/lib/database/repositories/media";
 import { PrismaServiceRequestRepository } from "@/lib/database/repositories/service-requests";
 import { hasPermission } from "@/lib/rbac/permissions";
+
+type ServiceRequestSummary = Awaited<
+  ReturnType<PrismaServiceRequestRepository["getDashboardSummary"]>
+>;
+type ServiceRequestStatusCount = ServiceRequestSummary["statusCounts"][number];
+type ServiceRequestLatestItem = ServiceRequestSummary["latest"][number];
+type MediaSummary = Awaited<
+  ReturnType<PrismaMediaRepository["getDashboardSummary"]>
+>;
+type MediaLatestItem = MediaSummary["latest"][number];
 
 const readinessCards = [
   {
@@ -48,12 +59,16 @@ export default async function AdminDashboardPage() {
   const session = await requirePermission("dashboard.view");
   const canViewRequests = hasPermission(session.role, "serviceRequests.view");
   const canViewMedia = hasPermission(session.role, "media.view");
-  const [serviceRequestSummary, mediaSummary] = await Promise.all([
+  const canViewHero = hasPermission(session.role, "heroSlides.view");
+  const [serviceRequestSummary, mediaSummary, heroSummary] = await Promise.all([
     canViewRequests
       ? new PrismaServiceRequestRepository(prisma).getDashboardSummary()
       : Promise.resolve(null),
     canViewMedia
       ? new PrismaMediaRepository(prisma).getDashboardSummary()
+      : Promise.resolve(null),
+    canViewHero
+      ? new PrismaHeroSlideRepository(prisma).getDashboardSummary()
       : Promise.resolve(null),
   ]);
 
@@ -81,7 +96,8 @@ export default async function AdminDashboardPage() {
                 label={getServiceRequestStatusMeta(status).label}
                 value={
                   serviceRequestSummary.statusCounts.find(
-                    (item) => item.status === status
+                    (item: ServiceRequestStatusCount) =>
+                      item.status === status
                   )?._count.status ?? 0
                 }
               />
@@ -118,38 +134,87 @@ export default async function AdminDashboardPage() {
         ))}
       </section>
 
-      {mediaSummary ? (
-        <section className="grid gap-4 md:grid-cols-[260px_1fr]">
-          <SummaryCard
-            icon={ImageIcon}
-            label="Aktif Medya"
-            value={mediaSummary.totalActive}
-          />
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
-            <h2 className="text-lg font-semibold text-slate-950">
-              Son Yüklenen Medyalar
-            </h2>
-            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-              {mediaSummary.latest.length ? (
-                mediaSummary.latest.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={`/admin/media/${item.id}`}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm font-semibold text-slate-800 transition hover:border-orange-200 hover:bg-orange-50"
-                  >
-                    <span className="line-clamp-1">{item.title}</span>
-                    <span className="mt-1 block text-xs text-slate-500">
-                      {item.mimeType}
-                    </span>
-                  </Link>
-                ))
-              ) : (
-                <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500 md:col-span-2 xl:col-span-5">
-                  Henüz medya dosyası yok.
-                </p>
-              )}
+      {mediaSummary || heroSummary ? (
+        <section className="grid gap-4 lg:grid-cols-2">
+          {mediaSummary ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-950">
+                    Son Yüklenen Medyalar
+                  </h2>
+                  <p className="text-sm text-slate-500">
+                    Aktif medya: {mediaSummary.totalActive}
+                  </p>
+                </div>
+                <Link
+                  href="/admin/media"
+                  className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-orange-50"
+                >
+                  Aç
+                </Link>
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {mediaSummary.latest.length ? (
+                  mediaSummary.latest
+                    .slice(0, 4)
+                    .map((item: MediaLatestItem) => (
+                      <Link
+                        key={item.id}
+                        href={`/admin/media/${item.id}`}
+                        className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm font-semibold text-slate-800 transition hover:border-orange-200 hover:bg-orange-50"
+                      >
+                        <span className="line-clamp-1">{item.title}</span>
+                        <span className="mt-1 block text-xs text-slate-500">
+                          {item.mimeType}
+                        </span>
+                      </Link>
+                    ))
+                ) : (
+                  <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500 md:col-span-2">
+                    Henüz medya dosyası yok.
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
+          ) : null}
+
+          {heroSummary ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-950">
+                    Hero Slider
+                  </h2>
+                  <p className="text-sm text-slate-500">
+                    Autoplay:{" "}
+                    {heroSummary.settings.autoplayEnabled ? "Aktif" : "Pasif"}
+                  </p>
+                </div>
+                <Link
+                  href="/admin/hero-slides"
+                  className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-orange-50"
+                >
+                  Yönet
+                </Link>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <SummaryCard
+                  icon={ImageIcon}
+                  label="Aktif Slayt"
+                  value={heroSummary.activeCount}
+                />
+                <SummaryCard
+                  icon={ImageIcon}
+                  label="Pasif Slayt"
+                  value={heroSummary.inactiveCount}
+                />
+              </div>
+              <p className="mt-4 text-sm text-slate-500">
+                Son güncelleme: {heroSummary.latest?.title ?? "Henüz kayıt yok"}
+              </p>
+            </div>
+          ) : null}
         </section>
       ) : null}
 
@@ -176,25 +241,27 @@ export default async function AdminDashboardPage() {
           </div>
           <div className="mt-6 space-y-3">
             {serviceRequestSummary?.latest.length ? (
-              serviceRequestSummary.latest.map((request) => (
-                <Link
-                  key={request.id}
-                  href={`/admin/service-requests/${request.id}`}
-                  className="block rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-orange-200 hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-slate-950">
-                      {request.fullName}
+              serviceRequestSummary.latest.map(
+                (request: ServiceRequestLatestItem) => (
+                  <Link
+                    key={request.id}
+                    href={`/admin/service-requests/${request.id}`}
+                    className="block rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-orange-200 hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-slate-950">
+                        {request.fullName}
+                      </p>
+                      <span className="text-xs font-semibold text-orange-700">
+                        {getServiceRequestStatusMeta(request.status).label}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {request.company || "Firma bilgisi yok"}
                     </p>
-                    <span className="text-xs font-semibold text-orange-700">
-                      {getServiceRequestStatusMeta(request.status).label}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {request.company || "Firma bilgisi yok"}
-                  </p>
-                </Link>
-              ))
+                  </Link>
+                )
+              )
             ) : (
               <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500">
                 Henüz gösterilecek servis talebi bulunmuyor.
@@ -218,7 +285,8 @@ export default async function AdminDashboardPage() {
               const Icon = item.icon;
               const isActive =
                 item.href === "/admin/service-requests" ||
-                item.href === "/admin/media";
+                item.href === "/admin/media" ||
+                item.href === "/admin/hero-slides";
 
               return (
                 <Link

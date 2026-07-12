@@ -432,3 +432,17 @@ Medya kütüphanesi `/admin/media` ve `/admin/media/[id]` route'larıyla başlat
 Desteklenen ilk formatlar JPEG, PNG ve WebP'tir. SVG, HTML, JavaScript, arşiv ve bilinmeyen formatlar kabul edilmez. Upload edilen görseller `sharp` ile decode/re-encode edilir, metadata strip edilir ve `ORIGINAL`, `THUMBNAIL`, `MEDIUM`, `LARGE` varyantları üretilir.
 
 Servis talebi attachment dosyaları medya kütüphanesine dahil edilmez; iki domain ayrı storage dizinleri ve ayrı erişim politikaları kullanır.
+## Hero Slider Management
+
+Hero Slider module is managed under `/admin/hero-slides`.
+
+- `heroSlides.view`: list, detail and preview.
+- `heroSlides.create`: create a new slide.
+- `heroSlides.update`: update copy, media, alt text, link, object position and autoplay inclusion.
+- `heroSlides.reorder`: move slides up, down, first or last.
+- `heroSlides.publish`: toggle active/passive state.
+- `heroSlides.delete`: delete a slide record.
+
+Slides select images from the Media Library. Archived media and non-image media cannot be selected. Deleting a Hero slide never deletes the referenced media record.
+
+Slider settings are stored as the typed `hero.slider.settings` site setting. Public updates revalidate the homepage, dashboard and Hero Slider admin routes.

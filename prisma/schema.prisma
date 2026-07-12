@@ -90,6 +90,7 @@ model User {
   authoredNotes         ServiceRequestNote[]          @relation("ServiceRequestNoteAuthor")
   statusChanges         ServiceRequestStatusHistory[] @relation("ServiceRequestStatusChanger")
   uploadedMedia         Media[]                       @relation("MediaUploader")
+  heroSlidesCreated     HeroSlide[]                   @relation("HeroSlideCreator")
   heroSlidesUpdated     HeroSlide[]                   @relation("HeroSlideUpdater")
   authoredPosts         BlogPost[]                    @relation("BlogPostAuthor")
   updatedSettings       SiteSetting[]                 @relation("SiteSettingUpdater")
@@ -285,9 +286,13 @@ model HeroSlide {
   image             Media    @relation("HeroSlideImage", fields: [imageId], references: [id], onDelete: Restrict)
   imageAlt          String
   linkUrl           String?  @db.VarChar(500)
+  linkLabel         String?  @db.VarChar(120)
+  objectPosition    String   @default("center") @db.VarChar(40)
   order             Int
   isActive          Boolean  @default(true)
   includeInAutoplay Boolean  @default(true)
+  createdById       String?
+  createdBy         User?    @relation("HeroSlideCreator", fields: [createdById], references: [id], onDelete: SetNull)
   updatedById       String?
   updatedBy         User?    @relation("HeroSlideUpdater", fields: [updatedById], references: [id], onDelete: SetNull)
   createdAt         DateTime @default(now())
@@ -296,6 +301,8 @@ model HeroSlide {
   @@index([order])
   @@index([isActive, includeInAutoplay, order])
   @@index([imageId])
+  @@index([createdById])
+  @@index([updatedById])
 }
 
 model BlogCategory {

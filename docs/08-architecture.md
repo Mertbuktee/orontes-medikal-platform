@@ -375,3 +375,15 @@ General media files use a separate storage domain under `storage/private/media/`
 Admin upload actions validate the file server-side, harden images, generate variants, write storage files, then persist `Media` and `MediaVariant` records. If database persistence fails after storage writes, newly written files are removed.
 
 Public delivery is handled by `/media/[id]/[variant]`. The route resolves by Media ID and variant only, rejects archived media, reads through the storage adapter and never exposes raw filesystem paths or storage keys. Existing public hero images remain unchanged until the Hero CRUD migration explicitly switches them to media delivery.
+## Database-Backed Hero Slider Flow
+
+The public Hero slider now reads active `HeroSlide` records through `PrismaHeroSlideRepository`.
+
+- Public loading happens on the server and passes serializable slide DTOs to the focused client carousel.
+- Media URLs are generated with the media URL helper and never expose storage keys.
+- Inactive slides are excluded from public rendering.
+- `includeInAutoplay=false` slides remain manually reachable but are skipped by autoplay.
+- Admin mutations revalidate `/`, `/admin/dashboard` and `/admin/hero-slides`.
+- Slider timing and control visibility are stored in typed site settings.
+
+The public slider keeps the client-side carousel behavior while data ownership moves to PostgreSQL and the Media Library.

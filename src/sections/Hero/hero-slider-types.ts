@@ -6,6 +6,8 @@ export type HeroSlide = {
   imageAlt: string;
   badge?: string;
   linkUrl?: string;
+  linkLabel?: string;
+  objectPosition?: string;
   order: number;
   isActive: boolean;
   includeInAutoplay: boolean;

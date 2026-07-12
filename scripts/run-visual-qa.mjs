@@ -50,6 +50,13 @@ function loadDotEnvLocal() {
 
 await provisionVisualQaAdmin();
 
+if (!existsSync(".next/BUILD_ID")) {
+  console.error(
+    "Visual QA requires a completed production build. Run `npm run build` before `npm run qa:visual`, and do not run them in parallel."
+  );
+  process.exit(1);
+}
+
 const server = spawn(process.execPath, ["scripts/visual-qa-server.mjs"], {
   env,
   stdio: ["ignore", "pipe", "pipe"],

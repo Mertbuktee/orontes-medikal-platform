@@ -171,3 +171,13 @@ Filesystem and database changes are not treated as a single atomic operation. Wh
 - Media metadata updates cannot mutate storage keys, MIME type or binary content through generic form input.
 - Hard delete is restricted to unused media and authorized roles. Filesystem and database deletion are not considered a single atomic transaction; production object storage should use an outbox/retry strategy for deletion failures.
 - Audit metadata for media actions may contain media ID, category, MIME type, size, variant count and duplicate reuse status. It must never contain file bytes, raw private paths, session tokens or secrets.
+## Hero Slider Security
+
+- Hero slide mutations require server-side admin session and RBAC permission checks.
+- Navigation visibility is only UX; actions enforce permissions again.
+- Hero media selection accepts active image media only and rejects archived media or documents.
+- Admin forms never accept raw storage keys or filesystem paths.
+- Hero link URLs reject `javascript:`, `data:` and protocol-relative URLs.
+- Public rendering uses generated media delivery URLs and does not expose storage keys.
+- Preview routes are authenticated admin pages; draft or inactive content is not exposed through public routes.
+- Audit metadata stores IDs and state changes, not full marketing copy or private storage paths.

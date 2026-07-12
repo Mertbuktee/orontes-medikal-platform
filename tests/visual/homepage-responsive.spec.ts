@@ -158,6 +158,25 @@ async function runChecks(
         text: (element.textContent ?? "").trim().replace(/\s+/g, " ").slice(0, 80),
         box: `${Math.round(rect.left)},${Math.round(rect.top)} ${Math.round(rect.width)}x${Math.round(rect.height)}`,
       });
+      const isClippedByViewportSafeAncestor = (element: Element) => {
+        let parent = element.parentElement;
+        while (parent && parent !== document.body) {
+          const style = window.getComputedStyle(parent);
+          const clipsOverflow =
+            style.overflow === "hidden" ||
+            style.overflowX === "hidden" ||
+            style.overflowY === "hidden";
+
+          if (clipsOverflow) {
+            const parentRect = parent.getBoundingClientRect();
+            return parentRect.left >= -1 && parentRect.right <= width + 1;
+          }
+
+          parent = parent.parentElement;
+        }
+
+        return false;
+      };
       const overflowingElements: BrowserIssue[] = [];
       const zeroSizeImages: BrowserIssue[] = [];
       const undersizedTapTargets: BrowserIssue[] = [];
@@ -166,7 +185,9 @@ async function runChecks(
       document.querySelectorAll("body *").forEach((element) => {
         const rect = element.getBoundingClientRect();
         const style = window.getComputedStyle(element);
-        const isDecorative = element.getAttribute("aria-hidden") === "true";
+        const isDecorative =
+          element.getAttribute("aria-hidden") === "true" ||
+          Boolean(element.closest('[aria-hidden="true"]'));
         const isVisuallyHidden =
           style.position === "absolute" &&
           (rect.left < -100 || rect.width <= 1 || rect.height <= 1);
@@ -174,6 +195,7 @@ async function runChecks(
         if (
           !isDecorative &&
           !isVisuallyHidden &&
+          !isClippedByViewportSafeAncestor(element) &&
           rect.width > 1 &&
           rect.height > 1 &&
           (rect.right > width + 1 || rect.left < -1)
@@ -300,6 +322,74 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     note: "Dashboard shell renders after real admin login for visual QA.",
   });
 
+  await page.goto("/admin/hero-slides", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Hero Slider Yönetimi", exact: true })
+  ).toBeVisible();
+  const heroSlidesDesktopPath = path.join(
+    adminDir,
+    "admin-hero-slides-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: heroSlidesDesktopPath });
+  results.push({
+    name: "admin-hero-slides-1440x900",
+    screenshotPath: heroSlidesDesktopPath,
+    status: "PASS",
+    note: "Hero Slider list renders DB-backed slides and ordering controls.",
+  });
+
+  await page.goto("/admin/hero-slides/electronic-board-repair", {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(page.locator("h1")).toHaveText(
+    "Hassas Elektronik Kart Müdahaleleri"
+  );
+  const heroSlidePreviewPath = path.join(
+    adminDir,
+    "admin-hero-slide-preview-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: heroSlidePreviewPath });
+  results.push({
+    name: "admin-hero-slide-preview-1440x900",
+    screenshotPath: heroSlidePreviewPath,
+    status: "PASS",
+    note: "Hero slide authenticated preview renders the selected media.",
+  });
+
+  await page.goto("/admin/hero-slides/electronic-board-repair/edit", {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(
+    page.getByRole("heading", { name: "Slaytı Düzenle" })
+  ).toBeVisible();
+  const heroSlideEditPath = path.join(
+    adminDir,
+    "admin-hero-slide-edit-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: heroSlideEditPath });
+  results.push({
+    name: "admin-hero-slide-edit-1440x900",
+    screenshotPath: heroSlideEditPath,
+    status: "PASS",
+    note: "Hero slide edit form renders media selector and metadata fields.",
+  });
+
+  await page.goto("/admin/hero-slides/new", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Yeni Slayt Ekle" })
+  ).toBeVisible();
+  const heroSlideNewPath = path.join(
+    adminDir,
+    "admin-hero-slide-new-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: heroSlideNewPath });
+  results.push({
+    name: "admin-hero-slide-new-1440x900",
+    screenshotPath: heroSlideNewPath,
+    status: "PASS",
+    note: "Hero slide create form renders with Media Library selection.",
+  });
+
   await page.goto("/admin/service-requests", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("heading", { name: "Servis Talepleri", exact: true })
@@ -394,6 +484,22 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     screenshotPath: mediaMobilePath,
     status: "PASS",
     note: "Media library remains usable on mobile.",
+  });
+
+  await page.goto("/admin/hero-slides", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Hero Slider Yönetimi", exact: true })
+  ).toBeVisible();
+  const heroSlidesMobilePath = path.join(
+    adminDir,
+    "admin-hero-slides-375x667.png"
+  );
+  await page.screenshot({ fullPage: true, path: heroSlidesMobilePath });
+  results.push({
+    name: "admin-hero-slides-375x667",
+    screenshotPath: heroSlidesMobilePath,
+    status: "PASS",
+    note: "Hero Slider list remains usable on mobile.",
   });
 
   await page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" });

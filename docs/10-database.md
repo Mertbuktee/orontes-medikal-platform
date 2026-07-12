@@ -451,3 +451,13 @@ The JSON importer reads local development records from `storage/private/service-
 - `LARGE`
 
 Binary image data is not stored in PostgreSQL. `Media.storageKey` points to the hardened original variant metadata, while each variant has its own unique storage key. Hero slides and blog covers reference `Media`; service-request attachments remain a separate model and are not part of the media library.
+## Hero Slider Models
+
+`HeroSlide` is now the database source for the public homepage Hero slider.
+
+- `imageId` references `Media`; deleting a slide does not delete media.
+- `createdById` and `updatedById` reference admin `User` rows with `SetNull` delete behavior.
+- `linkLabel`, `linkUrl` and `objectPosition` support admin-managed CTA and image focal point settings.
+- `order`, `isActive` and `includeInAutoplay` control public ordering and autoplay behavior.
+
+Slider settings are stored in `SiteSetting` under `hero.slider.settings` as typed JSON. The application validates interval and transition bounds before persistence.

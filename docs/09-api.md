@@ -275,3 +275,16 @@ Kurallar:
 
 - API route'ları sitemap'e eklenmez.
 - `/api/` robots tarafından disallow edilir.
+## Hero Slider Admin Actions
+
+Hero Slider management currently uses App Router server actions rather than public API routes.
+
+- `createHeroSlide(formData)`: requires `heroSlides.create`.
+- `updateHeroSlide(formData)`: requires `heroSlides.update`.
+- `deleteHeroSlide(formData)`: requires `heroSlides.delete`.
+- `moveHeroSlide(formData)`: requires `heroSlides.reorder`.
+- `toggleHeroSlideActive(formData)`: requires `heroSlides.publish`.
+- `toggleHeroSlideAutoplay(formData)`: requires `heroSlides.update`.
+- `updateHeroSliderSettings(formData)`: requires `heroSlides.update`.
+
+All actions validate input server-side, select media by Media ID only, write audit events and revalidate affected public/admin routes.

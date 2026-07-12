@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added database-backed Hero Slider management with media selection, admin create/edit/detail/list routes, ordering controls, slider settings, public DB-backed rendering, audit events and dashboard summaries.
 - Added the production media library foundation with Prisma media variants, secure admin upload, duplicate detection, private media storage, public hardened variant delivery, media listing/detail screens and visual QA coverage.
 - Added service-request final hardening with internal transition reasons, audit summary, notification event contract and expanded admin visual QA.
 - Hardened service request management with granular RBAC, status transition enforcement, assignment, archive, private attachment access, dashboard summaries and local JSON import command.

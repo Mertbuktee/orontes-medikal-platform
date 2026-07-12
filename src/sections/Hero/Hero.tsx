@@ -5,6 +5,7 @@ import {
 import Link from "next/link";
 
 import { HeroServiceSlider } from "./HeroServiceSlider";
+import { getPublicHeroSliderData } from "@/lib/hero-slider/public-hero-slider";
 
 const trustItems = [
   "Elektronik Kart Onarımı",
@@ -30,7 +31,9 @@ const stats = [
   },
 ];
 
-export default function Hero() {
+export default async function Hero() {
+  const heroSlider = await getPublicHeroSliderData();
+
   return (
     <section id="hero" className="relative overflow-hidden bg-slate-50">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_16%_12%,rgba(14,165,233,0.18),transparent_32%),radial-gradient(circle_at_84%_16%,rgba(249,115,22,0.2),transparent_28%),linear-gradient(135deg,#f8fbff_0%,#ffffff_48%,#fff7ed_100%)]" />
@@ -106,7 +109,10 @@ export default function Hero() {
         </div>
 
         <div className="relative min-w-0">
-          <HeroServiceSlider />
+          <HeroServiceSlider
+            slides={heroSlider.slides}
+            settings={heroSlider.settings}
+          />
         </div>
       </div>
     </section>

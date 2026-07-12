@@ -201,7 +201,7 @@ export class PrismaMediaRepository {
         entityType: "HeroSlide",
         entityId: slide.id,
         title: slide.title,
-        adminUrl: "/admin/homepage",
+        adminUrl: `/admin/hero-slides/${slide.id}`,
       })),
       ...media.blogPostCovers.map((post) => ({
         entityType: "BlogPost",

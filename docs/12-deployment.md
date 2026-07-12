@@ -401,3 +401,24 @@ Launch checks for media:
 - Confirm `/media/[id]/[variant]` works for active media and returns 404 for archived media.
 - Confirm raw storage paths are not reachable from the browser.
 - Confirm duplicate uploads do not create duplicate file bytes unnecessarily.
+
+## Windows Local Prisma Notes
+
+On Windows, `prisma generate` may fail with `EPERM` if a running `next dev`, `next build`, Prisma Studio or another Node process has loaded files under `node_modules/.prisma/client`.
+
+Before schema-changing work:
+
+1. Stop the local dev server.
+2. Run database commands sequentially, not in parallel.
+3. Apply migrations first, then generate the Prisma client, then seed.
+
+Recommended local order:
+
+```powershell
+$env:DATABASE_URL="postgresql://orontes_dev:LOCAL_ONLY_PASSWORD@localhost:5432/orontes_medikal?schema=public"
+npm run db:deploy
+npm run db:generate
+npm run db:seed
+```
+
+If `db:generate` still reports `EPERM`, close remaining project Node processes and run `npm run db:generate` again. Do not delete `node_modules` as a first response; the issue is usually a locked generated client file.

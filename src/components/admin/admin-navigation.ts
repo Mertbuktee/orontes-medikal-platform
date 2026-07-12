@@ -5,6 +5,7 @@ import {
   ClipboardList,
   Home,
   ImageIcon,
+  Images,
   LayoutDashboard,
   LockKeyhole,
   MonitorCog,
@@ -61,6 +62,12 @@ export const adminNavItems: AdminNavItem[] = [
     href: "/admin/media",
     icon: ImageIcon,
     requiredPermission: "media.view",
+  },
+  {
+    title: "Hero Slider",
+    href: "/admin/hero-slides",
+    icon: Images,
+    requiredPermission: "heroSlides.view",
   },
   {
     title: "Ana Sayfa Yönetimi",
