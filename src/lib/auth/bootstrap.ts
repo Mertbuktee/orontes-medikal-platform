@@ -1,5 +1,5 @@
-import { validateAdminPassword } from "@/lib/auth/password";
-import { assertServerOnly } from "@/lib/auth/server-only";
+import { validateAdminPassword } from "./password.ts";
+import { assertServerOnly } from "./server-only.ts";
 
 assertServerOnly("admin bootstrap");
 

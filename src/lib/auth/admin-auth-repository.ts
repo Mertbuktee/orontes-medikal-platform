@@ -1,7 +1,7 @@
 import type { AuditAction, Prisma, PrismaClient, Role } from "@prisma/client";
 
-import type { AdminRequestContext } from "@/lib/auth/request-context";
-import { canAuthenticateAdminSession } from "@/lib/auth/session-validation";
+import type { AdminRequestContext } from "./request-context.ts";
+import { canAuthenticateAdminSession } from "./session-validation.ts";
 
 export type AuthUserRecord = {
   id: string;

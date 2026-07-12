@@ -1,6 +1,6 @@
 import argon2 from "argon2";
 
-import { assertServerOnly } from "@/lib/auth/server-only";
+import { assertServerOnly } from "./server-only.ts";
 
 assertServerOnly("password authentication");
 

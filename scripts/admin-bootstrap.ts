@@ -6,7 +6,6 @@ import {
   parseAdminBootstrapEnv,
 } from "../src/lib/auth/bootstrap.ts";
 import { hashPassword } from "../src/lib/auth/password.ts";
-import { normalizeAdminEmail } from "../src/lib/auth/admin-auth-repository.ts";
 import { getRequiredDatabaseUrl } from "../src/lib/database/env.ts";
 
 const prisma = new PrismaClient({
@@ -39,6 +38,10 @@ async function main() {
   });
 
   console.log("admin_bootstrap.created_super_admin");
+}
+
+function normalizeAdminEmail(email: string) {
+  return email.trim().toLowerCase();
 }
 
 main()
