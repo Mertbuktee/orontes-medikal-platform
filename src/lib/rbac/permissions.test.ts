@@ -43,6 +43,8 @@ describe("admin RBAC contracts", () => {
     expect(hasPermission("SERVICE_STAFF", "serviceRequests.assign")).toBe(false);
     expect(hasPermission("SERVICE_STAFF", "serviceRequests.archive")).toBe(false);
     expect(hasPermission("SERVICE_STAFF", "serviceRequests.delete")).toBe(false);
+    expect(hasPermission("SERVICE_STAFF", "devices.view")).toBe(true);
+    expect(hasPermission("SERVICE_STAFF", "devices.update")).toBe(false);
     expect(hasPermission("SERVICE_STAFF", "blog.manage")).toBe(false);
   });
 
@@ -65,6 +67,10 @@ describe("admin RBAC contracts", () => {
     expect(hasPermission("EDITOR", "heroSlides.create")).toBe(true);
     expect(hasPermission("EDITOR", "heroSlides.update")).toBe(true);
     expect(hasPermission("EDITOR", "heroSlides.publish")).toBe(false);
+    expect(hasPermission("EDITOR", "devices.view")).toBe(true);
+    expect(hasPermission("EDITOR", "devices.create")).toBe(true);
+    expect(hasPermission("EDITOR", "devices.update")).toBe(true);
+    expect(hasPermission("EDITOR", "devices.publish")).toBe(false);
     expect(hasPermission("EDITOR", "roles.manage")).toBe(false);
   });
 
@@ -73,7 +79,7 @@ describe("admin RBAC contracts", () => {
     expect(canAccessAdminRoute("VIEWER", "/admin/service-requests")).toBe(true);
     expect(canAccessAdminRoute("VIEWER", "/admin/blog")).toBe(false);
     expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/service-requests")).toBe(true);
-    expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/devices")).toBe(false);
+    expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/devices")).toBe(true);
     expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/media")).toBe(false);
     expect(canAccessAdminRoute("EDITOR", "/admin/media")).toBe(true);
     expect(canAccessAdminRoute("VIEWER", "/admin/hero-slides")).toBe(false);

@@ -92,6 +92,10 @@ model User {
   uploadedMedia         Media[]                       @relation("MediaUploader")
   heroSlidesCreated     HeroSlide[]                   @relation("HeroSlideCreator")
   heroSlidesUpdated     HeroSlide[]                   @relation("HeroSlideUpdater")
+  deviceGroupsCreated   DeviceGroup[]                 @relation("DeviceGroupCreator")
+  deviceGroupsUpdated   DeviceGroup[]                 @relation("DeviceGroupUpdater")
+  servicesCreated       Service[]                     @relation("ServiceCreator")
+  servicesUpdated       Service[]                     @relation("ServiceUpdater")
   authoredPosts         BlogPost[]                    @relation("BlogPostAuthor")
   updatedSettings       SiteSetting[]                 @relation("SiteSettingUpdater")
   auditLogs             AuditLog[]                    @relation("AuditLogActor")
@@ -191,42 +195,73 @@ model ServiceRequestStatusHistory {
 }
 
 model DeviceGroup {
-  id               String   @id
-  title            String   @db.VarChar(160)
-  slug             String   @unique @db.VarChar(180)
+  id               String    @id
+  title            String    @db.VarChar(160)
+  slug             String    @unique @db.VarChar(180)
   shortDescription String
   fullDescription  String
-  iconKey          String   @db.VarChar(80)
+  iconKey          String    @db.VarChar(80)
+  imageId          String?
+  image            Media?    @relation("DeviceGroupImage", fields: [imageId], references: [id], onDelete: SetNull)
   capabilities     String[]
-  isFeatured       Boolean  @default(false)
+  isFeatured       Boolean   @default(false)
   order            Int
-  isActive         Boolean  @default(true)
-  seoTitle         String   @db.VarChar(180)
-  seoDescription   String   @db.VarChar(320)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  isActive         Boolean   @default(true)
+  seoTitle         String    @db.VarChar(180)
+  seoDescription   String    @db.VarChar(320)
+  openGraphImageId String?
+  openGraphImage   Media?    @relation("DeviceGroupOpenGraphImage", fields: [openGraphImageId], references: [id], onDelete: SetNull)
+  createdById      String?
+  createdBy        User?     @relation("DeviceGroupCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById      String?
+  updatedBy        User?     @relation("DeviceGroupUpdater", fields: [updatedById], references: [id], onDelete: SetNull)
+  archivedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
+  @@index([title])
+  @@index([imageId])
+  @@index([openGraphImageId])
+  @@index([createdById])
+  @@index([updatedById])
   @@index([order])
   @@index([isActive, isFeatured, order])
+  @@index([archivedAt])
 }
 
 model Service {
-  id               String   @id
-  title            String   @db.VarChar(160)
-  slug             String   @unique @db.VarChar(180)
+  id               String    @id
+  title            String    @db.VarChar(160)
+  slug             String    @unique @db.VarChar(180)
   shortDescription String
   fullDescription  String
-  iconKey          String   @db.VarChar(80)
-  isFeatured       Boolean  @default(false)
+  iconKey          String    @db.VarChar(80)
+  imageId          String?
+  image            Media?    @relation("ServiceImage", fields: [imageId], references: [id], onDelete: SetNull)
+  isFeatured       Boolean   @default(false)
   order            Int
-  isActive         Boolean  @default(true)
-  seoTitle         String   @db.VarChar(180)
-  seoDescription   String   @db.VarChar(320)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  isActive         Boolean   @default(true)
+  seoTitle         String    @db.VarChar(180)
+  seoDescription   String    @db.VarChar(320)
+  openGraphImageId String?
+  openGraphImage   Media?    @relation("ServiceOpenGraphImage", fields: [openGraphImageId], references: [id], onDelete: SetNull)
+  ctaLabel         String?   @db.VarChar(120)
+  ctaHref          String?   @db.VarChar(300)
+  createdById      String?
+  createdBy        User?     @relation("ServiceCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById      String?
+  updatedBy        User?     @relation("ServiceUpdater", fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  archivedAt       DateTime?
 
+  @@index([imageId])
+  @@index([openGraphImageId])
+  @@index([createdById])
+  @@index([updatedById])
   @@index([order])
   @@index([isActive, isFeatured, order])
+  @@index([archivedAt])
 }
 
 model Media {
@@ -248,6 +283,10 @@ model Media {
   uploadedBy     User?       @relation("MediaUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
   variants       MediaVariant[]
   heroSlides     HeroSlide[] @relation("HeroSlideImage")
+  deviceGroups   DeviceGroup[] @relation("DeviceGroupImage")
+  deviceGroupOpenGraphs DeviceGroup[] @relation("DeviceGroupOpenGraphImage")
+  services       Service[] @relation("ServiceImage")
+  serviceOpenGraphs Service[] @relation("ServiceOpenGraphImage")
   blogPostCovers BlogPost[]  @relation("BlogPostCoverImage")
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt

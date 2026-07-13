@@ -446,3 +446,34 @@ Hero Slider module is managed under `/admin/hero-slides`.
 Slides select images from the Media Library. Archived media and non-image media cannot be selected. Deleting a Hero slide never deletes the referenced media record.
 
 Slider settings are stored as the typed `hero.slider.settings` site setting. Public updates revalidate the homepage, dashboard and Hero Slider admin routes.
+
+## Device Group Management
+
+Cihaz grupları `/admin/devices` modülüyle yönetilir.
+
+- `devices.view`: liste, detay ve önizleme.
+- `devices.create`: yeni cihaz grubu oluşturma.
+- `devices.update`: içerik, ikon, yetenek, medya ve SEO alanlarını güncelleme.
+- `devices.reorder`: yukarı/aşağı/ilk/son sıralama kontrolleri.
+- `devices.publish`: aktif/pasif ve ana sayfada öne çıkarma durumu.
+- `devices.delete`: arşivleme, geri alma ve yalnız arşivli kayıt için kontrollü silme.
+
+Aktif olmayan veya arşivlenen cihaz grupları public sayfalarda görünmez. Ana sayfa önizlemesi yalnız `isActive=true`, `isFeatured=true` ve arşivlenmemiş ilk 6 cihazı sıralamaya göre gösterir.
+
+İkonlar ve yetenek etiketleri allowlist registry üzerinden seçilir; admin formu arbitrary component, HTML veya CSS class kabul etmez. Cihaz görseli ve Open Graph görseli Medya Kütüphanesi içinden seçilir; PDF veya arşivlenmiş medya seçilemez.
+# Hizmetler Yönetimi
+
+Hizmetler modülü `/admin/services` altında yönetilir. Yetkili kullanıcılar hizmet oluşturabilir, içerik ve SEO alanlarını güncelleyebilir, medya kütüphanesinden görsel seçebilir, kayıtları aktif/pasif yapabilir, ana sayfada öne çıkarabilir, sıralayabilir ve arşivleyebilir.
+
+Yönetilen alanlar:
+
+- Başlık, slug, kısa açıklama ve detaylı açıklama
+- Allowlist tabanlı Lucide ikon anahtarı
+- Opsiyonel hizmet görseli ve Open Graph görseli
+- Ana sayfada öne çıkarma durumu
+- Aktif/pasif ve arşiv durumu
+- Sıralama
+- SEO başlığı ve SEO açıklaması
+- Opsiyonel CTA etiketi ve güvenli CTA bağlantısı
+
+Normal silme davranışı arşivlemedir. Kalıcı silme yalnızca arşivlenmiş ve referanssız kayıtlar için SUPER_ADMIN politikasıyla kullanılmalıdır. Media kayıtları hizmet silindiğinde otomatik silinmez.

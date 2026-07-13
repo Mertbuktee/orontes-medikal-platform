@@ -461,3 +461,31 @@ Binary image data is not stored in PostgreSQL. `Media.storageKey` points to the 
 - `order`, `isActive` and `includeInAutoplay` control public ordering and autoplay behavior.
 
 Slider settings are stored in `SiteSetting` under `hero.slider.settings` as typed JSON. The application validates interval and transition bounds before persistence.
+
+## Device Group Model
+
+`DeviceGroup` backs both the homepage device preview and `/cihazlar`.
+
+- `slug` is unique and URL-safe.
+- `capabilities` is stored as a PostgreSQL text array validated by application allowlists.
+- `imageId` and `openGraphImageId` reference `Media` with `SetNull` delete behavior.
+- `createdById` and `updatedById` reference admin users with `SetNull` delete behavior.
+- `archivedAt` keeps normal admin deletion non-destructive.
+- `isActive`, `isFeatured` and `order` support public filtering and homepage preview ordering.
+
+Indexes cover slug, title, active/order, featured/active/order, archive state and media/user references. Deleting a device group never deletes referenced media.
+# Service
+
+`Service` modeli teknik servis hizmetlerini temsil eder. Slug benzersizdir. Public listeler `isActive=true` ve `archivedAt=null` koşuluyla çalışır. Ana sayfa önizlemesi ayrıca `isFeatured=true` koşulunu uygular.
+
+İlişkiler:
+
+- `imageId` ve `openGraphImageId` opsiyonel `Media` ilişkileridir.
+- `createdById` ve `updatedById` opsiyonel `User` ilişkileridir.
+- Hizmet silme işlemi medya dosyalarını silmez.
+
+Politika:
+
+- Varsayılan silme davranışı arşivlemedir.
+- Restore sonrası kayıt pasif kalır ve ayrıca aktifleştirilmelidir.
+- Sıralama normalize edilir ve public sorgular order alanına göre döner.

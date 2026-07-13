@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { createElement } from "react";
 
 import { Breadcrumbs } from "@/components/common/Breadcrumbs";
 import { publicRoutes } from "@/config/site";
-import { getActiveOrderedDevices, getDeviceIcon } from "@/content/devices";
+import { getDeviceIcon } from "@/lib/devices/device-registry";
+import { getPublicActiveDevices } from "@/lib/devices/public-devices";
 import { createPageMetadata } from "@/lib/seo/metadata";
 
 const route = publicRoutes.find((item) => item.path === "/cihazlar");
@@ -24,8 +27,8 @@ const trustItems = [
   "Türkiye geneli cihaz kabulü",
 ];
 
-export default function DevicesPage() {
-  const devices = getActiveOrderedDevices();
+export default async function DevicesPage() {
+  const devices = await getPublicActiveDevices();
 
   return (
     <main className="bg-slate-50">
@@ -59,7 +62,10 @@ export default function DevicesPage() {
                 key={item}
                 className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-700 shadow-sm"
               >
-                <CheckCircle2 className="size-4 text-orange-500" aria-hidden="true" />
+                <CheckCircle2
+                  className="size-4 text-orange-500"
+                  aria-hidden="true"
+                />
                 <span className="text-center">{item}</span>
               </div>
             ))}
@@ -69,40 +75,74 @@ export default function DevicesPage() {
 
       <section className="pb-16 sm:pb-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {devices.map(({ id, title, slug, shortDescription, capabilities, iconKey }) => {
-              const Icon = getDeviceIcon(iconKey);
-
-              return (
-                <article
-                  id={slug}
-                  key={id}
-                  className="group relative overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-lg shadow-slate-900/5 transition hover:-translate-y-1 hover:border-sky-200 hover:shadow-2xl hover:shadow-sky-900/10"
-                >
-                  <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-sky-500 via-orange-400 to-orange-500" />
-                  <div className="flex size-12 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 group-hover:bg-orange-50 group-hover:text-orange-600">
-                    <Icon className="size-6" aria-hidden="true" />
-                  </div>
-                  <h2 className="mt-6 text-base font-semibold text-slate-950">
-                    {title}
-                  </h2>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">
-                    {shortDescription}
-                  </p>
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {capabilities.map((chip) => (
-                      <span
-                        key={chip}
-                        className="rounded-full bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200"
-                      >
-                        {chip}
-                      </span>
-                    ))}
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+          {devices.length ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {devices.map(
+                ({
+                  id,
+                  title,
+                  slug,
+                  shortDescription,
+                  capabilities,
+                  iconKey,
+                  imageUrl,
+                }) => {
+                  return (
+                    <article
+                      id={slug}
+                      key={id}
+                      className="group relative overflow-hidden rounded-2xl border border-white bg-white p-5 shadow-lg shadow-slate-900/5 transition hover:-translate-y-1 hover:border-sky-200 hover:shadow-2xl hover:shadow-sky-900/10"
+                    >
+                      <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-sky-500 via-orange-400 to-orange-500" />
+                      {imageUrl ? (
+                        <div className="relative -mx-5 -mt-5 mb-5 aspect-[16/10] overflow-hidden bg-slate-100">
+                          <Image
+                            src={imageUrl}
+                            alt={`${title} teknik servis görseli`}
+                            fill
+                            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                            className="object-cover transition duration-500 group-hover:scale-105"
+                          />
+                        </div>
+                      ) : null}
+                      <div className="flex size-12 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 group-hover:bg-orange-50 group-hover:text-orange-600">
+                        {createElement(getDeviceIcon(iconKey), {
+                          className: "size-6",
+                          "aria-hidden": true,
+                        })}
+                      </div>
+                      <h2 className="mt-6 text-base font-semibold text-slate-950">
+                        {title}
+                      </h2>
+                      <p className="mt-3 text-sm leading-6 text-slate-600">
+                        {shortDescription}
+                      </p>
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        {capabilities.map((chip) => (
+                          <span
+                            key={chip}
+                            className="rounded-full bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200"
+                          >
+                            {chip}
+                          </span>
+                        ))}
+                      </div>
+                    </article>
+                  );
+                }
+              )}
+            </div>
+          ) : (
+            <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
+              <h2 className="text-xl font-semibold text-slate-950">
+                Cihaz grubu henüz yayınlanmadı.
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Servis kapsamı hakkında bilgi almak için bizimle iletişime
+                geçebilirsiniz.
+              </p>
+            </div>
+          )}
 
           <div className="mt-12 rounded-3xl border border-sky-100 bg-white p-6 shadow-xl shadow-slate-900/5 sm:flex sm:items-center sm:justify-between sm:gap-8 lg:p-8">
             <div>

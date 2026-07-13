@@ -387,3 +387,20 @@ The public Hero slider now reads active `HeroSlide` records through `PrismaHeroS
 - Slider timing and control visibility are stored in typed site settings.
 
 The public slider keeps the client-side carousel behavior while data ownership moves to PostgreSQL and the Media Library.
+
+## Database-Backed Device Groups Flow
+
+Device group content is now owned by PostgreSQL through `PrismaDeviceGroupRepository`.
+
+- Admin routes call repository methods from server components or server actions.
+- Public homepage Devices preview calls the public featured-device query.
+- `/cihazlar` calls the public active-device query.
+- Public DTOs contain only safe text, slug, icon key, capability labels and generated media URLs.
+- Storage keys, audit metadata and internal user IDs are not exposed to public components.
+
+Admin mutations revalidate `/`, `/cihazlar`, `/admin/devices` and `/admin/dashboard`. The local `src/content/devices.ts` file remains a seed source, not the production runtime source.
+# DB Destekli Hizmet Akışı
+
+Hizmet içerikleri admin panelinden `Service` modeli üzerinden yönetilir. Public ana sayfa önizlemesi aktif ve öne çıkan hizmetleri, `/hizmetler` sayfası ise aktif ve arşivlenmemiş tüm hizmetleri repository katmanından okur.
+
+UI bileşenleri Prisma sorgusu çalıştırmaz; `PrismaServiceRepository` admin ve public DTO sınırlarını ayırır. Public DTO storage key, kullanıcı ID'si veya audit metadata içermez. Admin mutasyonları server action üzerinden RBAC, Zod validasyonu, audit log ve public path revalidation akışından geçer.

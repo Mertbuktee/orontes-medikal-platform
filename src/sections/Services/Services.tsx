@@ -1,9 +1,13 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { createElement } from "react";
 
-import { getFeaturedServices, getServiceIcon } from "@/content/services";
+import { getPublicFeaturedServices } from "@/lib/services/public-services";
+import { getServiceIcon } from "@/lib/services/service-registry";
 
-export default function Services() {
+export default async function Services() {
+  const services = await getPublicFeaturedServices(6);
+
   return (
     <section id="hizmetler" className="bg-white py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -17,20 +21,25 @@ export default function Services() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {getFeaturedServices().map(({ title, shortDescription, slug, iconKey }) => {
-            const Icon = getServiceIcon(iconKey);
-
-            return (
+        {services.length ? (
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {services.map(({ title, shortDescription, slug, iconKey }) => (
               <Link
                 key={slug}
-                href={slug === "elektronik-kart-tamiri" ? "/elektronik-kart-tamiri" : `/hizmetler#${slug}`}
+                href={
+                  slug === "elektronik-kart-tamiri"
+                    ? "/elektronik-kart-tamiri"
+                    : `/hizmetler#${slug}`
+                }
                 className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl hover:shadow-sky-900/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
               >
                 <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-sky-500 via-orange-400 to-orange-500 opacity-80" />
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex size-12 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 transition-colors group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:ring-orange-100">
-                    <Icon className="size-6" aria-hidden="true" />
+                    {createElement(getServiceIcon(iconKey), {
+                      className: "size-6",
+                      "aria-hidden": true,
+                    })}
                   </div>
                   <ArrowUpRight
                     className="size-5 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-orange-500"
@@ -45,9 +54,15 @@ export default function Services() {
                   {shortDescription}
                 </p>
               </Link>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-12 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+            <p className="text-sm font-semibold text-slate-700">
+              Yayında olan hizmet içeriği bulunmuyor.
+            </p>
+          </div>
+        )}
 
         <div className="mt-10 flex justify-center">
           <Link

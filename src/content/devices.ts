@@ -1,41 +1,33 @@
-import {
-  Activity,
-  Bed,
-  ClipboardPlus,
-  Cpu,
-  HeartPulse,
-  Monitor,
-  MoveHorizontal,
-  ScanHeart,
-  Stethoscope,
-  Table2,
-  Thermometer,
-  Wind,
-  type LucideIcon,
-} from "lucide-react";
-
-export type DeviceIconKey =
-  | "activity"
-  | "bed"
-  | "clipboard-plus"
-  | "cpu"
-  | "heart-pulse"
-  | "monitor"
-  | "move-horizontal"
-  | "scan-heart"
-  | "stethoscope"
-  | "table"
-  | "thermometer"
-  | "wind";
-
 export type DeviceGroup = {
   id: string;
   title: string;
   slug: string;
   shortDescription: string;
   fullDescription: string;
-  iconKey: DeviceIconKey;
-  capabilities: string[];
+  iconKey:
+    | "stethoscope"
+    | "activity"
+    | "heart-pulse"
+    | "monitor"
+    | "wind"
+    | "gauge"
+    | "bed"
+    | "armchair"
+    | "circuit-board"
+    | "clipboard-heart"
+    | "scan-heart"
+    | "microscope";
+  capabilities: Array<
+    | "Elektronik"
+    | "Mekanik"
+    | "Kart Onarımı"
+    | "Bakım"
+    | "Arıza Analizi"
+    | "Test"
+    | "Yedek Parça"
+    | "Kalibrasyon"
+    | "Pnömatik"
+  >;
   isFeatured: boolean;
   order: number;
   isActive: boolean;
@@ -43,27 +35,13 @@ export type DeviceGroup = {
   seoDescription: string;
 };
 
-const deviceIconMap: Record<DeviceIconKey, LucideIcon> = {
-  activity: Activity,
-  bed: Bed,
-  "clipboard-plus": ClipboardPlus,
-  cpu: Cpu,
-  "heart-pulse": HeartPulse,
-  monitor: Monitor,
-  "move-horizontal": MoveHorizontal,
-  "scan-heart": ScanHeart,
-  stethoscope: Stethoscope,
-  table: Table2,
-  thermometer: Thermometer,
-  wind: Wind,
-};
-
 export const deviceGroups: DeviceGroup[] = [
   {
     id: "anesthesia-devices",
     title: "Anestezi Cihazları",
     slug: "anestezi-cihazlari",
-    shortDescription: "Gaz akışı, sensör ve elektronik kontrol üniteleri için servis.",
+    shortDescription:
+      "Gaz akışı, sensör ve elektronik kontrol üniteleri için servis.",
     fullDescription:
       "Anestezi cihazlarında gaz akışı, sensör, bağlantı, elektronik kontrol ve çalışma güvenliği servis kapsamına göre değerlendirilir.",
     iconKey: "stethoscope",
@@ -79,11 +57,12 @@ export const deviceGroups: DeviceGroup[] = [
     id: "ventilators",
     title: "Ventilatörler",
     slug: "ventilatorler",
-    shortDescription: "Solunum desteği sağlayan sistemlerde arıza analizi ve bakım.",
+    shortDescription:
+      "Solunum desteği sağlayan sistemlerde arıza analizi ve bakım.",
     fullDescription:
       "Ventilatörlerde elektronik, mekanik ve pnömatik bileşenler servis kapsamına göre incelenir; arıza belirtisi ve test edilebilirlik birlikte değerlendirilir.",
     iconKey: "wind",
-    capabilities: ["Mekanik", "Arıza Analizi", "Test"],
+    capabilities: ["Mekanik", "Pnömatik", "Test"],
     isFeatured: true,
     order: 2,
     isActive: true,
@@ -95,7 +74,8 @@ export const deviceGroups: DeviceGroup[] = [
     id: "patient-monitors",
     title: "Hastabaşı Monitörleri",
     slug: "hastabasi-monitorleri",
-    shortDescription: "Ekran, modül, bağlantı ve ölçüm devreleri için teknik destek.",
+    shortDescription:
+      "Ekran, modül, bağlantı ve ölçüm devreleri için teknik destek.",
     fullDescription:
       "Hastabaşı monitörlerinde ekran, güç, batarya, SpO2, NIBP, bağlantı ve ölçüm modülleri teknik servis sürecinde değerlendirilir.",
     iconKey: "monitor",
@@ -111,11 +91,12 @@ export const deviceGroups: DeviceGroup[] = [
     id: "blood-pressure-spo2",
     title: "Tansiyon ve SpO2 Ölçerler",
     slug: "tansiyon-spo2-olcerler",
-    shortDescription: "Ölçüm doğruluğunu etkileyen sensör ve devre kontrolleri.",
+    shortDescription:
+      "Ölçüm doğruluğunu etkileyen sensör ve devre kontrolleri.",
     fullDescription:
       "Tansiyon ve SpO2 ölçerlerde sensör, bağlantı, ölçüm doğruluğu ve elektronik devre kontrolleri servis kapsamına göre yapılır.",
-    iconKey: "thermometer",
-    capabilities: ["Elektronik", "Bakım", "Test"],
+    iconKey: "gauge",
+    capabilities: ["Elektronik", "Bakım", "Kalibrasyon"],
     isFeatured: true,
     order: 4,
     isActive: true,
@@ -127,7 +108,8 @@ export const deviceGroups: DeviceGroup[] = [
     id: "ecg-devices",
     title: "EKG Cihazları",
     slug: "ekg-cihazlari",
-    shortDescription: "Sinyal alma, yazdırma ve bağlantı sorunlarında servis çözümü.",
+    shortDescription:
+      "Sinyal alma, yazdırma ve bağlantı sorunlarında servis çözümü.",
     fullDescription:
       "EKG cihazlarında sinyal alma, bağlantı, yazdırma, güç ve elektronik kart sorunları teknik servis sürecinde incelenir.",
     iconKey: "heart-pulse",
@@ -143,7 +125,8 @@ export const deviceGroups: DeviceGroup[] = [
     id: "holter-devices",
     title: "Holter Cihazları",
     slug: "holter-cihazlari",
-    shortDescription: "Kayıt, batarya, kablo ve veri aktarım problemlerinde destek.",
+    shortDescription:
+      "Kayıt, batarya, kablo ve veri aktarım problemlerinde destek.",
     fullDescription:
       "Holter cihazlarında kayıt, batarya, kablo, bağlantı ve veri aktarım problemleri servis kapsamında değerlendirilir.",
     iconKey: "scan-heart",
@@ -159,7 +142,8 @@ export const deviceGroups: DeviceGroup[] = [
     id: "stress-test-devices",
     title: "Efor Cihazları",
     slug: "efor-cihazlari",
-    shortDescription: "Kontrol kartı, bağlantı ve çalışma güvenliği için inceleme.",
+    shortDescription:
+      "Kontrol kartı, bağlantı ve çalışma güvenliği için inceleme.",
     fullDescription:
       "Efor cihazlarında kontrol kartı, bağlantı, hareket sistemi ve çalışma güvenliği servis kapsamına göre kontrol edilir.",
     iconKey: "activity",
@@ -175,10 +159,11 @@ export const deviceGroups: DeviceGroup[] = [
     id: "operating-tables",
     title: "Ameliyat Masaları",
     slug: "ameliyat-masalari",
-    shortDescription: "Hareket mekanizması, kumanda ve elektronik kontrol servisi.",
+    shortDescription:
+      "Hareket mekanizması, kumanda ve elektronik kontrol servisi.",
     fullDescription:
       "Ameliyat masalarında hareket mekanizması, kumanda, motor, elektronik kontrol ve güvenli çalışma durumu teknik olarak değerlendirilir.",
-    iconKey: "table",
+    iconKey: "armchair",
     capabilities: ["Mekanik", "Elektronik", "Bakım"],
     isFeatured: false,
     order: 8,
@@ -207,10 +192,11 @@ export const deviceGroups: DeviceGroup[] = [
     id: "patient-stretchers",
     title: "Hasta Sedyeleri",
     slug: "hasta-sedyeleri",
-    shortDescription: "Mekanik hareket, fren ve taşıma güvenliği için bakım.",
+    shortDescription:
+      "Mekanik hareket, fren ve taşıma güvenliği için bakım.",
     fullDescription:
       "Hasta sedyelerinde mekanik hareket, fren sistemi, taşıma güvenliği ve bakım ihtiyacı servis kapsamında değerlendirilir.",
-    iconKey: "move-horizontal",
+    iconKey: "armchair",
     capabilities: ["Mekanik", "Bakım", "Yedek Parça"],
     isFeatured: false,
     order: 10,
@@ -223,10 +209,11 @@ export const deviceGroups: DeviceGroup[] = [
     id: "motorized-tables",
     title: "Motorlu Masalar",
     slug: "motorlu-masalar",
-    shortDescription: "Motor sürücüleri, kontrol kutuları ve hareket sistemleri.",
+    shortDescription:
+      "Motor sürücüleri, kontrol kutuları ve hareket sistemleri.",
     fullDescription:
       "Motorlu masalarda motor sürücüleri, kontrol kutuları, bağlantılar ve hareket sistemleri teknik olarak incelenir.",
-    iconKey: "clipboard-plus",
+    iconKey: "clipboard-heart",
     capabilities: ["Mekanik", "Elektronik", "Arıza Analizi"],
     isFeatured: false,
     order: 11,
@@ -239,10 +226,11 @@ export const deviceGroups: DeviceGroup[] = [
     id: "electronic-boards",
     title: "Elektronik Kartlar",
     slug: "elektronik-kartlar",
-    shortDescription: "Medikal cihaz kartlarında komponent bazlı onarım ve test.",
+    shortDescription:
+      "Medikal cihaz kartlarında komponent bazlı onarım ve test.",
     fullDescription:
       "Medikal cihaz elektronik kartlarında komponent bazlı onarım, lehimleme, besleme devresi analizi ve fonksiyon testleri uygulanır.",
-    iconKey: "cpu",
+    iconKey: "circuit-board",
     capabilities: ["Kart Onarımı", "Elektronik", "Test"],
     isFeatured: false,
     order: 12,
@@ -252,10 +240,6 @@ export const deviceGroups: DeviceGroup[] = [
       "Medikal cihaz elektronik kartlarında komponent onarımı, besleme devresi analizi ve fonksiyon testi.",
   },
 ];
-
-export function getDeviceIcon(iconKey: DeviceIconKey) {
-  return deviceIconMap[iconKey];
-}
 
 export function getActiveOrderedDevices(items: DeviceGroup[] = deviceGroups) {
   return items

@@ -12,12 +12,15 @@ export type DeviceGroupSeedRecord = {
   shortDescription: string;
   fullDescription: string;
   iconKey: string;
+  imageId: string | null;
   capabilities: string[];
   isFeatured: boolean;
   order: number;
   isActive: boolean;
   seoTitle: string;
   seoDescription: string;
+  openGraphImageId: string | null;
+  archivedAt: Date | null;
 };
 
 export type ServiceSeedRecord = {
@@ -27,11 +30,16 @@ export type ServiceSeedRecord = {
   shortDescription: string;
   fullDescription: string;
   iconKey: string;
+  imageId: string | null;
   isFeatured: boolean;
   order: number;
   isActive: boolean;
   seoTitle: string;
   seoDescription: string;
+  openGraphImageId: string | null;
+  ctaLabel: string | null;
+  ctaHref: string | null;
+  archivedAt: Date | null;
 };
 
 export type HeroMediaSeedRecord = {
@@ -72,12 +80,15 @@ export function getDeviceGroupSeedRecords(items: DeviceGroup[] = deviceGroups) {
       shortDescription: item.shortDescription,
       fullDescription: item.fullDescription,
       iconKey: item.iconKey,
+      imageId: null,
       capabilities: item.capabilities,
       isFeatured: item.isFeatured,
       order: item.order,
       isActive: item.isActive,
       seoTitle: item.seoTitle,
       seoDescription: item.seoDescription,
+      openGraphImageId: null,
+      archivedAt: null,
     }));
 }
 
@@ -91,11 +102,16 @@ export function getServiceSeedRecords(items: ServiceItem[] = services) {
       shortDescription: item.shortDescription,
       fullDescription: item.fullDescription,
       iconKey: item.iconKey,
+      imageId: null,
       isFeatured: item.isFeatured,
       order: item.order,
       isActive: item.isActive,
       seoTitle: item.seoTitle,
       seoDescription: item.seoDescription,
+      openGraphImageId: null,
+      ctaLabel: item.ctaLabel ?? null,
+      ctaHref: item.ctaHref ?? null,
+      archivedAt: null,
     }));
 }
 

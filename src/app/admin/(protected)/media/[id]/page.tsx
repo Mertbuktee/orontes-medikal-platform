@@ -124,7 +124,10 @@ export default async function AdminMediaDetailPage({
                     href={item.adminUrl}
                     className="block rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-800 transition hover:border-orange-200 hover:bg-orange-50"
                   >
-                    {item.entityType}: {item.title}
+                    <span className="block text-xs uppercase tracking-[0.14em] text-orange-600">
+                      {getUsageLabel(item.entityType)}
+                    </span>
+                    <span className="mt-1 block">{item.title}</span>
                   </Link>
                 ))}
               </div>
@@ -283,6 +286,19 @@ function getSelectLabel(name: string, value: string) {
   }
 
   return value;
+}
+
+function getUsageLabel(entityType: string) {
+  const labels: Record<string, string> = {
+    HeroSlide: "Hero Slider",
+    BlogPost: "Blog Kapak Görseli",
+    DeviceGroup: "Cihaz Grubu Görseli",
+    DeviceGroupOpenGraph: "Cihaz Grubu Open Graph",
+    Service: "Hizmet Görseli",
+    ServiceOpenGraph: "Hizmet Open Graph",
+  };
+
+  return labels[entityType] ?? entityType;
 }
 
 function ActionButton({

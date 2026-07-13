@@ -115,3 +115,19 @@ Hero Slider coverage includes:
 - RBAC permissions for Hero slider management
 
 Database-backed Hero slide repository behavior should use isolated database integration tests before destructive reorder/delete scenarios are expanded.
+
+## Device Group Tests
+
+Device group coverage includes:
+
+- slug normalization and URL-safe validation
+- icon-key and capability allowlists
+- admin page-size allowlist behavior
+- RBAC distinction between view, update, publish, reorder and delete permissions
+- seed import idempotency through slug-based upsert
+- public featured device limit and active-only behavior
+
+Repository reorder/archive/delete behavior should use isolated database integration tests before destructive scenarios are expanded.
+# Hizmet Modülü Testleri
+
+Hizmet validasyonu için slug normalizasyonu, allowlist ikon kontrolü, CTA URL güvenliği, CTA eşleşme kuralı ve liste sorgusu normalizasyonu test edilir. Repository ve public entegrasyon testleri cihaz modülündeki DB stratejisiyle aynı izole test veritabanı yaklaşımını kullanmalıdır.

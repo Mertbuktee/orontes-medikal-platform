@@ -1,20 +1,16 @@
-import {
-  CircuitBoard,
-  Gauge,
-  Headset,
-  Microscope,
-  PackageCheck,
-  Stethoscope,
-  type LucideIcon,
-} from "lucide-react";
-
 export type ServiceIconKey =
   | "circuit-board"
+  | "wrench"
+  | "settings"
   | "gauge"
-  | "headset"
   | "microscope"
+  | "headset"
   | "package-check"
-  | "stethoscope";
+  | "clipboard-check"
+  | "stethoscope"
+  | "shield-check"
+  | "activity"
+  | "scan-search";
 
 export type ServiceItem = {
   id: string;
@@ -28,15 +24,8 @@ export type ServiceItem = {
   isActive: boolean;
   seoTitle: string;
   seoDescription: string;
-};
-
-const serviceIconMap: Record<ServiceIconKey, LucideIcon> = {
-  "circuit-board": CircuitBoard,
-  gauge: Gauge,
-  headset: Headset,
-  microscope: Microscope,
-  "package-check": PackageCheck,
-  stethoscope: Stethoscope,
+  ctaLabel?: string | null;
+  ctaHref?: string | null;
 };
 
 export const services: ServiceItem[] = [
@@ -55,6 +44,8 @@ export const services: ServiceItem[] = [
     seoTitle: "Elektronik Kart Tamiri | Orontes Teknoloji",
     seoDescription:
       "Medikal cihaz elektronik kartlarında arıza tespiti, komponent değişimi, lehimleme ve fonksiyon testi.",
+    ctaLabel: "Detayları İncele",
+    ctaHref: "/elektronik-kart-tamiri",
   },
   {
     id: "medical-device-maintenance",
@@ -137,10 +128,6 @@ export const services: ServiceItem[] = [
       "Medikal cihaz servis sürecinde komponent, mekanik parça ve yedek parça temini desteği.",
   },
 ];
-
-export function getServiceIcon(iconKey: ServiceIconKey) {
-  return serviceIconMap[iconKey];
-}
 
 export function getActiveOrderedServices(items: ServiceItem[] = services) {
   return items

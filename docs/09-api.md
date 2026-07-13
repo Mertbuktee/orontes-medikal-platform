@@ -288,3 +288,27 @@ Hero Slider management currently uses App Router server actions rather than publ
 - `updateHeroSliderSettings(formData)`: requires `heroSlides.update`.
 
 All actions validate input server-side, select media by Media ID only, write audit events and revalidate affected public/admin routes.
+
+## Device Group Admin Actions
+
+Device group management currently uses App Router server actions rather than public API routes.
+
+- `createDeviceGroup(formData)`: requires `devices.create`.
+- `updateDeviceGroup(formData)`: requires `devices.update`.
+- `moveDeviceGroup(formData)`: requires `devices.reorder`.
+- `toggleDeviceActive(formData)`: requires `devices.publish`.
+- `toggleDeviceFeatured(formData)`: requires `devices.publish`.
+- `archiveDeviceGroup(formData)`: requires `devices.delete`.
+- `restoreDeviceGroup(formData)`: requires `devices.publish`.
+- `deleteArchivedDeviceGroup(formData)`: requires `devices.delete`.
+
+All actions validate input server-side, select media by Media ID only, reject unknown icons/capabilities, write audit events and revalidate `/`, `/cihazlar`, `/admin/devices` and `/admin/dashboard`.
+# Hizmet Yönetimi Aksiyonları
+
+Hizmet yönetimi admin server action mimarisiyle yürür. Create, update, reorder, active/featured state, archive, restore ve kalıcı silme işlemleri server-side oturum ve permission kontrolü gerektirir.
+
+Public route değişmez:
+
+- `/hizmetler` aktif hizmetleri listeler.
+- Ana sayfa yalnızca aktif ve öne çıkan hizmetleri gösterir.
+- Elektronik kart tamiri hizmeti `/elektronik-kart-tamiri` landing page'ine yönlenmeye devam eder.

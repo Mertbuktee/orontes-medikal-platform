@@ -1,5 +1,5 @@
 import type { MediaCategory, MediaUsageType } from "@prisma/client";
-import { Archive, FileImage, Search } from "lucide-react";
+import { Archive, FileImage, Search, UploadCloud } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -37,21 +37,43 @@ export default async function AdminMediaPage({
   const result = await repository.listMedia(filters);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <AdminPageHeader
         eyebrow="Medya Yönetimi"
         title="Medya Kütüphanesi"
         description="Site görsellerini güvenli şekilde yükleyin, sınıflandırın ve içeriklerde yeniden kullanıma hazırlayın."
       />
 
-      <MediaUploadForm />
+      <details className="group rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60">
+        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-1 outline-none focus-visible:ring-2 focus-visible:ring-orange-300">
+          <span className="flex min-w-0 items-center gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-600">
+              <UploadCloud className="size-5" aria-hidden="true" />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-base font-semibold text-slate-950">
+                Yeni medya yükle
+              </span>
+              <span className="block text-xs text-slate-500">
+                Yükleme formunu yalnız ihtiyaç olduğunda aç.
+              </span>
+            </span>
+          </span>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 transition group-open:bg-orange-50 group-open:text-orange-700">
+            Aç / Kapat
+          </span>
+        </summary>
+        <div className="mt-4">
+          <MediaUploadForm />
+        </div>
+      </details>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
+      <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60">
         <form
           action="/admin/media"
           className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1.3fr_repeat(6,minmax(0,1fr))_auto]"
         >
-          <div className="flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 md:col-span-2 xl:col-span-1">
+          <div className="flex min-h-11 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 md:col-span-2 xl:col-span-1">
             <Search className="size-4 text-slate-400" aria-hidden="true" />
             <input
               name="q"
@@ -104,14 +126,14 @@ export default async function AdminMediaPage({
           <input type="hidden" name="page" value="1" />
           <button
             type="submit"
-            className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:bg-orange-600"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:bg-orange-600"
           >
             Filtrele
           </button>
         </form>
       </section>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
+      <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-slate-950">
@@ -122,10 +144,16 @@ export default async function AdminMediaPage({
             </p>
           </div>
           <div className="flex gap-2">
-            <PageLink disabled={result.page <= 1} href={buildListHref({ ...filters, page: result.page - 1 })}>
+            <PageLink
+              disabled={result.page <= 1}
+              href={buildListHref({ ...filters, page: result.page - 1 })}
+            >
               Önceki
             </PageLink>
-            <PageLink disabled={result.page >= result.totalPages} href={buildListHref({ ...filters, page: result.page + 1 })}>
+            <PageLink
+              disabled={result.page >= result.totalPages}
+              href={buildListHref({ ...filters, page: result.page + 1 })}
+            >
               Sonraki
             </PageLink>
           </div>
@@ -135,7 +163,12 @@ export default async function AdminMediaPage({
           <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {result.items.map((media) => {
               const usageCount =
-                media._count.heroSlides + media._count.blogPostCovers;
+                media._count.heroSlides +
+                media._count.blogPostCovers +
+                media._count.deviceGroups +
+                media._count.deviceGroupOpenGraphs +
+                media._count.services +
+                media._count.serviceOpenGraphs;
               const hasThumbnail = media.variants.some(
                 (variant) => variant.variant === "THUMBNAIL"
               );
@@ -192,7 +225,10 @@ export default async function AdminMediaPage({
           </div>
         ) : (
           <div className="mt-5 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
-            <FileImage className="mx-auto size-10 text-slate-400" aria-hidden="true" />
+            <FileImage
+              className="mx-auto size-10 text-slate-400"
+              aria-hidden="true"
+            />
             <h3 className="mt-4 text-base font-semibold text-slate-950">
               Henüz medya dosyası bulunmuyor.
             </h3>
@@ -219,7 +255,7 @@ function SelectFilter({
     <select
       name={name}
       defaultValue={value}
-      className="min-h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-800 outline-none focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
+      className="min-h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-800 outline-none focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
     >
       {children}
     </select>

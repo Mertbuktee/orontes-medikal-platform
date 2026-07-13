@@ -43,13 +43,13 @@ export const adminNavItems: AdminNavItem[] = [
     title: "Cihaz Grupları",
     href: "/admin/devices",
     icon: MonitorCog,
-    requiredPermission: "devices.manage",
+    requiredPermission: "devices.view",
   },
   {
     title: "Hizmetler",
     href: "/admin/services",
     icon: Boxes,
-    requiredPermission: "services.manage",
+    requiredPermission: "services.view",
   },
   {
     title: "Blog",
@@ -119,9 +119,14 @@ export const adminQuickActionItems = [
     icon: ImageIcon,
   },
   {
-    title: "Cihaz Grubu Ekle",
+    title: "Cihaz Gruplarını Yönet",
     href: "/admin/devices",
     icon: MonitorCog,
+  },
+  {
+    title: "Hizmetleri Yönet",
+    href: "/admin/services",
+    icon: Boxes,
   },
   {
     title: "Site Ayarlarını Aç",

@@ -456,6 +456,102 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     note: "Media detail renders preview, metadata, variants and usage state.",
   });
 
+  await page.goto("/admin/services", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Hizmetler", exact: true })
+  ).toBeVisible();
+  const servicesDesktopPath = path.join(
+    adminDir,
+    "admin-services-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: servicesDesktopPath });
+  results.push({
+    name: "admin-services-1440x900",
+    screenshotPath: servicesDesktopPath,
+    status: "PASS",
+    note: "Service management list renders DB-backed services.",
+  });
+
+  await page.goto("/admin/services/new", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Yeni Hizmet Ekle" })
+  ).toBeVisible();
+  const serviceCreatePath = path.join(
+    adminDir,
+    "admin-service-create-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: serviceCreatePath });
+  results.push({
+    name: "admin-service-create-1440x900",
+    screenshotPath: serviceCreatePath,
+    status: "PASS",
+    note: "Service create form renders slug suggestion, SEO helpers and media selectors.",
+  });
+
+  await page.goto("/admin/services", { waitUntil: "domcontentloaded" });
+  const firstServiceEditLink = page
+    .getByRole("link", { name: "Düzenle" })
+    .first();
+  await expect(firstServiceEditLink).toBeVisible();
+  await firstServiceEditLink.click();
+  await expect(page.getByRole("heading", { name: "Hizmeti Düzenle" })).toBeVisible();
+  const serviceEditPath = path.join(
+    adminDir,
+    "admin-service-edit-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: serviceEditPath });
+  results.push({
+    name: "admin-service-edit-1440x900",
+    screenshotPath: serviceEditPath,
+    status: "PASS",
+    note: "Service edit form renders active, featured, SEO and media controls.",
+  });
+
+  await page.goto("/admin/services?active=inactive", {
+    waitUntil: "domcontentloaded",
+  });
+  const servicesInactivePath = path.join(
+    adminDir,
+    "admin-services-inactive-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: servicesInactivePath });
+  results.push({
+    name: "admin-services-inactive-1440x900",
+    screenshotPath: servicesInactivePath,
+    status: "PASS",
+    note: "Service inactive filter state renders.",
+  });
+
+  await page.goto("/admin/services?featured=featured", {
+    waitUntil: "domcontentloaded",
+  });
+  const servicesFeaturedPath = path.join(
+    adminDir,
+    "admin-services-featured-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: servicesFeaturedPath });
+  results.push({
+    name: "admin-services-featured-1440x900",
+    screenshotPath: servicesFeaturedPath,
+    status: "PASS",
+    note: "Service featured filter state renders.",
+  });
+
+  await page.goto("/admin/services?archived=archived", {
+    waitUntil: "domcontentloaded",
+  });
+  const servicesArchivedPath = path.join(
+    adminDir,
+    "admin-services-archived-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: servicesArchivedPath });
+  results.push({
+    name: "admin-services-archived-1440x900",
+    screenshotPath: servicesArchivedPath,
+    status: "PASS",
+    note: "Service archived filter state renders.",
+  });
+
   await page.setViewportSize({ width: 375, height: 667 });
   await page.goto("/admin/service-requests", { waitUntil: "domcontentloaded" });
   await expect(
@@ -484,6 +580,19 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     screenshotPath: mediaMobilePath,
     status: "PASS",
     note: "Media library remains usable on mobile.",
+  });
+
+  await page.goto("/admin/services", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Hizmetler", exact: true })
+  ).toBeVisible();
+  const servicesMobilePath = path.join(adminDir, "admin-services-375x667.png");
+  await page.screenshot({ fullPage: true, path: servicesMobilePath });
+  results.push({
+    name: "admin-services-375x667",
+    screenshotPath: servicesMobilePath,
+    status: "PASS",
+    note: "Service management list remains usable on mobile.",
   });
 
   await page.goto("/admin/hero-slides", { waitUntil: "domcontentloaded" });

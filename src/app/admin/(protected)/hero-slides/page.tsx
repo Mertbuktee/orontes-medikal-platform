@@ -1,4 +1,4 @@
-import {
+﻿import {
   ArrowDown,
   ArrowUp,
   ChevronsDown,
@@ -62,7 +62,7 @@ export default async function AdminHeroSlidesPage() {
         >
           <label className="block">
             <span className="text-sm font-semibold text-slate-700">
-              Autoplay aralığı
+              Autoplay aralığı (milisaniye)
             </span>
             <input
               name="autoplayIntervalMs"
@@ -75,7 +75,7 @@ export default async function AdminHeroSlidesPage() {
           </label>
           <label className="block">
             <span className="text-sm font-semibold text-slate-700">
-              Geçiş süresi
+              Geçiş süresi (milisaniye)
             </span>
             <input
               name="transitionDurationMs"
@@ -274,3 +274,6 @@ function SmallButton({
     </button>
   );
 }
+
+
+

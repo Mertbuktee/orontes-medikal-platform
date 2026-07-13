@@ -16,8 +16,10 @@ import {
 import { getServiceRequestStatusMeta } from "@/components/admin/service-request-status";
 import { requirePermission } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/database/prisma";
+import { PrismaDeviceGroupRepository } from "@/lib/database/repositories/device-groups";
 import { PrismaHeroSlideRepository } from "@/lib/database/repositories/hero-slides";
 import { PrismaMediaRepository } from "@/lib/database/repositories/media";
+import { PrismaServiceRepository } from "@/lib/database/repositories/services";
 import { PrismaServiceRequestRepository } from "@/lib/database/repositories/service-requests";
 import { hasPermission } from "@/lib/rbac/permissions";
 
@@ -30,6 +32,12 @@ type MediaSummary = Awaited<
   ReturnType<PrismaMediaRepository["getDashboardSummary"]>
 >;
 type MediaLatestItem = MediaSummary["latest"][number];
+type DeviceSummary = Awaited<
+  ReturnType<PrismaDeviceGroupRepository["getDashboardSummary"]>
+>;
+type ServiceSummary = Awaited<
+  ReturnType<PrismaServiceRepository["getDashboardSummary"]>
+>;
 
 const readinessCards = [
   {
@@ -60,7 +68,16 @@ export default async function AdminDashboardPage() {
   const canViewRequests = hasPermission(session.role, "serviceRequests.view");
   const canViewMedia = hasPermission(session.role, "media.view");
   const canViewHero = hasPermission(session.role, "heroSlides.view");
-  const [serviceRequestSummary, mediaSummary, heroSummary] = await Promise.all([
+  const canViewDevices = hasPermission(session.role, "devices.view");
+  const canViewServices = hasPermission(session.role, "services.view");
+  const [
+    serviceRequestSummary,
+    mediaSummary,
+    heroSummary,
+    deviceSummary,
+    serviceSummary,
+  ] =
+    await Promise.all([
     canViewRequests
       ? new PrismaServiceRequestRepository(prisma).getDashboardSummary()
       : Promise.resolve(null),
@@ -69,6 +86,12 @@ export default async function AdminDashboardPage() {
       : Promise.resolve(null),
     canViewHero
       ? new PrismaHeroSlideRepository(prisma).getDashboardSummary()
+      : Promise.resolve(null),
+    canViewDevices
+      ? new PrismaDeviceGroupRepository(prisma).getDashboardSummary()
+      : Promise.resolve(null),
+    canViewServices
+      ? new PrismaServiceRepository(prisma).getDashboardSummary()
       : Promise.resolve(null),
   ]);
 
@@ -134,7 +157,7 @@ export default async function AdminDashboardPage() {
         ))}
       </section>
 
-      {mediaSummary || heroSummary ? (
+      {mediaSummary || heroSummary || deviceSummary || serviceSummary ? (
         <section className="grid gap-4 lg:grid-cols-2">
           {mediaSummary ? (
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
@@ -215,6 +238,14 @@ export default async function AdminDashboardPage() {
               </p>
             </div>
           ) : null}
+
+          {deviceSummary ? (
+            <DeviceSummaryPanel summary={deviceSummary} />
+          ) : null}
+
+          {serviceSummary ? (
+            <ServiceSummaryPanel summary={serviceSummary} />
+          ) : null}
         </section>
       ) : null}
 
@@ -286,7 +317,9 @@ export default async function AdminDashboardPage() {
               const isActive =
                 item.href === "/admin/service-requests" ||
                 item.href === "/admin/media" ||
-                item.href === "/admin/hero-slides";
+                item.href === "/admin/hero-slides" ||
+                item.href === "/admin/devices" ||
+                item.href === "/admin/services";
 
               return (
                 <Link
@@ -306,6 +339,76 @@ export default async function AdminDashboardPage() {
             })}
           </div>
         </section>
+      </div>
+    </div>
+  );
+}
+
+function ServiceSummaryPanel({ summary }: { summary: ServiceSummary }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-950">Hizmetler</h2>
+          <p className="text-sm text-slate-500">
+            Son güncelleme: {summary.latest?.title ?? "Henüz kayıt yok"}
+          </p>
+        </div>
+        <Link
+          href="/admin/services"
+          className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-orange-50"
+        >
+          Yönet
+        </Link>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <SummaryCard icon={ClipboardList} label="Aktif" value={summary.activeCount} />
+        <SummaryCard
+          icon={ClipboardList}
+          label="Ana Sayfa"
+          value={summary.featuredCount}
+        />
+        <SummaryCard icon={ClipboardList} label="Pasif" value={summary.inactiveCount} />
+      </div>
+    </div>
+  );
+}
+
+function DeviceSummaryPanel({ summary }: { summary: DeviceSummary }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-950">
+            Cihaz Grupları
+          </h2>
+          <p className="text-sm text-slate-500">
+            Son güncelleme: {summary.latest?.title ?? "Henüz kayıt yok"}
+          </p>
+        </div>
+        <Link
+          href="/admin/devices"
+          className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-orange-50"
+        >
+          Yönet
+        </Link>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <SummaryCard
+          icon={ClipboardList}
+          label="Aktif"
+          value={summary.activeCount}
+        />
+        <SummaryCard
+          icon={ClipboardList}
+          label="Ana Sayfa"
+          value={summary.featuredCount}
+        />
+        <SummaryCard
+          icon={ClipboardList}
+          label="Pasif"
+          value={summary.inactiveCount}
+        />
       </div>
     </div>
   );

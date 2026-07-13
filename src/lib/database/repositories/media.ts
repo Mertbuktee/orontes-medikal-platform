@@ -106,7 +106,16 @@ export class PrismaMediaRepository {
         include: {
           uploadedBy: { select: { id: true, name: true, email: true } },
           variants: true,
-          _count: { select: { heroSlides: true, blogPostCovers: true } },
+          _count: {
+            select: {
+              heroSlides: true,
+              blogPostCovers: true,
+              deviceGroups: true,
+              deviceGroupOpenGraphs: true,
+              services: true,
+              serviceOpenGraphs: true,
+            },
+          },
         },
       }),
       this.client.media.count({ where }),
@@ -128,6 +137,10 @@ export class PrismaMediaRepository {
         uploadedBy: { select: { id: true, name: true, email: true } },
         variants: { orderBy: { variant: "asc" } },
         heroSlides: { select: { id: true, title: true } },
+        deviceGroups: { select: { id: true, title: true } },
+        deviceGroupOpenGraphs: { select: { id: true, title: true } },
+        services: { select: { id: true, title: true } },
+        serviceOpenGraphs: { select: { id: true, title: true } },
         blogPostCovers: { select: { id: true, title: true } },
       },
     });
@@ -187,7 +200,14 @@ export class PrismaMediaRepository {
       return null;
     }
 
-    if (media.heroSlides.length || media.blogPostCovers.length) {
+    if (
+      media.heroSlides.length ||
+      media.blogPostCovers.length ||
+      media.deviceGroups.length ||
+      media.deviceGroupOpenGraphs.length ||
+      media.services.length ||
+      media.serviceOpenGraphs.length
+    ) {
       throw new Error("Media is still in use.");
     }
 
@@ -208,6 +228,30 @@ export class PrismaMediaRepository {
         entityId: post.id,
         title: post.title,
         adminUrl: `/admin/blog/${post.id}`,
+      })),
+      ...media.deviceGroups.map((device) => ({
+        entityType: "DeviceGroup",
+        entityId: device.id,
+        title: device.title,
+        adminUrl: `/admin/devices/${device.id}`,
+      })),
+      ...media.deviceGroupOpenGraphs.map((device) => ({
+        entityType: "DeviceGroupOpenGraph",
+        entityId: device.id,
+        title: device.title,
+        adminUrl: `/admin/devices/${device.id}/edit`,
+      })),
+      ...media.services.map((service) => ({
+        entityType: "Service",
+        entityId: service.id,
+        title: service.title,
+        adminUrl: `/admin/services/${service.id}`,
+      })),
+      ...media.serviceOpenGraphs.map((service) => ({
+        entityType: "ServiceOpenGraph",
+        entityId: service.id,
+        title: service.title,
+        adminUrl: `/admin/services/${service.id}/edit`,
       })),
     ];
   }
@@ -253,10 +297,26 @@ function buildMediaWhere(input: MediaListInput): Prisma.MediaWhereInput {
         ? { gte: input.dateFrom, lte: input.dateTo }
         : undefined,
     ...(input.used === "used"
-      ? { OR: [{ heroSlides: { some: {} } }, { blogPostCovers: { some: {} } }] }
+      ? {
+          OR: [
+            { heroSlides: { some: {} } },
+            { blogPostCovers: { some: {} } },
+            { deviceGroups: { some: {} } },
+            { deviceGroupOpenGraphs: { some: {} } },
+            { services: { some: {} } },
+            { serviceOpenGraphs: { some: {} } },
+          ],
+        }
       : {}),
     ...(input.used === "unused"
-      ? { heroSlides: { none: {} }, blogPostCovers: { none: {} } }
+      ? {
+          heroSlides: { none: {} },
+          blogPostCovers: { none: {} },
+          deviceGroups: { none: {} },
+          deviceGroupOpenGraphs: { none: {} },
+          services: { none: {} },
+          serviceOpenGraphs: { none: {} },
+        }
       : {}),
     ...(query
       ? {

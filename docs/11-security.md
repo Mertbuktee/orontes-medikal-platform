@@ -181,3 +181,18 @@ Filesystem and database changes are not treated as a single atomic operation. Wh
 - Public rendering uses generated media delivery URLs and does not expose storage keys.
 - Preview routes are authenticated admin pages; draft or inactive content is not exposed through public routes.
 - Audit metadata stores IDs and state changes, not full marketing copy or private storage paths.
+
+## Device Group Security
+
+- Device group reads and mutations require server-side RBAC checks.
+- Navigation visibility is only UX; server actions enforce permissions again.
+- Slugs are URL-safe and validated server-side.
+- Icon keys and capability labels are allowlisted; arbitrary component names, HTML or CSS class names are not accepted.
+- Device image and Open Graph image selection accepts active image media only. Archived media and PDFs are rejected.
+- Public DTOs do not expose storage keys, filesystem paths, audit metadata or internal user IDs.
+- Audit metadata stores IDs, slug, active/featured state and media IDs only; full descriptions and storage paths are intentionally excluded.
+# Hizmet Yönetimi Güvenliği
+
+Hizmet CRUD işlemleri server-side RBAC ve Zod validasyonu gerektirir. İkonlar allowlist üzerinden seçilir; arbitrary component/code adı kabul edilmez. CTA bağlantıları yalnızca güvenli internal path veya `http/https` mutlak URL olarak kabul edilir; `javascript:` ve benzeri unsafe şemalar reddedilir.
+
+Medya seçimi raw storage key kabul etmez. Sadece aktif image media kayıtları kullanılabilir; public DTO storage key veya internal user bilgisi döndürmez.
