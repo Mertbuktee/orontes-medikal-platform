@@ -16,6 +16,9 @@ describe("admin RBAC contracts", () => {
     expect(rolePermissions.VIEWER).toEqual([
       "dashboard.view",
       "serviceRequests.view",
+      "account.security.manage",
+      "sessions.manage.own",
+      "mfa.manage.own",
     ]);
   });
 
@@ -77,6 +80,7 @@ describe("admin RBAC contracts", () => {
   it("canAccessAdminRoute evaluates protected admin paths", () => {
     expect(canAccessAdminRoute("VIEWER", "/admin/dashboard")).toBe(true);
     expect(canAccessAdminRoute("VIEWER", "/admin/service-requests")).toBe(true);
+    expect(canAccessAdminRoute("VIEWER", "/admin/account/security")).toBe(true);
     expect(canAccessAdminRoute("VIEWER", "/admin/blog")).toBe(false);
     expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/service-requests")).toBe(true);
     expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/devices")).toBe(true);

@@ -14,6 +14,9 @@ const session = {
   name: "Viewer",
   email: "viewer@example.com",
   expiresAt: new Date("2026-01-01T00:00:00.000Z"),
+  createdAt: new Date("2025-12-31T12:00:00.000Z"),
+  lastSeenAt: new Date("2025-12-31T12:30:00.000Z"),
+  remembered: false,
   mode: "authenticated",
 } satisfies AdminSession;
 

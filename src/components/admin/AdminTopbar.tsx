@@ -1,4 +1,5 @@
-import { LogOut } from "lucide-react";
+import { LogOut, UserCog } from "lucide-react";
+import Link from "next/link";
 
 import { AdminBreadcrumbs } from "@/components/admin/AdminBreadcrumbs";
 import { AdminMobileNav } from "@/components/admin/AdminMobileNav";
@@ -34,6 +35,13 @@ export function AdminTopbar({ currentPath, sessionMode }: AdminTopbarProps) {
                 : "Oturum durumu bilinmiyor"}
             </p>
           </div>
+          <Link
+            href="/admin/account/security"
+            aria-label="Hesap güvenliği"
+            className="inline-flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+          >
+            <UserCog className="size-4" aria-hidden="true" />
+          </Link>
           <form action="/admin/auth/logout" method="post">
             <button
               type="submit"

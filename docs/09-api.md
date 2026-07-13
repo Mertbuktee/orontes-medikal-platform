@@ -334,3 +334,42 @@ Blog CMS uses server actions under `/admin/blog` for create, update, publish, un
 - Requires `settings.seo.manage` for SEO, search verification and analytics groups.
 - Every mutation validates the target group with Zod, writes `SiteSetting`, records an audit event and revalidates `site-settings`, `global-seo` and `branding` cache tags.
 - Branding media values must reference active image media records; raw storage keys are never accepted.
+# Admin Account Security Actions
+
+## Admin Dashboard Inputs
+
+The operations dashboard is rendered by the protected `/admin/dashboard` route and does not expose a public API endpoint.
+
+- Query input: `range=7d | 30d | 90d | year`
+- Invalid or missing range values fall back to `30d`.
+- All dashboard reads require an authenticated admin session and `dashboard.view`.
+- Widget-level data is loaded only when the current role has the related permission.
+- Dashboard responses must not include password hashes, session tokens, raw audit metadata, storage keys, customer messages, phone numbers or e-mail addresses.
+
+Future dashboard export/report endpoints must reuse the same repository DTOs and server-side permission checks.
+
+## User Management Actions
+
+User and role management uses protected App Router pages plus server actions under `/admin/users`.
+
+- `createAdminUser`: requires `users.create`, validates role assignment policy and sends a password setup/reset link.
+- `updateAdminUser`: requires `users.update`, validates e-mail uniqueness and revokes sessions on role changes.
+- `activateAdminUser` / `deactivateAdminUser`: require `users.activate` or `users.deactivate`; deactivation requires a reason and revokes sessions.
+- `assignAdminUserRole`: requires `users.assignRole` and enforces escalation policy.
+- `forceAdminUserPasswordReset`: requires `users.password.forceReset`, creates a new token and revokes sessions.
+- `revokeAdminUserSession` / `revokeAllAdminUserSessions`: require `users.sessions.revoke`.
+- `clearAdminUserLock`: requires `users.update`.
+
+No action accepts or returns password hashes, session tokens, token hashes, MFA secrets or recovery codes.
+
+- `POST /api/admin/auth/login` Remember Me boolean alanını kabul eder; client süre seçemez.
+- `POST /admin/auth/logout` mevcut admin session'ını revoke eder ve cookie'yi temizler.
+- Server Actions:
+  - `requestPasswordReset`
+  - `resetPassword`
+  - `changeOwnPassword`
+  - `revokeOwnSession`
+  - `revokeOtherOwnSessions`
+  - `revokeAllOwnSessions`
+- Tüm state-changing action'lar authenticated session veya same-origin kontrolü yapar.
+- Password reset yanıtları hesap varlığını açığa çıkarmaz; provider hataları raw detayları client'a dönmez.

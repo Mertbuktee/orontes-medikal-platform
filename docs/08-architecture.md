@@ -423,3 +423,34 @@ Blog CMS structured-content model uses validated JSON blocks instead of raw HTML
 Global site identity is stored as typed `SiteSetting` key/value groups such as `site.general`, `site.contact`, `site.branding`, `site.seo`, `site.social`, `site.legal`, `site.footer` and `site.system`. Each group is validated with Zod before persistence. Public components load settings through the cached public settings boundary and never read raw storage keys or private values.
 
 Navbar, Footer, Contact, Organization JSON-LD, LocalBusiness JSON-LD, sitemap and robots use the settings layer as the public source of truth. Maintenance mode is enforced in the public layout instead of Next Proxy because the Next 16 Proxy documentation warns against slow data fetching in Proxy; admin routes remain available for authenticated users to disable maintenance.
+# Account Security Architecture
+
+## Admin Operations Dashboard Architecture
+
+Dashboard data is loaded through `AdminDashboardRepository`; the page does not run Prisma queries directly. The repository returns explicit DTOs for service workload, content health, media health, site readiness, security summary and recent activity.
+
+- The dashboard route is `force-dynamic` and authenticated; it must not use public cache tags.
+- Time range input is allowlisted as `7d`, `30d`, `90d` or `year`; invalid values fall back safely to `30d`.
+- Database timestamps remain UTC. Admin presentation and timeline labels use `Europe/Istanbul`.
+- Permission-aware query composition happens before data loading, so forbidden widget data is not fetched just to be hidden in the browser.
+- Recent activity uses a typed audit presentation registry and never renders raw metadata.
+- Charts are lightweight HTML/CSS summaries with textual/table alternatives; no chart dependency is installed.
+
+Advanced reporting exports, scheduled digest reports and external observability dashboards are deferred to the production reporting/monitoring phase.
+
+## User Management Architecture
+
+User management keeps fixed system roles as the RBAC source of truth. The database stores each user's assigned fixed `Role`, while effective permissions are derived from the code-defined `rolePermissions` map.
+
+- `PrismaAdminUserRepository` owns admin user list/detail/create/update/session operations.
+- `canManageUser()` centralizes privilege-escalation checks such as self-role changes, self-deactivation, ADMIN-to-SUPER_ADMIN restrictions and last active SUPER_ADMIN protection.
+- New users are created with an unknown random password hash plus a password setup/reset token; permanent plaintext passwords are never generated.
+- Role changes and deactivation revoke target sessions so authorization state refreshes safely.
+- Normal user removal is deactivation, not physical deletion, preserving service-request, content and audit history.
+
+- Admin authentication opaque random session token mimarisini korur; raw token yalnız HttpOnly cookie içinde bulunur, PostgreSQL'de sadece hash tutulur.
+- Remember Me standart login payload'ında boolean olarak gelir; oturum süresi server-side policy ile belirlenir.
+- Password reset akışı raw tokenı yalnız kullanıcı linkinde taşır, veritabanında SHA-256 hash saklar, token tek kullanımlıdır ve kısa ömürlüdür.
+- Development email adapter reset linkini `storage/private/auth/password-reset-emails/` altında development-only sink'e yazar. Production mail provider ayrıca yapılandırılmalıdır.
+- MFA foundation AES-256-GCM encryption boundary ve hashlenmiş recovery-code storage sağlar. Full TOTP challenge/enforcement, TOTP/QR dependency onayından sonra etkinleştirilecek ayrı adımdır.
+- Account-security verileri public cache kullanmaz; protected page ve Server Actions request-time çalışır.

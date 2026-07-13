@@ -1,5 +1,14 @@
 # Admin Panel
 
+## Account Security
+
+- `/admin/account/security` her admin kullanıcısının kendi güvenlik merkezidir.
+- Kullanıcı kendi şifresini değiştirebilir; mevcut şifre doğrulanır, yeni şifre Argon2id ile hashlenir ve diğer oturumlar iptal edilir.
+- Aktif oturumlar yalnızca kendi kullanıcı hesabı kapsamında listelenir; token veya token hash UI'ye gösterilmez.
+- Remember Me login kontrolü standart oturumdan daha uzun ama sonlu bir oturum oluşturur; süreyi client değil server politikası belirler.
+- `/admin/forgot-password` ve `/admin/reset-password` generic mesajlar ve tek kullanımlık hashlenmiş reset tokenları kullanır.
+- MFA ekranı bu milestone'da foundation durumundadır: veritabanı, encryption ve recovery-code temel tasarımı hazırdır; TOTP enforcement ayrı production hardening adımıdır.
+
 ## Amaç
 
 Admin panel, Orontes Teknoloji web sitesindeki tüm içeriklerin, servis taleplerinin ve sistem ayarlarının kod yazmadan yönetilebilmesini sağlar.
@@ -513,3 +522,32 @@ Site ayarlari `/admin/settings` altinda yonetilir. Modul sirket kimligi, iletisi
 - `settings.seo.manage`: global SEO, search verification ve analytics ayarlarini gunceller.
 
 Logo, favicon ve default OG image yalniz Media Library icindeki aktif image kayitlarindan secilir; raw storage key girisi yoktur. Public Navbar, Footer, Contact, structured data, sitemap ve robots ayarlari bu modulu tek kaynak olarak kullanir. Maintenance mode public layout seviyesinde bakim ekrani gosterir; admin panel bu akisin disindadir.
+
+## Operations Dashboard
+
+`/admin/dashboard` artik gercek PostgreSQL verilerinden beslenen operasyon merkezi olarak calisir.
+
+- Servis talebi ozetleri: yeni, incelenen/bekleyen, onarimda ve secili aralikta tamamlanan talepler.
+- Talep yogunlugu: 7/30 gun icin gunluk; 90 gun/yil araligi icin daha uzun bucket stratejisine hazir hafif bar gosterimi ve tablo alternatifi.
+- Durum dagilimi ve acik is yuku: PII gostermeden status, atama, ek dosya ve uzun suredir guncellenmeyen talepler.
+- Icerik sagligi: blog, cihaz gruplari, hizmetler, homepage, Hero slider ve SEO/medya eksikleri.
+- Medya sagligi: aktif/arsivli/unused medya, alt metin eksigi ve DB metadata'sindan toplam variant boyutu.
+- Site hazirlik durumu: sirket, iletisim, marka, SEO, legal ve maintenance ayarlari icin configured/missing kontrolu.
+- Guvenlik ozeti: yetkili rollerde login/reset/session/MFA ve kritik audit sayimlari.
+- Son aktivite: raw audit metadata yerine typed, guvenli etiketlerle gosterilir.
+
+Dashboard role-aware calisir. `EDITOR` agirlikli olarak icerik sagligini, `SERVICE_STAFF` servis operasyonlarini, `ADMIN`/`SUPER_ADMIN` ise daha genis operasyon ve guvenlik ozetlerini gorur. Quick action kartlari mutation izinlerine gore filtrelenir; gorunurluk sadece UX'tir, her modul kendi server-side permission kontrolunu korur.
+
+## User, Role And Permission Management
+
+`/admin/users` ve `/admin/roles` admin kullanici ve fixed-role RBAC yonetimi icin gercek moduller olarak calisir.
+
+- Kullanici listesi: ad, e-posta, rol, aktif/pasif durum, MFA durumu, son giris, aktif oturum sayisi.
+- Kullanici olusturma: kalici plaintext sifre yoktur; bilinmeyen random hash ve tek kullanimlik parola kurulum/reset linki uretilir.
+- Kullanici detay: guvenlik durumu, aktif oturumlar, etkili izinler, son audit olaylari ve acik servis atama sayisi.
+- Rol atama: server-side privilege policy ile korunur ve rol degisikligi hedef kullanicinin aktif oturumlarini iptal eder.
+- Deactivation: fiziksel silme yerine `isActive=false`, `deactivatedAt`, `deactivatedById` ve reason kaydi kullanilir; aktif oturumlar revoke edilir.
+- Force password reset: eski reset tokenlari gecersiz kilar, yeni token uretir ve oturumlari revoke eder.
+- `/admin/roles` fixed system role matrix'i read-only olarak gosterir; permission source of truth kod tarafindaki `rolePermissions` map'idir.
+
+Custom role editing, SCIM/SSO ve enterprise identity federation bu asamada bilincli olarak ertelenmistir.

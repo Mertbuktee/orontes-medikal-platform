@@ -1,6 +1,7 @@
 "use client";
 
 import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 
 type LoginResponse = {
@@ -19,9 +20,7 @@ export function AdminLoginForm() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (submitting) {
-      return;
-    }
+    if (submitting) return;
 
     setSubmitting(true);
     setMessage("");
@@ -31,12 +30,11 @@ export function AdminLoginForm() {
     try {
       const response = await fetch("/api/admin/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: formData.get("email"),
           password: formData.get("password"),
+          rememberMe: formData.get("rememberMe") === "on",
         }),
       });
       const payload = (await response.json().catch(() => null)) as
@@ -126,6 +124,15 @@ export function AdminLoginForm() {
         </div>
       </div>
 
+      <label className="flex min-h-11 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">
+        <input
+          type="checkbox"
+          name="rememberMe"
+          className="size-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500"
+        />
+        <span>Beni hatırla</span>
+      </label>
+
       <div
         id="admin-login-status"
         role="status"
@@ -140,15 +147,15 @@ export function AdminLoginForm() {
         disabled={submitting}
         className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {submitting ? "Giriş Yapılıyor..." : "Giriş Yap"}
+        {submitting ? "Giriş yapılıyor..." : "Giriş Yap"}
       </button>
 
-      <button
-        type="button"
+      <Link
+        href="/admin/forgot-password"
         className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-sky-200 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
       >
         Şifremi Unuttum
-      </button>
+      </Link>
     </form>
   );
 }

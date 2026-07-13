@@ -308,6 +308,38 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
   });
 
   await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/admin/forgot-password", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Şifre sıfırlama" })).toBeVisible();
+  const forgotPasswordPath = path.join(
+    adminDir,
+    "admin-forgot-password-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: forgotPasswordPath });
+  results.push({
+    name: "admin-forgot-password-1440x900",
+    screenshotPath: forgotPasswordPath,
+    status: "PASS",
+    note: "Forgot-password form renders without revealing account existence.",
+  });
+
+  await page.goto(
+    "/admin/reset-password?token=visualqaresetvisualqaresetvisualqareset",
+    { waitUntil: "domcontentloaded" }
+  );
+  await expect(page.getByRole("heading", { name: "Yeni şifre belirle" })).toBeVisible();
+  const resetPasswordPath = path.join(
+    adminDir,
+    "admin-reset-password-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: resetPasswordPath });
+  results.push({
+    name: "admin-reset-password-1440x900",
+    screenshotPath: resetPasswordPath,
+    status: "PASS",
+    note: "Reset-password form renders with synthetic non-production token.",
+  });
+
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" });
   await loginAsVisualQaAdmin(page);
   await expect(
@@ -320,6 +352,61 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     screenshotPath: dashboardDesktopPath,
     status: "PASS",
     note: "Dashboard shell renders after real admin login for visual QA.",
+  });
+
+  await page.goto("/admin/dashboard?range=7d", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Yönetim Paneli", exact: true })
+  ).toBeVisible();
+  const dashboardSevenDayPath = path.join(
+    adminDir,
+    "admin-dashboard-7d-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: dashboardSevenDayPath });
+  results.push({
+    name: "admin-dashboard-7d-1440x900",
+    screenshotPath: dashboardSevenDayPath,
+    status: "PASS",
+    note: "Operations dashboard renders the 7-day time-range state.",
+  });
+
+  await page.goto("/admin/account/security", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Hesap Güvenliği" })).toBeVisible();
+  const accountSecurityDesktopPath = path.join(
+    adminDir,
+    "admin-account-security-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: accountSecurityDesktopPath });
+  results.push({
+    name: "admin-account-security-1440x900",
+    screenshotPath: accountSecurityDesktopPath,
+    status: "PASS",
+    note: "Account security page renders password, sessions and MFA foundation sections.",
+  });
+
+  await page.goto("/admin/users", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Kullanıcılar", exact: true })).toBeVisible();
+  await redactEmailsForScreenshot(page);
+  const adminUsersDesktopPath = path.join(adminDir, "admin-users-1440x900.png");
+  await page.screenshot({ fullPage: true, path: adminUsersDesktopPath });
+  results.push({
+    name: "admin-users-1440x900",
+    screenshotPath: adminUsersDesktopPath,
+    status: "PASS",
+    note: "User management list renders with redacted synthetic account labels.",
+  });
+
+  await page.goto("/admin/roles", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Roller ve Yetkiler", exact: true })
+  ).toBeVisible();
+  const adminRolesDesktopPath = path.join(adminDir, "admin-roles-1440x900.png");
+  await page.screenshot({ fullPage: true, path: adminRolesDesktopPath });
+  results.push({
+    name: "admin-roles-1440x900",
+    screenshotPath: adminRolesDesktopPath,
+    status: "PASS",
+    note: "Fixed role matrix renders with effective permissions.",
   });
 
   await page.goto("/admin/settings", { waitUntil: "domcontentloaded" });
@@ -708,6 +795,20 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     note: "Site settings module remains usable on mobile.",
   });
 
+  await page.goto("/admin/account/security", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Hesap Güvenliği" })).toBeVisible();
+  const accountSecurityMobilePath = path.join(
+    adminDir,
+    "admin-account-security-375x667.png"
+  );
+  await page.screenshot({ fullPage: true, path: accountSecurityMobilePath });
+  results.push({
+    name: "admin-account-security-375x667",
+    screenshotPath: accountSecurityMobilePath,
+    status: "PASS",
+    note: "Account security page remains usable on mobile.",
+  });
+
   await page.goto("/admin/blog", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("heading", { name: "Blog Yazıları", exact: true })
@@ -797,8 +898,45 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     note: "Hero Slider list remains usable on mobile.",
   });
 
+  await page.goto("/admin/users", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Kullanıcılar", exact: true })).toBeVisible();
+  await redactEmailsForScreenshot(page);
+  const adminUsersMobilePath = path.join(adminDir, "admin-users-375x667.png");
+  await page.screenshot({ fullPage: true, path: adminUsersMobilePath });
+  results.push({
+    name: "admin-users-375x667",
+    screenshotPath: adminUsersMobilePath,
+    status: "PASS",
+    note: "User management list remains usable on mobile with redacted account labels.",
+  });
+
+  await page.goto("/admin/roles", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Roller ve Yetkiler", exact: true })
+  ).toBeVisible();
+  const adminRolesMobilePath = path.join(adminDir, "admin-roles-375x667.png");
+  await page.screenshot({ fullPage: true, path: adminRolesMobilePath });
+  results.push({
+    name: "admin-roles-375x667",
+    screenshotPath: adminRolesMobilePath,
+    status: "PASS",
+    note: "Role matrix remains readable on mobile.",
+  });
+
   await page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" });
   await loginAsVisualQaAdmin(page);
+  await expect(
+    page.getByRole("heading", { name: "Yönetim Paneli", exact: true })
+  ).toBeVisible();
+  const dashboardMobilePath = path.join(adminDir, "admin-dashboard-375x667.png");
+  await page.screenshot({ fullPage: true, path: dashboardMobilePath });
+  results.push({
+    name: "admin-dashboard-375x667",
+    screenshotPath: dashboardMobilePath,
+    status: "PASS",
+    note: "Operations dashboard remains readable on mobile.",
+  });
+
   const mobileAdminMenu = page.getByRole("button", { name: "Admin menüsünü aç" });
   await expect(mobileAdminMenu).toBeVisible();
   await mobileAdminMenu.click();
@@ -834,6 +972,23 @@ async function loginAsVisualQaAdmin(page: Page) {
   await page.locator('input[name="password"]').fill(password);
   await page.locator('button[type="submit"]').click();
   await page.waitForURL("**/admin/dashboard");
+}
+
+async function redactEmailsForScreenshot(page: Page) {
+  await page.evaluate(() => {
+    const emailPattern = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes: Text[] = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (node.textContent?.match(emailPattern)) {
+        nodes.push(node as Text);
+      }
+    }
+    for (const node of nodes) {
+      node.textContent = node.textContent?.replace(emailPattern, "admin@example.test") ?? "";
+    }
+  });
 }
 
 function formatViewport(viewport: Viewport) {

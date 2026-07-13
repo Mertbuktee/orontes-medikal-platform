@@ -15,12 +15,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function AdminLoginPage() {
+export default async function AdminLoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reset?: string }>;
+}) {
   const session = await getCurrentAdminSession();
 
   if (session) {
     redirect("/admin/dashboard");
   }
+
+  const resetStatus = (await searchParams).reset;
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-950 sm:px-6 lg:px-8">
@@ -40,8 +46,8 @@ export default async function AdminLoginPage() {
             hazırlanmış admin yönetim alanı.
           </p>
           <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.06] p-4 text-sm leading-7 text-slate-300">
-            Giriş işlemleri güvenli oturum, rate limit ve audit log altyapısıyla
-            korunur.
+            Giriş işlemleri güvenli oturum, rate limit ve audit log
+            altyapısıyla korunur.
           </div>
           <Link
             href="/"
@@ -62,6 +68,11 @@ export default async function AdminLoginPage() {
             Yönetim paneline erişmek için yetkili e-posta ve şifrenizle giriş
             yapın.
           </p>
+          {resetStatus === "success" ? (
+            <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-700">
+              Şifreniz güncellendi. Yeni şifrenizle giriş yapabilirsiniz.
+            </div>
+          ) : null}
           <AdminLoginForm />
         </section>
       </div>

@@ -433,3 +433,24 @@ Scheduled blog publishing currently has a safe foundation but no always-on backg
 Before go-live, verify `/admin/settings` values for company identity, phone, e-mail, WhatsApp message, address, maps, logo, favicon, default OG image, social links, legal visibility and canonical origin. `APP_ORIGIN` remains the deployment guard; `site.seo.canonicalOrigin` may override public URL generation only when intentionally configured.
 
 Maintenance mode can be enabled from admin settings for public pages. Admin routes remain available so an authorized user can disable it. Analytics/search IDs must not be wired to third-party scripts unless cookie-consent gating for the related category is active.
+# Admin Account Security Deployment
+
+## User Management Deployment Notes
+
+Before go-live:
+
+- Confirm at least one active SUPER_ADMIN exists.
+- Confirm no shared/default admin password exists.
+- Configure a real transactional mail provider before relying on new-user setup links.
+- Confirm development password-reset email sink files are not used in production.
+- Confirm role changes, forced password resets and deactivation revoke active sessions.
+- Document the emergency recovery procedure for losing access to all SUPER_ADMIN accounts.
+
+Custom roles, SCIM/SSO and enterprise identity federation are intentionally deferred.
+
+- Production password reset için gerçek transactional mail provider yapılandırılmalıdır.
+- Development adapter reset linklerini `storage/private/auth/password-reset-emails/` altına yazar; production'da kullanılmamalıdır.
+- `MAIL_PROVIDER`, `MAIL_FROM` ve SMTP/provider secretları yalnız deployment secret manager içinde tutulmalıdır.
+- Remember Me için `ADMIN_REMEMBER_SESSION_MAX_AGE_SECONDS` bilinçli belirlenmelidir.
+- MFA etkinleştirilmeden önce `MFA_ENCRYPTION_KEY` base64 encoded 32-byte secret olarak sağlanmalıdır.
+- Password reset URL'leri validated `APP_ORIGIN` üzerinden üretilir; production'da localhost canonical/origin kabul edilmez.

@@ -212,3 +212,37 @@ Navigation görünürlüğü sadece UX katmanıdır. Ana sayfa içerik update, r
 ## Blog Content Security
 
 Blog article bodies do not accept raw HTML, script, style or arbitrary component names. All content blocks are validated with Zod and rendered through an exhaustive typed renderer. Draft preview requires an authenticated admin session and `blog.view`; public pages return 404 for drafts, archived posts and future scheduled posts. Blog media references resolve by Media ID and never expose storage keys.
+# Admin Account Security
+
+## Dashboard Data Minimization
+
+The admin dashboard is an operational summary, not a customer-data export surface.
+
+- Service request widgets avoid full customer messages, phone numbers, e-mail addresses and attachment filenames.
+- Recent activity renders typed safe labels instead of raw audit metadata.
+- Security widgets show counts and high-level event labels; they do not expose IP addresses, user agents, session identifiers, reset tokens or MFA secrets by default.
+- Forbidden widgets are not queried for roles that lack the related permission.
+- Dashboard pages are authenticated, dynamic and must not be publicly cached.
+- Synthetic visual QA fixtures must not include real customer or account data.
+
+Any future export/reporting feature must go through a separate privacy review before exposing broader operational data.
+
+## User Management Security
+
+- Built-in role permissions remain code-defined; database users store only their assigned fixed role.
+- `canManageUser()` enforces privilege boundaries server-side.
+- ADMIN cannot create, edit, promote, deactivate, reset or revoke sessions for SUPER_ADMIN accounts.
+- Users cannot change their own role or deactivate themselves.
+- The last active SUPER_ADMIN cannot be demoted or deactivated.
+- Role changes, deactivation and forced password resets revoke target sessions.
+- New users and forced resets use one-time password setup/reset tokens; no default or plaintext permanent password is created.
+- User list/detail DTOs exclude password hashes, session token hashes, raw MFA secrets and recovery codes.
+- Audit metadata records IDs, role changes, active state and counts only; it must not contain passwords, reset tokens, session tokens or raw e-mail bodies.
+
+- Passwords Argon2id ile hashlenir; plaintext password, password hash veya reset token loglanmaz.
+- Password reset tokenları en az 256 bit entropy ile üretilir ve veritabanında yalnız hash olarak tutulur.
+- Reset sayfası `noindex` ve `no-referrer` metadata kullanır; token analytics veya client storage'a yazılmaz.
+- Remember Me session'ları sonludur, database expiry ile cookie expiry eşleşir ve revoke edilebilir.
+- MFA secretları production'da `MFA_ENCRYPTION_KEY` ile AES-256-GCM şifrelenmeden saklanmamalıdır.
+- Recovery code değerleri yalnız hash olarak saklanır ve yeniden gösterilmez.
+- Full TOTP enforcement bu milestone'da aktif değildir; UI bunu production-complete MFA olarak göstermemelidir.

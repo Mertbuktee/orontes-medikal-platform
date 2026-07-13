@@ -31,6 +31,7 @@ export const runtime = "nodejs";
 const loginSchema = z.object({
   email: z.string().trim().email().max(254).transform(normalizeAdminEmail),
   password: z.string().min(1).max(128),
+  rememberMe: z.boolean().optional().default(false),
 });
 
 const genericLoginError = "E-posta veya şifre hatalı.";
@@ -77,7 +78,21 @@ export async function POST(request: NextRequest) {
     const failure = recordLoginFailure(rateLimitKey);
 
     if (user) {
-      await repository.recordFailedLogin(user.id);
+      const failureRecord = await repository.recordFailedLogin(user.id);
+      if (failureRecord.failedLoginCount >= 5) {
+        await repository.lockUserUntil(
+          user.id,
+          new Date(Date.now() + 15 * 60 * 1000)
+        );
+        await repository.appendAuditLog({
+          actorId: user.id,
+          action: "ACCOUNT_LOCKED",
+          entityType: "User",
+          entityId: user.id,
+          metadata: { reason: "failed_login_threshold" },
+          context,
+        });
+      }
     }
 
     await repository.appendAuditLog({
@@ -102,12 +117,17 @@ export async function POST(request: NextRequest) {
   resetLoginFailures(rateLimitKey);
 
   const rawToken = generateAdminSessionToken();
-  const expiresAt = getAdminSessionExpiresAt();
+  const expiresAt = getAdminSessionExpiresAt(
+    new Date(),
+    process.env,
+    parsed.data.rememberMe
+  );
   const session = await repository.createSession({
     user,
     tokenHash: hashAdminSessionToken(rawToken),
     expiresAt,
     context,
+    remembered: parsed.data.rememberMe,
   });
 
   await repository.appendAuditLog({
@@ -117,6 +137,7 @@ export async function POST(request: NextRequest) {
     entityId: session.id,
     metadata: {
       success: true,
+      remembered: parsed.data.rememberMe,
     },
     context,
   });
@@ -129,7 +150,7 @@ export async function POST(request: NextRequest) {
   response.cookies.set(
     ADMIN_SESSION_COOKIE_NAME,
     rawToken,
-    getAdminSessionCookieOptions()
+    getAdminSessionCookieOptions(process.env, parsed.data.rememberMe)
   );
 
   return response;

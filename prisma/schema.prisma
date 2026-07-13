@@ -42,7 +42,17 @@ enum AuditAction {
   ARCHIVE
   STATUS_CHANGE
   SESSION_REVOKED
+  ALL_SESSIONS_REVOKED
   PASSWORD_CHANGED
+  PASSWORD_RESET_REQUESTED
+  PASSWORD_RESET_COMPLETED
+  MFA_ENROLLMENT_STARTED
+  MFA_ENABLED
+  MFA_DISABLED
+  MFA_RECOVERY_CODES_REGENERATED
+  MFA_CHALLENGE_SUCCESS
+  MFA_CHALLENGE_FAILURE
+  RECOVERY_CODE_USED
   ACCOUNT_LOCKED
 }
 
@@ -83,9 +93,26 @@ model User {
   passwordChangedAt     DateTime?
   failedLoginCount      Int                           @default(0)
   lockedUntil           DateTime?
+  mfaEnabled            Boolean                       @default(false)
+  mfaVerifiedAt         DateTime?
+  securityVersion       Int                           @default(1)
+  createdById           String?
+  createdBy             User?                         @relation("UserCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdUsers          User[]                        @relation("UserCreator")
+  updatedById           String?
+  updatedBy             User?                         @relation("UserUpdater", fields: [updatedById], references: [id], onDelete: SetNull)
+  updatedUsers          User[]                        @relation("UserUpdater")
+  deactivatedAt         DateTime?
+  deactivatedById       String?
+  deactivatedBy         User?                         @relation("UserDeactivator", fields: [deactivatedById], references: [id], onDelete: SetNull)
+  deactivatedUsers      User[]                        @relation("UserDeactivator")
+  deactivationReason    String?
   createdAt             DateTime                      @default(now())
   updatedAt             DateTime                      @updatedAt
   adminSessions         AdminSession[]                @relation("AdminUserSessions")
+  passwordResetTokens   PasswordResetToken[]          @relation("UserPasswordResetTokens")
+  mfaCredentials        MfaCredential[]               @relation("UserMfaCredentials")
+  mfaRecoveryCodes      MfaRecoveryCode[]             @relation("UserMfaRecoveryCodes")
   assignedRequests      ServiceRequest[]              @relation("AssignedServiceRequests")
   authoredNotes         ServiceRequestNote[]          @relation("ServiceRequestNoteAuthor")
   statusChanges         ServiceRequestStatusHistory[] @relation("ServiceRequestStatusChanger")
@@ -107,7 +134,14 @@ model User {
   @@index([email])
   @@index([role])
   @@index([isActive])
+  @@index([createdAt])
+  @@index([updatedAt])
+  @@index([createdById])
+  @@index([updatedById])
+  @@index([deactivatedById])
+  @@index([deactivatedAt])
   @@index([lockedUntil])
+  @@index([mfaEnabled])
 }
 
 model AdminSession {
@@ -121,11 +155,58 @@ model AdminSession {
   revokedAt  DateTime?
   ipAddress  String?   @db.VarChar(64)
   userAgent  String?   @db.VarChar(512)
+  remembered Boolean   @default(false)
 
   @@index([userId])
   @@index([expiresAt])
   @@index([revokedAt])
   @@index([userId, revokedAt, expiresAt])
+}
+
+model PasswordResetToken {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation("UserPasswordResetTokens", fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+  requestedIp String?   @db.VarChar(64)
+  userAgent   String?   @db.VarChar(512)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([usedAt])
+  @@index([userId, usedAt, expiresAt])
+}
+
+model MfaCredential {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation("UserMfaCredentials", fields: [userId], references: [id], onDelete: Cascade)
+  encryptedSecret String
+  verifiedAt      DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([verifiedAt])
+  @@index([revokedAt])
+  @@index([userId, revokedAt])
+}
+
+model MfaRecoveryCode {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation("UserMfaRecoveryCodes", fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String    @unique
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([usedAt])
+  @@index([userId, usedAt])
 }
 
 model ServiceRequest {

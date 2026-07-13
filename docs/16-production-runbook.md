@@ -30,6 +30,12 @@ Zorunlu:
 Opsiyonel ama bilinçli belirlenmeli:
 
 - `ADMIN_SESSION_MAX_AGE_SECONDS`
+- `ADMIN_REMEMBER_SESSION_MAX_AGE_SECONDS`
+- `PASSWORD_RESET_TOKEN_TTL_SECONDS`
+- `MAIL_PROVIDER`
+- `MAIL_FROM`
+- SMTP provider variables when production email delivery is enabled.
+- `MFA_ENCRYPTION_KEY` before MFA can be enabled in production.
 
 Production deployment sinyali (`APP_ENV=production` veya `VERCEL_ENV=production`) varken:
 
@@ -126,10 +132,28 @@ Production öncesi:
 
 Production öncesi admin panelde elle test:
 
+- `/admin/dashboard` gerçek verilerle açılıyor mu?
+- Dashboard range selector: 7/30/90 gün ve yıl seçenekleri çalışıyor mu?
+- Dashboard rol ayrımı: EDITOR içerik, SERVICE_STAFF operasyon, ADMIN/SUPER_ADMIN geniş özet görüyor mu?
+- Dashboard PII minimizasyonu: telefon, e-posta, full mesaj, raw audit metadata ve session/token bilgisi görünmüyor mu?
+- Dashboard quick action linkleri yetkiye göre çıkıyor ve 404 üretmiyor mu?
+- `/admin/users` gerçek kullanıcı listesini password/token bilgisi sızdırmadan gösteriyor mu?
+- `/admin/users/new` plaintext/default password üretmeden setup link akışı oluşturuyor mu?
+- `/admin/roles` fixed-role permission matrix'i read-only gösteriyor mu?
+- ADMIN kullanıcısı SUPER_ADMIN oluşturamıyor, düzenleyemiyor veya pasife alamıyor mu?
+- Son aktif SUPER_ADMIN demote/deactivate edilemiyor mu?
+- Rol değişikliği, force reset ve deactivation aktif oturumları revoke ediyor mu?
 - `/admin/login`
+- `/admin/forgot-password`
+- `/admin/reset-password` noindex ve token leakage kontrolleri
+- `/admin/account/security`
 - Login başarısız mesajı generic kalıyor mu?
+- Remember Me cookie/DB expiry eşleşiyor mu?
 - Login başarılı olunca `/admin/dashboard`
 - Logout POST ile session revoke ediyor mu?
+- Şifre değişimi diğer oturumları revoke ediyor mu?
+- Password reset token tek kullanımlı ve süreli mi?
+- Development reset email sink production'da kullanılmıyor mu?
 - `VIEWER` mutation yapamıyor mu?
 - `SERVICE_STAFF` yalnız servis talebi operasyonlarını yapabiliyor mu?
 - `ADMIN` content/media/homepage modüllerini yönetebiliyor mu?
@@ -207,17 +231,22 @@ npm run db:deploy
 ## Deferred But Not Forgotten
 
 - Redis/shared rate limiter for login, service request and admin mutation limits.
+- Password reset production email provider integration and deliverability testing.
+- Full MFA/TOTP enforcement after approving a maintained TOTP/QR package and configuring `MFA_ENCRYPTION_KEY`; current implementation is encryption/recovery-code foundation only.
+- Advanced account recovery, WebAuthn/security keys, remembered-device policy and MFA challenge UX hardening.
 - S3-compatible production storage adapter and CDN/object-storage delivery policy.
 - Blog scheduled publishing worker/cron. Current UI only records the planned date and must not imply automatic publishing is active.
 - Blog editorial workflow hardening: revision compare/restore UI, review/approval flow and publish checklist.
 - Malware scanning / PDF hardening with ClamAV or a managed scanning service before accepting production PDFs at scale.
-- Kullanicilar, roller, active sessions and audit log screens.
+- Kullanicilar, roller and audit log screens.
 - Notification module: e-posta/SMS/WhatsApp delivery for service request lifecycle events.
 - Customer-facing service request status tracking after privacy and token policy are designed.
 - Search Console, analytics and marketing integrations, gated behind cookie consent categories.
 - Retention/KVKK silme-anonimlestirme proseduru and backup retention policy.
 - Legal metinlerin hukuk/KVKK uzmani tarafindan onayi.
 - Production monitoring/alerting: app errors, upload failures, login anomalies, rate-limit spikes, DB/storage quota and backup job failures.
+- Advanced dashboard reporting/export, scheduled digest reports and external monitoring dashboards.
+- Custom roles, SCIM/SSO, enterprise identity federation and full user-management audit viewer polish.
 
 ## Update Policy
 

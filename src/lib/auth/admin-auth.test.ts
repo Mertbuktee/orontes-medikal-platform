@@ -19,7 +19,11 @@ import {
   verifyPassword,
 } from "@/lib/auth/password";
 import { canAuthenticateAdminSession } from "@/lib/auth/session-validation";
-import { getAdminSessionCookieOptions } from "@/lib/auth/session-cookie";
+import {
+  getAdminSessionCookieOptions,
+  getAdminSessionExpiresAt,
+  getAdminSessionMaxAgeForPolicy,
+} from "@/lib/auth/session-cookie";
 import {
   ADMIN_SESSION_TOKEN_BYTES,
   generateAdminSessionToken,
@@ -82,11 +86,26 @@ describe("secure admin authentication foundation", () => {
     expect(options.secure).toBe(false);
   });
 
+  it("uses extended server-chosen duration for remembered sessions", () => {
+    const env = {
+      ADMIN_SESSION_MAX_AGE_SECONDS: "36000",
+      ADMIN_REMEMBER_SESSION_MAX_AGE_SECONDS: "2592000",
+    } as NodeJS.ProcessEnv;
+
+    expect(getAdminSessionMaxAgeForPolicy(false, env)).toBe(36000);
+    expect(getAdminSessionMaxAgeForPolicy(true, env)).toBe(2592000);
+    expect(getAdminSessionCookieOptions(env, true).maxAge).toBe(2592000);
+    expect(
+      getAdminSessionExpiresAt(new Date("2026-01-01T00:00:00.000Z"), env, true)
+    ).toEqual(new Date("2026-01-31T00:00:00.000Z"));
+  });
+
   it("validates active, unexpired and unrevoked sessions only", () => {
     const now = new Date("2026-01-01T12:00:00.000Z");
     const validSession = {
       revokedAt: null,
       expiresAt: new Date("2026-01-01T13:00:00.000Z"),
+      createdAt: new Date("2026-01-01T11:00:00.000Z"),
       user: { isActive: true },
     };
 
@@ -106,6 +125,18 @@ describe("secure admin authentication foundation", () => {
     expect(
       canAuthenticateAdminSession(
         { ...validSession, user: { isActive: false } },
+        now
+      )
+    ).toBe(false);
+    expect(
+      canAuthenticateAdminSession(
+        {
+          ...validSession,
+          user: {
+            isActive: true,
+            passwordChangedAt: new Date("2026-01-01T11:30:00.000Z"),
+          },
+        },
         now
       )
     ).toBe(false);

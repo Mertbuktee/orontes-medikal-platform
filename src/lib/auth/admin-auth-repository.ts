@@ -11,6 +11,9 @@ export type AuthUserRecord = {
   role: Role;
   isActive: boolean;
   lockedUntil: Date | null;
+  passwordChangedAt?: Date | null;
+  mfaEnabled?: boolean;
+  securityVersion?: number;
 };
 
 export type AuthenticatedAdminSession = {
@@ -20,6 +23,9 @@ export type AuthenticatedAdminSession = {
   name: string;
   email: string;
   expiresAt: Date;
+  createdAt: Date;
+  lastSeenAt: Date | null;
+  remembered: boolean;
 };
 
 export class AdminAuthRepository {
@@ -36,6 +42,9 @@ export class AdminAuthRepository {
         role: true,
         isActive: true,
         lockedUntil: true,
+        passwordChangedAt: true,
+        mfaEnabled: true,
+        securityVersion: true,
       },
     });
   }
@@ -45,6 +54,7 @@ export class AdminAuthRepository {
     tokenHash: string;
     expiresAt: Date;
     context: AdminRequestContext;
+    remembered?: boolean;
   }) {
     const session = await this.client.adminSession.create({
       data: {
@@ -54,6 +64,7 @@ export class AdminAuthRepository {
         lastSeenAt: new Date(),
         ipAddress: input.context.ipAddress,
         userAgent: input.context.userAgent,
+        remembered: input.remembered ?? false,
       },
     });
 
@@ -62,6 +73,7 @@ export class AdminAuthRepository {
       data: {
         lastLoginAt: new Date(),
         failedLoginCount: 0,
+        lockedUntil: null,
       },
     });
 
@@ -76,6 +88,18 @@ export class AdminAuthRepository {
           increment: 1,
         },
       },
+      select: {
+        id: true,
+        failedLoginCount: true,
+      },
+    });
+  }
+
+  lockUserUntil(userId: string, lockedUntil: Date) {
+    return this.client.user.update({
+      where: { id: userId },
+      data: { lockedUntil },
+      select: { id: true, lockedUntil: true },
     });
   }
 
@@ -90,6 +114,7 @@ export class AdminAuthRepository {
             email: true,
             role: true,
             isActive: true,
+            passwordChangedAt: true,
           },
         },
       },
@@ -113,7 +138,59 @@ export class AdminAuthRepository {
       name: session.user.name,
       email: session.user.email,
       expiresAt: session.expiresAt,
+      createdAt: session.createdAt,
+      lastSeenAt: session.lastSeenAt,
+      remembered: session.remembered,
     } satisfies AuthenticatedAdminSession;
+  }
+
+  listUserSessions(userId: string) {
+    return this.client.adminSession.findMany({
+      where: {
+        userId,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { lastSeenAt: "desc" },
+      select: {
+        id: true,
+        createdAt: true,
+        lastSeenAt: true,
+        expiresAt: true,
+        ipAddress: true,
+        userAgent: true,
+        remembered: true,
+      },
+    });
+  }
+
+  async revokeUserSessionById(input: { userId: string; sessionId: string }) {
+    const session = await this.client.adminSession.findFirst({
+      where: {
+        id: input.sessionId,
+        userId: input.userId,
+        revokedAt: null,
+      },
+      select: { id: true },
+    });
+
+    if (!session) return null;
+
+    return this.client.adminSession.update({
+      where: { id: session.id },
+      data: { revokedAt: new Date() },
+    });
+  }
+
+  revokeOtherUserSessions(userId: string, currentSessionId: string) {
+    return this.client.adminSession.updateMany({
+      where: {
+        userId,
+        revokedAt: null,
+        id: { not: currentSessionId },
+      },
+      data: { revokedAt: new Date() },
+    });
   }
 
   async revokeSessionByTokenHash(tokenHash: string) {
@@ -137,6 +214,19 @@ export class AdminAuthRepository {
       where: {
         userId,
         revokedAt: null,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
+    });
+  }
+
+  revokeAllUserSessionsExcept(userId: string, currentSessionId: string) {
+    return this.client.adminSession.updateMany({
+      where: {
+        userId,
+        revokedAt: null,
+        id: { not: currentSessionId },
       },
       data: {
         revokedAt: new Date(),

@@ -150,3 +150,32 @@ Blog validation tests cover safe structured blocks, H1 rejection, unknown block 
 ## Site Settings Tests
 
 Site settings validation tests cover default parsing, phone/e-mail validation, safe URL/CTA protocol handling and maintenance mode payloads. Visual QA captures `/admin/settings` desktop and mobile states. Production hardening should add database-backed integration tests for settings audit events, branding media relation checks and maintenance mode smoke tests.
+# Account Security Tests
+
+## Operations Dashboard Tests
+
+Dashboard tests cover the pure range and aggregation helpers first:
+
+- allowlisted range parsing and default `30d` fallback
+- previous-period comparison without misleading percentages when the previous period is zero
+- zero-filled timeline buckets
+- `Europe/Istanbul` display bucket behavior
+- role-specific dashboard permission scopes
+
+Visual QA should capture the protected dashboard desktop/mobile states after login. Future hardening should add isolated database fixtures for heavy service-request workload, empty database state, role dashboards and activity-feed privacy assertions.
+
+## User Management Tests
+
+User-management coverage prioritizes privilege-escalation policy and lifecycle behavior:
+
+- ADMIN cannot create/promote/manage SUPER_ADMIN accounts.
+- Users cannot change their own role or deactivate themselves.
+- The last active SUPER_ADMIN cannot be demoted or deactivated.
+- New-user onboarding and forced reset must not create plaintext/default passwords.
+- Role changes, deactivation and forced reset revoke sessions.
+- User DTOs and visual QA must not expose password hashes, token hashes, reset tokens, MFA secrets or real account data.
+
+- Remember Me session duration and cookie/DB expiry policy helpers are unit-tested.
+- Password reset token entropy, hashing, TTL and validation helpers are unit-tested.
+- MFA AES-256-GCM encryption/decryption, wrong-key failure and recovery-code hashing are unit-tested.
+- Full DB-backed password reset/session revocation integration should be covered with isolated test database before production hardening.

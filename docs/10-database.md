@@ -510,3 +510,51 @@ Homepage SEO ayarı `SiteSetting` içinde `homepage.seo` key’i ile tipli JSON 
 ## Blog CMS Tables
 
 `BlogPost` now supports draft/published/archived workflow, structured JSON content, featured state, scheduled publication timestamp, cover media, Open Graph media, optional author, created/updated actors and archive timestamp. `BlogCategory` supports description, SEO fields, order, active state and archive timestamp. `BlogPostRevision` stores previous structured content snapshots for published-post updates. Media rows are referenced, never deleted automatically by blog mutations.
+# Account Security Models
+
+## Dashboard Query Index Review
+
+TASK-036 did not add a new dashboard-specific migration. The current dashboard uses existing model fields and indexes for the first operations-center version:
+
+- `ServiceRequest.status`, `archivedAt`, `assignedUserId`, `createdAt`, `updatedAt`
+- `BlogPost.status`, `archivedAt`, `publishedAt`, `updatedAt`
+- `DeviceGroup.isActive`, `isFeatured`, `archivedAt`, `updatedAt`
+- `Service.isActive`, `isFeatured`, `archivedAt`, `updatedAt`
+- `Media.archivedAt`, `createdAt`
+- `AuditLog.action`, `entityType`, `actorId`, `createdAt`
+- `AdminSession.userId`, `revokedAt`, `expiresAt`
+
+If production volume grows, review query plans before adding composite indexes for dashboard filters such as service-request status/date, assigned active work and audit activity ranges. Do not add broad indexes without measuring the real workload.
+
+## User Management Fields
+
+`User` now includes management metadata:
+
+- `createdById`, `updatedById`
+- `deactivatedAt`, `deactivatedById`, `deactivationReason`
+- `securityVersion`, `mfaEnabled`, `mfaVerifiedAt`, `failedLoginCount`, `lockedUntil`
+
+Creator/updater/deactivator relations use `SetNull` so deleting or archiving an admin account later does not destroy historical records. Normal user lifecycle is activation/deactivation, not physical delete. Active service-request assignments are preserved historically when a user is deactivated; inactive users are excluded from future assignment selectors.
+
+## AdminSession
+
+- `remembered` alanı Remember Me ile oluşturulan sonlu uzun oturumları işaretler.
+- `tokenHash` unique kalır; raw session token hiçbir zaman veritabanına yazılmaz.
+- `expiresAt`, `revokedAt`, `userId` indeksleri session validation ve cleanup için kullanılır.
+
+## PasswordResetToken
+
+- `tokenHash` unique ve tek kullanımlıktır.
+- `expiresAt`, `usedAt`, `userId` indeksleri reset validation ve cleanup için kullanılır.
+- Yeni reset talebi aynı kullanıcının eski kullanılmamış tokenlarını used hale getirir.
+
+## MfaCredential
+
+- `encryptedSecret` AES-256-GCM ile şifrelenmiş secret için ayrılmıştır.
+- Bir kullanıcı için başlangıçta tek aktif TOTP credential hedeflenir.
+- Raw MFA secret client persistence'a veya log'a yazılmaz.
+
+## MfaRecoveryCode
+
+- Recovery code değerleri yalnız SHA-256 hash olarak saklanır.
+- Her code tek kullanımlıdır; yeniden üretim eski kullanılmamış kodları geçersiz kılar.

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added production admin operations dashboard with real PostgreSQL summaries for service requests, content health, media health, site readiness, security activity, recent activity feed, role-aware widgets and lightweight accessible charts.
+- Added production user, fixed-role and permission management with user lifecycle screens, setup-link onboarding, role matrix, session revocation, forced password reset, privilege-escalation policy and last SUPER_ADMIN protection.
+- Added admin account-security foundation with Remember Me session policy, password change, active-session management, password-reset tokens, development email sink, MFA encryption/recovery-code foundation and account-security visual QA.
 - Added a current production runbook that tracks go-live environment, migration, storage, admin bootstrap, rate-limit, SEO, legal and post-launch operations in one place.
 - Added production Site Settings for company identity, contact information, branding, global SEO, social links, footer content, legal visibility, default CTA and maintenance mode.
 - Added database-backed Homepage Content Management with section visibility/order, typed section JSON validation, public homepage registry rendering, homepage SEO settings, seed data, RBAC permissions and admin overview/section/SEO routes.

@@ -12,6 +12,7 @@ import {
   Search,
   Settings,
   ShieldCheck,
+  UserCog,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -102,6 +103,12 @@ export const adminNavItems: AdminNavItem[] = [
     requiredPermission: "settings.view",
   },
   {
+    title: "Hesap Güvenliği",
+    href: "/admin/account/security",
+    icon: UserCog,
+    requiredPermission: "account.security.manage",
+  },
+  {
     title: "Kullanıcılar",
     href: "/admin/users",
     icon: Users,
@@ -126,29 +133,65 @@ export const adminQuickActionItems = [
     title: "Servis Taleplerini Görüntüle",
     href: "/admin/service-requests",
     icon: ClipboardList,
+    requiredPermission: "serviceRequests.view",
   },
   {
-    title: "Medya Kütüphanesi",
+    title: "Yeni Blog Yazısı",
+    href: "/admin/blog/new",
+    icon: BookOpenText,
+    requiredPermission: "blog.create",
+  },
+  {
+    title: "Yeni Cihaz Grubu",
+    href: "/admin/devices/new",
+    icon: MonitorCog,
+    requiredPermission: "devices.create",
+  },
+  {
+    title: "Yeni Hizmet",
+    href: "/admin/services/new",
+    icon: Boxes,
+    requiredPermission: "services.create",
+  },
+  {
+    title: "Hero Slider Yönetimi",
+    href: "/admin/hero-slides",
+    icon: Images,
+    requiredPermission: "heroSlides.view",
+  },
+  {
+    title: "Medya Yükle",
     href: "/admin/media",
     icon: ImageIcon,
+    requiredPermission: "media.upload",
   },
   {
-    title: "Cihaz Gruplarını Yönet",
-    href: "/admin/devices",
-    icon: MonitorCog,
+    title: "Ana Sayfayı Düzenle",
+    href: "/admin/homepage",
+    icon: Home,
+    requiredPermission: "homepage.update",
   },
   {
-    title: "Hizmetleri Yönet",
-    href: "/admin/services",
-    icon: Boxes,
-  },
-  {
-    title: "Site Ayarlarını Aç",
+    title: "Site Ayarları",
     href: "/admin/settings",
     icon: ShieldCheck,
+    requiredPermission: "settings.view",
+  },
+  {
+    title: "Kullanıcılar",
+    href: "/admin/users",
+    icon: Users,
+    requiredPermission: "users.view",
+  },
+  {
+    title: "Roller ve Yetkiler",
+    href: "/admin/roles",
+    icon: LockKeyhole,
+    requiredPermission: "roles.view",
   },
 ] satisfies Array<{
   title: string;
   href: string;
   icon: LucideIcon;
+  requiredPermission: Permission;
 }>;
