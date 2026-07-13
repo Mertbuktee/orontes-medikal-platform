@@ -503,3 +503,13 @@ Blog yazilari `/admin/blog` altinda, kategoriler `/admin/blog/categories` altind
 - `/blog/kategori/[slug]` yalniz aktif, arsivlenmemis ve en az bir yayinlanmis/gorunur yazisi olan kategorileri acar. Bos veya pasif kategoriler public tarafta 404 politikasina tabidir ve sitemap'e eklenmez.
 - Planli yayin UI'si otomatik worker aktifmis gibi davranmaz. Production asamasinda ayrica publish-due-posts worker/cron kurulana kadar planli yazilar yalnizca "Planlandi" olarak etiketlenir.
 - `BlogPostRevision` tablo temeli hazirdir; gelismis revision karsilastirma/geri alma UI'i editorial workflow hardening asamasina ertelenmistir.
+
+## Site Settings
+
+Site ayarlari `/admin/settings` altinda yonetilir. Modul sirket kimligi, iletisim, WhatsApp, adres, harita, marka gorselleri, global SEO, sosyal medya, search verification, analytics ID'leri, footer, legal gorunurluk, default CTA ve maintenance mode ayarlarini tip kontrollu `SiteSetting` kayitlari olarak saklar.
+
+- `settings.view`: ayar ekranlarini goruntuler.
+- `settings.update`: marka, iletisim, footer, legal ve sistem ayarlarini gunceller.
+- `settings.seo.manage`: global SEO, search verification ve analytics ayarlarini gunceller.
+
+Logo, favicon ve default OG image yalniz Media Library icindeki aktif image kayitlarindan secilir; raw storage key girisi yoktur. Public Navbar, Footer, Contact, structured data, sitemap ve robots ayarlari bu modulu tek kaynak olarak kullanir. Maintenance mode public layout seviyesinde bakim ekrani gosterir; admin panel bu akisin disindadir.

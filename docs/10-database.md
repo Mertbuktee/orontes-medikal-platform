@@ -451,6 +451,12 @@ The JSON importer reads local development records from `storage/private/service-
 - `LARGE`
 
 Binary image data is not stored in PostgreSQL. `Media.storageKey` points to the hardened original variant metadata, while each variant has its own unique storage key. Hero slides and blog covers reference `Media`; service-request attachments remain a separate model and are not part of the media library.
+
+## Site Settings
+
+`SiteSetting` is used as typed key/value storage for global website identity. Current groups include `site.general`, `site.contact`, `site.whatsapp`, `site.address`, `site.map`, `site.branding`, `site.seo`, `site.social`, `site.search`, `site.analytics`, `site.legal`, `site.footer`, `site.defaultCta` and `site.system`.
+
+Values are JSON but not arbitrary: application-level Zod schemas validate each group before persistence. Secrets must not be stored here; analytics/search IDs are public integration identifiers only. Branding settings store Media IDs, not storage keys.
 ## Hero Slider Models
 
 `HeroSlide` is now the database source for the public homepage Hero slider.

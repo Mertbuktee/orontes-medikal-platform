@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import LegalPage from "@/components/common/LegalPage";
+import { getPublicSiteSettings } from "@/lib/site-settings/public-site-settings";
 
 export const metadata: Metadata = {
   title: "Gizlilik Politikası | Orontes Teknoloji",
@@ -8,7 +9,9 @@ export const metadata: Metadata = {
     "Orontes Teknoloji web sitesi ve servis talep süreçleri için gizlilik politikası.",
 };
 
-export default function PrivacyPolicyPage() {
+export default async function PrivacyPolicyPage() {
+  const settings = await getPublicSiteSettings();
+
   return (
     <LegalPage
       eyebrow="Gizlilik"
@@ -54,7 +57,7 @@ export default function PrivacyPolicyPage() {
         {
           title: "İletişim",
           paragraphs: [
-            "Gizlilik politikası ve kişisel verilerinizle ilgili talepleriniz için info@orontesteknoloji.com adresinden bizimle iletişime geçebilirsiniz.",
+            `Gizlilik politikası ve kişisel verilerinizle ilgili talepleriniz için ${settings.contact.emailPrimary} adresinden bizimle iletişime geçebilirsiniz.`,
           ],
         },
       ]}

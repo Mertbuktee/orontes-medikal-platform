@@ -1,12 +1,18 @@
-import Link from "next/link";
 import { ArrowRight, Mail, MapPin, MessageCircle, Phone, type LucideIcon } from "lucide-react";
+import Link from "next/link";
 
 import { CookieSettingsButton } from "@/components/consent/CookieSettingsButton";
+import { getPublicSiteSettings } from "@/lib/site-settings/public-site-settings";
+import {
+  createTelHref,
+  createWhatsappHref,
+  formatDisplayPhone,
+  formatFullAddress,
+} from "@/lib/site-settings/site-settings-types";
 
 type FooterLink = { label: string; href: string };
 type ContactLink = FooterLink & { icon: LucideIcon; ariaLabel: string };
-
-const companyName = "Orontes İnovasyon Endüstriyel Ürünler Sanayi Ticaret Ltd. Şti.";
+type SocialLink = FooterLink & { icon: "instagram" | "linkedin"; ariaLabel: string };
 
 const quickLinks: FooterLink[] = [
   { label: "Ana Sayfa", href: "/" },
@@ -28,61 +34,18 @@ const services = [
   "Teknik Destek",
 ];
 
-const contactLinks: ContactLink[] = [
-  {
-    label: "0553 606 57 03",
-    href: "tel:+905536065703",
-    icon: Phone,
-    ariaLabel: "Orontes telefon numarasını ara",
-  },
-  {
-    label: "info@orontesteknoloji.com",
-    href: "mailto:info@orontesteknoloji.com",
-    icon: Mail,
-    ariaLabel: "Orontes e-posta adresine mail gönder",
-  },
-  {
-    label: "Kocasinan Merkez Mh. Görgülü Sk. No:20/B Bahçelievler / İstanbul",
-    href: "https://maps.app.goo.gl/6RGW6dy3kK4RAax8A",
-    icon: MapPin,
-    ariaLabel: "Orontes adresini haritada aç",
-  },
-  {
-    label: "WhatsApp",
-    href: "https://wa.me/905536065703?text=Merhabalar%20Website%20%C3%9Czerinden%20%C4%B0leti%C5%9Fime%20Ge%C3%A7iyorum",
-    icon: MessageCircle,
-    ariaLabel: "Orontes ile WhatsApp üzerinden iletişime geç",
-  },
-];
-
 const policyLinks: FooterLink[] = [
   { label: "Gizlilik Politikası", href: "/gizlilik-politikasi" },
   { label: "KVKK", href: "/kvkk" },
   { label: "Çerez Politikası", href: "/cerez-politikasi" },
 ];
 
-type SocialLink = FooterLink & {
-  icon: "instagram" | "linkedin";
-  ariaLabel: string;
-};
-
-const socialLinks: SocialLink[] = [
-  {
-    label: "Instagram",
-    href: "https://instagram.com/orontesteknoloji",
-    icon: "instagram",
-    ariaLabel: "Orontes Teknoloji Instagram hesabını aç",
-  },
-  {
-    label: "LinkedIn",
-    href: "https://www.linkedin.com/company/orontes-i%CC%87novasyon-ve-end%C3%BCstriyel-%C3%BCr%C3%BCnler-san-tic-ltd-%C5%9Fti/",
-    icon: "linkedin",
-    ariaLabel: "Orontes Teknoloji LinkedIn sayfasını aç",
-  },
-];
-
 function FooterHeading({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-300">{children}</h2>;
+  return (
+    <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-300">
+      {children}
+    </h2>
+  );
 }
 
 function FooterAnchor({
@@ -130,8 +93,59 @@ function SocialIcon({ name }: { name: SocialLink["icon"] }) {
   );
 }
 
-export default function Footer() {
+export default async function Footer() {
+  const settings = await getPublicSiteSettings();
   const currentYear = new Date().getFullYear();
+  const contactLinks: ContactLink[] = [
+    {
+      label: formatDisplayPhone(settings.contact.phonePrimary),
+      href: createTelHref(settings.contact.phonePrimary),
+      icon: Phone,
+      ariaLabel: `${settings.general.companyName} telefon numarasını ara`,
+    },
+    {
+      label: settings.contact.emailPrimary,
+      href: `mailto:${settings.contact.emailPrimary}`,
+      icon: Mail,
+      ariaLabel: `${settings.general.companyName} e-posta adresine mail gönder`,
+    },
+    {
+      label: formatFullAddress(settings),
+      href: settings.map.googleMapsPlaceId || settings.map.googleMapsEmbed || "/iletisim",
+      icon: MapPin,
+      ariaLabel: `${settings.general.companyName} adresini haritada aç`,
+    },
+    {
+      label: "WhatsApp",
+      href: createWhatsappHref(settings.whatsapp),
+      icon: MessageCircle,
+      ariaLabel: `${settings.general.companyName} ile WhatsApp üzerinden iletişime geç`,
+    },
+  ];
+  const socialLinks: SocialLink[] = [
+    settings.social.instagram
+      ? {
+          label: "Instagram",
+          href: settings.social.instagram,
+          icon: "instagram",
+          ariaLabel: `${settings.general.companyName} Instagram hesabını aç`,
+        }
+      : null,
+    settings.social.linkedin
+      ? {
+          label: "LinkedIn",
+          href: settings.social.linkedin,
+          icon: "linkedin",
+          ariaLabel: `${settings.general.companyName} LinkedIn sayfasını aç`,
+        }
+      : null,
+  ].filter(Boolean) as SocialLink[];
+  const visiblePolicyLinks = policyLinks.filter((link) => {
+    if (link.href === "/gizlilik-politikasi") return settings.legal.privacyPolicyEnabled;
+    if (link.href === "/cerez-politikasi") return settings.legal.cookiePolicyEnabled;
+    if (link.href === "/kvkk") return settings.legal.kvkkEnabled;
+    return true;
+  });
 
   return (
     <footer className="border-t border-white/10 bg-[#061423] text-white">
@@ -157,6 +171,9 @@ export default function Footer() {
 
             <section aria-labelledby="footer-services">
               <FooterHeading>Hizmetler</FooterHeading>
+              <p className="mt-5 text-sm leading-7 text-slate-300">
+                {settings.footer.footerDescription}
+              </p>
               <ul id="footer-services" className="mt-5 space-y-3">
                 {services.map((service) => (
                   <li key={service} className="flex items-start gap-2 text-sm text-slate-300">
@@ -200,7 +217,7 @@ export default function Footer() {
 
           <div className="mt-12 flex flex-col gap-5 border-t border-white/10 pt-6 text-sm text-slate-400 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-2">
-              <p>© {currentYear} {companyName} Tüm hakları saklıdır.</p>
+              <p>© {currentYear} {settings.footer.copyrightText}</p>
               <p>
                 Powered by{" "}
                 <Link
@@ -215,7 +232,7 @@ export default function Footer() {
             </div>
             <nav aria-label="Yasal bağlantılar">
               <ul className="flex flex-wrap gap-x-5 gap-y-2">
-                {policyLinks.map((link) => (
+                {visiblePolicyLinks.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}

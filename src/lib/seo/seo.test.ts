@@ -79,8 +79,8 @@ describe("public SEO architecture", () => {
     expect(urls.some((url) => url.includes("/admin"))).toBe(false);
   });
 
-  it("robots points to sitemap and excludes private route families", () => {
-    const result = robots();
+  it("robots points to sitemap and excludes private route families", async () => {
+    const result = await robots();
 
     expect(result.sitemap).toBe(absoluteUrl("/sitemap.xml"));
     expect(JSON.stringify(result.rules)).toContain("/api/");

@@ -99,7 +99,7 @@ export const adminNavItems: AdminNavItem[] = [
     title: "Site Ayarları",
     href: "/admin/settings",
     icon: Settings,
-    requiredPermission: "settings.manage",
+    requiredPermission: "settings.view",
   },
   {
     title: "Kullanıcılar",

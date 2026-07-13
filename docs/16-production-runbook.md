@@ -206,7 +206,6 @@ npm run db:deploy
 
 ## Deferred But Not Forgotten
 
-- TASK-034: Site ayarlari, iletisim bilgileri, global SEO, logo/favicon, social links ve policy URL yonetimi.
 - Redis/shared rate limiter for login, service request and admin mutation limits.
 - S3-compatible production storage adapter and CDN/object-storage delivery policy.
 - Blog scheduled publishing worker/cron. Current UI only records the planned date and must not imply automatic publishing is active.

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import LegalPage from "@/components/common/LegalPage";
+import { getPublicSiteSettings } from "@/lib/site-settings/public-site-settings";
 
 export const metadata: Metadata = {
   title: "Çerez Politikası | Orontes Teknoloji",
@@ -8,7 +9,9 @@ export const metadata: Metadata = {
     "Orontes Teknoloji web sitesi çerez kategorileri ve tercih yönetimi politikası.",
 };
 
-export default function CookiePolicyPage() {
+export default async function CookiePolicyPage() {
+  const settings = await getPublicSiteSettings();
+
   return (
     <LegalPage
       eyebrow="Çerezler"
@@ -57,7 +60,7 @@ export default function CookiePolicyPage() {
         {
           title: "İletişim",
           paragraphs: [
-            "Çerez politikası hakkında sorularınız için info@orontesteknoloji.com adresinden bizimle iletişime geçebilirsiniz.",
+            `Çerez politikası hakkında sorularınız için ${settings.contact.emailPrimary} adresinden bizimle iletişime geçebilirsiniz.`,
           ],
         },
       ]}

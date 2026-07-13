@@ -322,6 +322,19 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     note: "Dashboard shell renders after real admin login for visual QA.",
   });
 
+  await page.goto("/admin/settings", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Site Ayarları", exact: true })
+  ).toBeVisible();
+  const settingsDesktopPath = path.join(adminDir, "admin-settings-1440x900.png");
+  await page.screenshot({ fullPage: true, path: settingsDesktopPath });
+  results.push({
+    name: "admin-settings-1440x900",
+    screenshotPath: settingsDesktopPath,
+    status: "PASS",
+    note: "Site settings module renders general, branding, SEO and system controls.",
+  });
+
   await page.goto("/admin/hero-slides", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("heading", { name: "Hero Slider Yönetimi", exact: true })
@@ -680,6 +693,19 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     screenshotPath: mediaMobilePath,
     status: "PASS",
     note: "Media library remains usable on mobile.",
+  });
+
+  await page.goto("/admin/settings", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Site Ayarları", exact: true })
+  ).toBeVisible();
+  const settingsMobilePath = path.join(adminDir, "admin-settings-375x667.png");
+  await page.screenshot({ fullPage: true, path: settingsMobilePath });
+  results.push({
+    name: "admin-settings-375x667",
+    screenshotPath: settingsMobilePath,
+    status: "PASS",
+    note: "Site settings module remains usable on mobile.",
   });
 
   await page.goto("/admin/blog", { waitUntil: "domcontentloaded" });

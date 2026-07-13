@@ -325,3 +325,12 @@ Her action admin session, RBAC permission, Zod validation, repository call, audi
 ## Blog CMS Actions
 
 Blog CMS uses server actions under `/admin/blog` for create, update, publish, unpublish, archive, category create/update/reorder/archive and authenticated preview navigation. Public `/blog` and `/blog/[slug]` are read-only routes backed by repository queries; there is no public mutation endpoint and no public draft URL.
+## Site Settings Actions
+
+`/admin/settings` uses server actions for typed settings updates.
+
+- Requires `settings.view` for reads.
+- Requires `settings.update` for normal settings mutations.
+- Requires `settings.seo.manage` for SEO, search verification and analytics groups.
+- Every mutation validates the target group with Zod, writes `SiteSetting`, records an audit event and revalidates `site-settings`, `global-seo` and `branding` cache tags.
+- Branding media values must reference active image media records; raw storage keys are never accepted.

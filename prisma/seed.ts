@@ -21,6 +21,11 @@ import {
   type ProcessedMediaUpload,
 } from "../src/lib/media/media-processing.ts";
 import { LocalMediaStorageAdapter } from "../src/lib/media/media-storage.ts";
+import {
+  defaultSiteSettings,
+  siteSettingGroupToKey,
+  type SiteSettingGroup,
+} from "../src/lib/site-settings/site-settings-types.ts";
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({
@@ -176,6 +181,21 @@ async function main() {
       type: "homepage-seo",
     },
   });
+
+  for (const group of Object.keys(siteSettingGroupToKey) as SiteSettingGroup[]) {
+    await prisma.siteSetting.upsert({
+      where: { key: siteSettingGroupToKey[group] },
+      create: {
+        key: siteSettingGroupToKey[group],
+        value: defaultSiteSettings[group],
+        type: `site-${group}`,
+      },
+      update: {
+        value: defaultSiteSettings[group],
+        type: `site-${group}`,
+      },
+    });
+  }
 }
 
 type SeedMediaInput = ReturnType<typeof getHeroSeedRecords>[number]["media"];

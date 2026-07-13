@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import LegalPage from "@/components/common/LegalPage";
+import { getPublicSiteSettings } from "@/lib/site-settings/public-site-settings";
 
 export const metadata: Metadata = {
   title: "KVKK Aydınlatma Metni | Orontes Teknoloji",
@@ -8,7 +9,9 @@ export const metadata: Metadata = {
     "Orontes Teknoloji servis talep ve iletişim süreçleri için KVKK aydınlatma metni.",
 };
 
-export default function KvkkPage() {
+export default async function KvkkPage() {
+  const settings = await getPublicSiteSettings();
+
   return (
     <LegalPage
       eyebrow="KVKK"
@@ -64,7 +67,7 @@ export default function KvkkPage() {
         {
           title: "Başvuru",
           paragraphs: [
-            "KVKK kapsamındaki taleplerinizi info@orontesteknoloji.com adresi üzerinden bize iletebilirsiniz. Başvurular mevzuatta öngörülen süreler içinde değerlendirilir.",
+            `KVKK kapsamındaki taleplerinizi ${settings.contact.emailPrimary} adresi üzerinden bize iletebilirsiniz. Başvurular mevzuatta öngörülen süreler içinde değerlendirilir.`,
           ],
         },
       ]}

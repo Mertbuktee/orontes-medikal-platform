@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { publicRoutes } from "@/config/site";
 import { createPageMetadata } from "@/lib/seo/metadata";
 import { createLocalBusinessJsonLd } from "@/lib/seo/structured-data";
+import { getPublicSiteSettings } from "@/lib/site-settings/public-site-settings";
 import Contact from "@/sections/Contact/Contact";
 
 const route = publicRoutes.find((item) => item.path === "/iletisim");
@@ -15,14 +16,16 @@ export const metadata: Metadata = createPageMetadata({
   path: "/iletisim",
 });
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getPublicSiteSettings();
+
   return (
     <main>
       <Contact />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(createLocalBusinessJsonLd()),
+          __html: JSON.stringify(createLocalBusinessJsonLd(settings)),
         }}
       />
     </main>

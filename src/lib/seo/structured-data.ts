@@ -1,4 +1,8 @@
 import { absoluteUrl, siteConfig } from "@/config/site";
+import {
+  defaultSiteSettings,
+  type SiteSettings,
+} from "@/lib/site-settings/site-settings-types";
 
 export type BreadcrumbItem = {
   name: string;
@@ -18,33 +22,43 @@ export function createBreadcrumbJsonLd(items: BreadcrumbItem[]) {
   };
 }
 
-export function createOrganizationJsonLd() {
+export function createOrganizationJsonLd(settings: SiteSettings = defaultSiteSettings) {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: siteConfig.legalName,
-    alternateName: siteConfig.name,
+    name: settings.general.legalCompanyName,
+    alternateName: settings.general.companyName,
     url: absoluteUrl("/"),
-    email: siteConfig.email,
-    telephone: siteConfig.phone,
+    email: settings.contact.emailPrimary,
+    telephone: settings.contact.phonePrimary,
+    sameAs: Object.values(settings.social).filter(Boolean),
   };
 }
 
-export function createLocalBusinessJsonLd() {
+export function createLocalBusinessJsonLd(settings: SiteSettings = defaultSiteSettings) {
   return {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    name: siteConfig.legalName,
+    name: settings.general.legalCompanyName,
     url: absoluteUrl("/iletisim"),
-    email: siteConfig.email,
-    telephone: siteConfig.phone,
+    email: settings.contact.emailPrimary,
+    telephone: settings.contact.phonePrimary,
     address: {
       "@type": "PostalAddress",
-      streetAddress: siteConfig.address.streetAddress,
-      addressLocality: siteConfig.address.addressLocality,
-      addressRegion: siteConfig.address.addressRegion,
-      addressCountry: siteConfig.address.addressCountry,
+      streetAddress: settings.address.addressLine,
+      addressLocality: settings.address.district,
+      addressRegion: settings.address.city,
+      postalCode: settings.address.postalCode || undefined,
+      addressCountry: settings.address.country,
     },
+    geo:
+      settings.map.latitude && settings.map.longitude
+        ? {
+            "@type": "GeoCoordinates",
+            latitude: settings.map.latitude,
+            longitude: settings.map.longitude,
+          }
+        : undefined,
   };
 }
 

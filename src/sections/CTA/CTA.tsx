@@ -2,6 +2,9 @@ import { ArrowRight, BadgeCheck, MessageCircle, ShieldCheck } from "lucide-react
 import Image from "next/image";
 import Link from "next/link";
 
+import { getPublicSiteSettings } from "@/lib/site-settings/public-site-settings";
+import { createWhatsappHref } from "@/lib/site-settings/site-settings-types";
+
 type CTALink = {
   text: string;
   href: string;
@@ -21,16 +24,24 @@ const defaultTrustItems = [
   "Kontrollü Onarım Süreci",
 ];
 
-export default function CTA({
-  title = "Medikal Cihazınız İçin Teknik Destek Alın",
-  description = "Arıza, bakım, elektronik kart onarımı veya servis kapsamı hakkında bilgi almak için cihaz detaylarını ekibimizle paylaşın.",
-  primaryLink = { text: "Servis Talebi Oluştur", href: "/servis-talebi" },
-  secondaryLink = {
-    text: "WhatsApp",
-    href: "https://wa.me/905536065703?text=Merhabalar%20Website%20%C3%9Czerinden%20%C4%B0leti%C5%9Fime%20Ge%C3%A7iyorum",
-  },
-  trustItems = defaultTrustItems,
-}: CTAProps) {
+export default async function CTA(props: CTAProps) {
+  const settings = await getPublicSiteSettings();
+  const title =
+    props.title ?? "Medikal Cihazınız İçin Teknik Destek Alın";
+  const description =
+    props.description ??
+    "Arıza, bakım, elektronik kart onarımı veya servis kapsamı hakkında bilgi almak için cihaz detaylarını ekibimizle paylaşın.";
+  const primaryLink =
+    props.primaryLink ?? {
+      text: settings.defaultCta.primaryButtonLabel,
+      href: settings.defaultCta.primaryButtonHref,
+    };
+  const secondaryLink =
+    props.secondaryLink ?? {
+      text: settings.defaultCta.secondaryButtonLabel || "WhatsApp",
+      href: settings.defaultCta.secondaryButtonHref || createWhatsappHref(settings.whatsapp),
+    };
+  const trustItems = props.trustItems ?? defaultTrustItems;
   return (
     <section id="servis-talebi" className="bg-white px-3 py-14 sm:px-6 sm:py-16 lg:px-8">
       <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-slate-950 text-white shadow-2xl shadow-slate-200/80">

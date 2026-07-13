@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Breadcrumbs } from "@/components/common/Breadcrumbs";
 import { publicRoutes } from "@/config/site";
 import { createPageMetadata } from "@/lib/seo/metadata";
+import { getPublicSiteSettings } from "@/lib/site-settings/public-site-settings";
+import { createWhatsappHref } from "@/lib/site-settings/site-settings-types";
 import ServiceRequestForm from "@/sections/CTA/ServiceRequestForm";
 
 const route = publicRoutes.find((item) => item.path === "/servis-talebi");
@@ -24,7 +26,9 @@ const supportItems = [
   "Teknik ön değerlendirme için güvenli başvuru",
 ];
 
-export default function ServiceRequestPage() {
+export default async function ServiceRequestPage() {
+  const settings = await getPublicSiteSettings();
+
   return (
     <main className="bg-slate-950 text-white">
       <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
@@ -63,7 +67,7 @@ export default function ServiceRequestPage() {
             </div>
 
             <Link
-              href="https://wa.me/905536065703?text=Merhabalar%20Website%20%C3%9Czerinden%20%C4%B0leti%C5%9Fime%20Ge%C3%A7iyorum"
+              href={createWhatsappHref(settings.whatsapp)}
               target="_blank"
               rel="noreferrer"
               className="mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-5 text-sm font-semibold text-white transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 sm:w-fit"

@@ -1,20 +1,21 @@
 import type { MetadataRoute } from "next";
 
-import { absoluteUrl, isProductionDeployment, publicRoutes } from "@/config/site";
+import { isProductionDeployment, publicRoutes } from "@/config/site";
 import {
   getPublicBlogCategoriesWithPublishedPosts,
   getPublicBlogPosts,
 } from "@/lib/blog/public-blog";
+import { publicAbsoluteUrl } from "@/lib/site-settings/public-site-settings";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
 
-  const routes = publicRoutes.map((route) => ({
-    url: absoluteUrl(route.path),
+  const routes = await Promise.all(publicRoutes.map(async (route) => ({
+    url: await publicAbsoluteUrl(route.path),
     lastModified,
     changeFrequency: route.changeFrequency,
     priority: route.priority,
-  }));
+  })));
 
   const [blogPosts, blogCategories] = await Promise.all([
     getSitemapBlogPosts(),
@@ -24,13 +25,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...routes,
     ...blogPosts.map((post) => ({
-      url: absoluteUrl(`/blog/${post.slug}`),
+      url: post.url,
       lastModified: post.updatedAt,
       changeFrequency: "monthly" as const,
       priority: 0.65,
     })),
     ...blogCategories.map((category) => ({
-      url: absoluteUrl(`/blog/kategori/${category.slug}`),
+      url: category.url,
       lastModified: category.updatedAt,
       changeFrequency: "monthly" as const,
       priority: 0.55,
@@ -40,7 +41,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 async function getSitemapBlogPosts() {
   try {
-    return await getPublicBlogPosts();
+    const posts = await getPublicBlogPosts();
+    return Promise.all(
+      posts.map(async (post) => ({
+        ...post,
+        url: await publicAbsoluteUrl(`/blog/${post.slug}`),
+      }))
+    );
   } catch (error) {
     if (isProductionDeployment(process.env)) {
       throw error;
@@ -52,7 +59,13 @@ async function getSitemapBlogPosts() {
 
 async function getSitemapBlogCategories() {
   try {
-    return await getPublicBlogCategoriesWithPublishedPosts();
+    const categories = await getPublicBlogCategoriesWithPublishedPosts();
+    return Promise.all(
+      categories.map(async (category) => ({
+        ...category,
+        url: await publicAbsoluteUrl(`/blog/kategori/${category.slug}`),
+      }))
+    );
   } catch (error) {
     if (isProductionDeployment(process.env)) {
       throw error;

@@ -191,6 +191,12 @@ Filesystem and database changes are not treated as a single atomic operation. Wh
 - Device image and Open Graph image selection accepts active image media only. Archived media and PDFs are rejected.
 - Public DTOs do not expose storage keys, filesystem paths, audit metadata or internal user IDs.
 - Audit metadata stores IDs, slug, active/featured state and media IDs only; full descriptions and storage paths are intentionally excluded.
+
+## Site Settings Security
+
+Site settings are public website configuration, not a secret store. Do not store API secrets, private tokens, database credentials or webhook secrets in `SiteSetting`. Branding values reference Media IDs and are validated against active image media. URL fields reject unsafe protocols such as `javascript:` and `data:`.
+
+Maintenance mode is enforced in the public layout so it can read typed database settings safely. It is not treated as an authorization boundary; admin authentication and RBAC still protect all admin routes server-side.
 # Hizmet Yönetimi Güvenliği
 
 Hizmet CRUD işlemleri server-side RBAC ve Zod validasyonu gerektirir. İkonlar allowlist üzerinden seçilir; arbitrary component/code adı kabul edilmez. CTA bağlantıları yalnızca güvenli internal path veya `http/https` mutlak URL olarak kabul edilir; `javascript:` ve benzeri unsafe şemalar reddedilir.

@@ -417,3 +417,9 @@ Ana sayfa modülü Hero Slider, Device Groups, Services ve ileride Blog modülle
 ## Blog CMS Architecture
 
 Blog CMS structured-content model uses validated JSON blocks instead of raw HTML. Admin forms write through server actions and `PrismaBlogRepository`; public `/blog`, `/blog/[slug]` and `/blog/kategori/[slug]` read only published, non-archived posts whose publication time is public. Category pages require an active category with at least one useful public post; empty categories use a 404 policy and stay out of sitemap. Draft preview stays under authenticated admin routes and is marked noindex. Public cache tags are `blog-posts`, `blog-categories` and per-post path invalidation. Scheduled publishing has a data model and UI state only; the production worker/cron is deliberately deferred.
+
+## Site Settings Architecture
+
+Global site identity is stored as typed `SiteSetting` key/value groups such as `site.general`, `site.contact`, `site.branding`, `site.seo`, `site.social`, `site.legal`, `site.footer` and `site.system`. Each group is validated with Zod before persistence. Public components load settings through the cached public settings boundary and never read raw storage keys or private values.
+
+Navbar, Footer, Contact, Organization JSON-LD, LocalBusiness JSON-LD, sitemap and robots use the settings layer as the public source of truth. Maintenance mode is enforced in the public layout instead of Next Proxy because the Next 16 Proxy documentation warns against slow data fetching in Proxy; admin routes remain available for authenticated users to disable maintenance.

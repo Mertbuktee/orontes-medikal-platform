@@ -10,33 +10,46 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const contactCards = [
-  { title: "Telefon", value: "0553 606 57 03", href: "tel:+905536065703", icon: Phone },
-  {
-    title: "E-posta",
-    value: "info@orontesteknoloji.com",
-    href: "mailto:info@orontesteknoloji.com",
-    icon: Mail,
-  },
-  {
-    title: "Adres",
-    value: "Kocasinan Merkez Mh.\nGörgülü Sk. No:20/B\nBahçelievler / İstanbul",
-    href: "https://maps.app.goo.gl/6RGW6dy3kK4RAax8A",
-    icon: MapPin,
-  },
-  {
-    title: "WhatsApp",
-    value: "Hızlı iletişim",
-    href: "https://wa.me/905536065703?text=Merhabalar%20Website%20%C3%9Czerinden%20%C4%B0leti%C5%9Fime%20Ge%C3%A7iyorum",
-    icon: MessageCircle,
-  },
-];
+import { getPublicSiteSettings } from "@/lib/site-settings/public-site-settings";
+import {
+  createTelHref,
+  createWhatsappHref,
+  formatDisplayPhone,
+  formatFullAddress,
+} from "@/lib/site-settings/site-settings-types";
 
 const trustItems = ["Türkiye Geneli Destek", "Teknik Servis", "Elektronik Kart Tamiri"];
-const mapSrc =
-  "https://www.google.com/maps?q=Kocasinan%20Merkez%20Mh.%20G%C3%B6rg%C3%BCl%C3%BC%20Sk.%20No%3A20%2FB%20Bah%C3%A7elievler%20%C4%B0stanbul&output=embed";
+export default async function Contact() {
+  const settings = await getPublicSiteSettings();
+  const mapSrc = settings.map.googleMapsEmbed;
+  const mapHref = settings.map.googleMapsPlaceId || settings.map.googleMapsEmbed || "/iletisim";
+  const contactCards = [
+    {
+      title: "Telefon",
+      value: formatDisplayPhone(settings.contact.phonePrimary),
+      href: createTelHref(settings.contact.phonePrimary),
+      icon: Phone,
+    },
+    {
+      title: "E-posta",
+      value: settings.contact.emailPrimary,
+      href: `mailto:${settings.contact.emailPrimary}`,
+      icon: Mail,
+    },
+    {
+      title: "Adres",
+      value: formatFullAddress(settings),
+      href: mapHref,
+      icon: MapPin,
+    },
+    {
+      title: "WhatsApp",
+      value: "Hızlı iletişim",
+      href: createWhatsappHref(settings.whatsapp),
+      icon: MessageCircle,
+    },
+  ];
 
-export default function Contact() {
   return (
     <section id="iletisim" className="relative overflow-hidden bg-white py-16 sm:py-20 lg:py-24">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_12%,rgba(14,165,233,0.1),transparent_30%),radial-gradient(circle_at_92%_18%,rgba(249,115,22,0.035),transparent_24%),linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)]" />
@@ -98,12 +111,12 @@ export default function Contact() {
                     Ofis konumu
                   </p>
                   <h3 className="mt-1 text-2xl font-semibold text-slate-950">
-                    Bahçelievler / İstanbul
+                    {settings.address.district} / {settings.address.city}
                   </h3>
                 </div>
               </div>
               <Link
-                href="https://maps.app.goo.gl/6RGW6dy3kK4RAax8A"
+                href={mapHref}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:border-orange-200 hover:text-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
@@ -114,13 +127,15 @@ export default function Contact() {
             </div>
 
             <div className="relative h-80 bg-slate-100 sm:aspect-[4/3] sm:h-auto sm:min-h-80">
-              <iframe
-                src={mapSrc}
-                title="Orontes Medikal ofis konumu"
-                className="absolute inset-0 h-full w-full border-0"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+              {mapSrc ? (
+                <iframe
+                  src={mapSrc}
+                  title={`${settings.general.companyName} ofis konumu`}
+                  className="absolute inset-0 h-full w-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              ) : null}
             </div>
           </div>
 

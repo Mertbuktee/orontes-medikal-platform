@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { ArrowRight, Home, Mail, MapPin, SearchX, Wrench } from "lucide-react";
 
+import { getPublicSiteSettings } from "@/lib/site-settings/public-site-settings";
+import { formatFullAddress } from "@/lib/site-settings/site-settings-types";
+
 const suggestedLinks = [
   { label: "Hizmetler", href: "/hizmetler" },
   { label: "Cihazlar", href: "/cihazlar" },
@@ -8,28 +11,29 @@ const suggestedLinks = [
   { label: "İletişim", href: "/iletisim" },
 ];
 
-const supportItems = [
-  {
-    icon: Wrench,
-    title: "Teknik servis talebi",
-    text: "Cihaz arızası veya bakım ihtiyacı için servis formuna geçin.",
-    href: "/servis-talebi",
-  },
-  {
-    icon: Mail,
-    title: "E-posta ile ulaşın",
-    text: "info@orontesteknoloji.com adresinden destek alabilirsiniz.",
-    href: "mailto:info@orontesteknoloji.com",
-  },
-  {
-    icon: MapPin,
-    title: "Ofis konumu",
-    text: "Bahçelievler / İstanbul adresimizi haritada görüntüleyin.",
-    href: "https://maps.app.goo.gl/6RGW6dy3kK4RAax8A",
-  },
-];
+export default async function NotFound() {
+  const settings = await getPublicSiteSettings();
+  const supportItems = [
+    {
+      icon: Wrench,
+      title: "Teknik servis talebi",
+      text: "Cihaz arızası veya bakım ihtiyacı için servis formuna geçin.",
+      href: "/servis-talebi",
+    },
+    {
+      icon: Mail,
+      title: "E-posta ile ulaşın",
+      text: `${settings.contact.emailPrimary} adresinden destek alabilirsiniz.`,
+      href: `mailto:${settings.contact.emailPrimary}`,
+    },
+    {
+      icon: MapPin,
+      title: "Ofis konumu",
+      text: `${formatFullAddress(settings)} adresimizi haritada görüntüleyin.`,
+      href: settings.map.googleMapsPlaceId || settings.map.googleMapsEmbed || "/iletisim",
+    },
+  ];
 
-export default function NotFound() {
   return (
     <section className="relative overflow-hidden bg-slate-50 px-6 py-20 sm:px-8 lg:px-10">
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">

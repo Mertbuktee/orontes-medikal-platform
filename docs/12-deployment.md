@@ -427,3 +427,9 @@ If `db:generate` still reports `EPERM`, close remaining project Node processes a
 ## Blog Publishing Deployment Notes
 
 Scheduled blog publishing currently has a safe foundation but no always-on background worker. Future production automation should run an authenticated/isolated publish-due-posts job or queue worker. Sitemap includes only currently public posts; production DB migrations must run before deployment so `BlogPostRevision` and new blog fields exist before Next build/prerender.
+
+## Site Settings Deployment Notes
+
+Before go-live, verify `/admin/settings` values for company identity, phone, e-mail, WhatsApp message, address, maps, logo, favicon, default OG image, social links, legal visibility and canonical origin. `APP_ORIGIN` remains the deployment guard; `site.seo.canonicalOrigin` may override public URL generation only when intentionally configured.
+
+Maintenance mode can be enabled from admin settings for public pages. Admin routes remain available so an authorized user can disable it. Analytics/search IDs must not be wired to third-party scripts unless cookie-consent gating for the related category is active.

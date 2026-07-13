@@ -146,3 +146,7 @@ Repository ve visual QA kapsamı ileride section başına özel görsel editörl
 ## Blog CMS Tests
 
 Blog validation tests cover safe structured blocks, H1 rejection, unknown block rejection, empty article rejection and Turkish slug normalization. Category policy tests cover active category exposure, inactive category rejection, empty-category 404 policy and sitemap inclusion/exclusion. Visual QA includes admin blog list/create/edit/preview and public blog list/detail/category routes on desktop and mobile. Repository and visual coverage should be expanded with real DB fixtures before final production freeze, especially publish/schedule/cache and draft preview authorization paths.
+
+## Site Settings Tests
+
+Site settings validation tests cover default parsing, phone/e-mail validation, safe URL/CTA protocol handling and maintenance mode payloads. Visual QA captures `/admin/settings` desktop and mobile states. Production hardening should add database-backed integration tests for settings audit events, branding media relation checks and maintenance mode smoke tests.
