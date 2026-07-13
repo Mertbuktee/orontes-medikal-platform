@@ -114,6 +114,7 @@ export class PrismaMediaRepository {
               deviceGroupOpenGraphs: true,
               services: true,
               serviceOpenGraphs: true,
+              blogPostOpenGraphs: true,
             },
           },
         },
@@ -142,6 +143,7 @@ export class PrismaMediaRepository {
         services: { select: { id: true, title: true } },
         serviceOpenGraphs: { select: { id: true, title: true } },
         blogPostCovers: { select: { id: true, title: true } },
+        blogPostOpenGraphs: { select: { id: true, title: true } },
       },
     });
   }
@@ -206,7 +208,8 @@ export class PrismaMediaRepository {
       media.deviceGroups.length ||
       media.deviceGroupOpenGraphs.length ||
       media.services.length ||
-      media.serviceOpenGraphs.length
+      media.serviceOpenGraphs.length ||
+      (media.blogPostOpenGraphs?.length ?? 0)
     ) {
       throw new Error("Media is still in use.");
     }
@@ -228,6 +231,12 @@ export class PrismaMediaRepository {
         entityId: post.id,
         title: post.title,
         adminUrl: `/admin/blog/${post.id}`,
+      })),
+      ...(media.blogPostOpenGraphs ?? []).map((post) => ({
+        entityType: "BlogPostOpenGraph",
+        entityId: post.id,
+        title: post.title,
+        adminUrl: `/admin/blog/${post.id}/edit`,
       })),
       ...media.deviceGroups.map((device) => ({
         entityType: "DeviceGroup",
@@ -305,6 +314,7 @@ function buildMediaWhere(input: MediaListInput): Prisma.MediaWhereInput {
             { deviceGroupOpenGraphs: { some: {} } },
             { services: { some: {} } },
             { serviceOpenGraphs: { some: {} } },
+            { blogPostOpenGraphs: { some: {} } },
           ],
         }
       : {}),
@@ -316,6 +326,7 @@ function buildMediaWhere(input: MediaListInput): Prisma.MediaWhereInput {
           deviceGroupOpenGraphs: { none: {} },
           services: { none: {} },
           serviceOpenGraphs: { none: {} },
+          blogPostOpenGraphs: { none: {} },
         }
       : {}),
     ...(query

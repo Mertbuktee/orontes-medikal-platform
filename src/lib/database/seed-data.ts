@@ -1,9 +1,18 @@
 import path from "node:path";
 
+import { blogPosts, type BlogPostPreview } from "../../content/blog-posts.ts";
 import { deviceGroups, type DeviceGroup } from "../../content/devices.ts";
 import { services, type ServiceItem } from "../../content/services.ts";
 import { heroSlides } from "../../sections/Hero/hero-slider-data.ts";
 import type { HeroSlide } from "../../sections/Hero/hero-slider-types.ts";
+import {
+  defaultHomepageSeo,
+  defaultHomepageSections,
+} from "../homepage/homepage-defaults.ts";
+import type {
+  HomepageSectionSeed,
+  HomepageSeo,
+} from "../homepage/homepage-types.ts";
 
 export type DeviceGroupSeedRecord = {
   id: string;
@@ -68,6 +77,45 @@ export type HeroSlideSeedRecord = {
   order: number;
   isActive: boolean;
   includeInAutoplay: boolean;
+};
+
+export type HomepageSectionSeedRecord = HomepageSectionSeed;
+
+export type HomepageSeoSeedRecord = HomepageSeo;
+
+export type BlogCategorySeedRecord = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  seoTitle: string;
+  seoDescription: string;
+  order: number;
+  isActive: boolean;
+  archivedAt: Date | null;
+};
+
+export type BlogPostSeedRecord = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: Array<{
+    id: string;
+    type: "paragraph";
+    text: string;
+  }>;
+  status: "DRAFT";
+  categoryId: string;
+  coverImageId: string | null;
+  openGraphImageId: string | null;
+  authorId: string | null;
+  seoTitle: string;
+  seoDescription: string;
+  isFeatured: boolean;
+  publishedAt: Date | null;
+  scheduledFor: Date | null;
+  archivedAt: Date | null;
 };
 
 export function getDeviceGroupSeedRecords(items: DeviceGroup[] = deviceGroups) {
@@ -155,6 +203,80 @@ export function getHeroSeedRecords(items: HeroSlide[] = heroSlides) {
   });
 }
 
+export function getHomepageSectionSeedRecords(
+  items: HomepageSectionSeed[] = defaultHomepageSections
+) {
+  return [...items].sort((first, second) => first.order - second.order);
+}
+
+export function getHomepageSeoSeedRecord(
+  item: HomepageSeo = defaultHomepageSeo
+) {
+  return item;
+}
+
+export function getBlogCategorySeedRecords(items: BlogPostPreview[] = blogPosts) {
+  const categoryNames = Array.from(new Set(items.map((item) => item.category)));
+
+  return categoryNames.map<BlogCategorySeedRecord>((name, index) => {
+    const slug = slugifySeed(name);
+
+    return {
+      id: `blog-category-${slug}`,
+      name,
+      slug,
+      description: `${name} konusunda teknik servis bilgi notları.`,
+      seoTitle: `${name} Blog Yazıları | Orontes Teknoloji`,
+      seoDescription: `${name} hakkında medikal teknik servis bilgi notları.`,
+      order: index + 1,
+      isActive: true,
+      archivedAt: null,
+    };
+  });
+}
+
+export function getBlogPostSeedRecords(items: BlogPostPreview[] = blogPosts) {
+  return items.map<BlogPostSeedRecord>((item, index) => ({
+    id: item.id,
+    title: item.title,
+    slug: item.slug,
+    excerpt: item.excerpt,
+    content: [
+      {
+        id: `seed-${item.id}-intro`,
+        type: "paragraph",
+        text: item.excerpt,
+      },
+    ],
+    status: "DRAFT",
+    categoryId: `blog-category-${slugifySeed(item.category)}`,
+    coverImageId: null,
+    openGraphImageId: null,
+    authorId: null,
+    seoTitle: item.seoTitle,
+    seoDescription: item.seoDescription,
+    isFeatured: index < 3,
+    publishedAt: null,
+    scheduledFor: null,
+    archivedAt: null,
+  }));
+}
+
 function toPublicStorageKey(imageSrc: string) {
   return imageSrc.startsWith("/") ? `public${imageSrc}` : imageSrc;
+}
+
+function slugifySeed(value: string) {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ı/g, "i")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }

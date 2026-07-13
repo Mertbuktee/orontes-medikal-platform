@@ -456,6 +456,106 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     note: "Media detail renders preview, metadata, variants and usage state.",
   });
 
+  await page.goto("/admin/blog", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Blog Yazıları", exact: true })).toBeVisible();
+  const blogListDesktopPath = path.join(adminDir, "admin-blog-1440x900.png");
+  await page.screenshot({ fullPage: true, path: blogListDesktopPath });
+  results.push({
+    name: "admin-blog-1440x900",
+    screenshotPath: blogListDesktopPath,
+    status: "PASS",
+    note: "Blog CMS list renders posts, status badges and actions.",
+  });
+
+  await page.goto("/admin/blog/new", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Yeni Blog Yazısı" })).toBeVisible();
+  const blogCreateDesktopPath = path.join(
+    adminDir,
+    "admin-blog-create-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: blogCreateDesktopPath });
+  results.push({
+    name: "admin-blog-create-1440x900",
+    screenshotPath: blogCreateDesktopPath,
+    status: "PASS",
+    note: "Blog create form renders structured block editor and media controls.",
+  });
+
+  await page.goto("/admin/blog/visual-qa-blog-post/edit", {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(page.getByRole("heading", { name: "Visual QA Teknik Servis Notu" })).toBeVisible();
+  const blogEditDesktopPath = path.join(
+    adminDir,
+    "admin-blog-edit-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: blogEditDesktopPath });
+  results.push({
+    name: "admin-blog-edit-1440x900",
+    screenshotPath: blogEditDesktopPath,
+    status: "PASS",
+    note: "Blog edit form renders existing structured blocks and scheduled publishing note.",
+  });
+
+  await page.goto("/admin/blog/visual-qa-blog-post/preview", {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(page.getByText("Önizleme Modu")).toBeVisible();
+  const blogPreviewDesktopPath = path.join(
+    adminDir,
+    "admin-blog-preview-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: blogPreviewDesktopPath });
+  results.push({
+    name: "admin-blog-preview-1440x900",
+    screenshotPath: blogPreviewDesktopPath,
+    status: "PASS",
+    note: "Authenticated blog draft preview renders with noindex preview notice.",
+  });
+
+  await page.goto("/blog", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Medikal cihaz servis notları" })).toBeVisible();
+  const publicBlogDesktopPath = path.join(adminDir, "public-blog-1440x900.png");
+  await page.screenshot({ fullPage: true, path: publicBlogDesktopPath });
+  results.push({
+    name: "public-blog-1440x900",
+    screenshotPath: publicBlogDesktopPath,
+    status: "PASS",
+    note: "Public blog listing renders published posts.",
+  });
+
+  await page.goto("/blog/visual-qa-teknik-servis-notu", {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(page.getByRole("heading", { name: "Visual QA Teknik Servis Notu" })).toBeVisible();
+  const publicBlogDetailDesktopPath = path.join(
+    adminDir,
+    "public-blog-detail-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: publicBlogDetailDesktopPath });
+  results.push({
+    name: "public-blog-detail-1440x900",
+    screenshotPath: publicBlogDetailDesktopPath,
+    status: "PASS",
+    note: "Public article detail renders structured content blocks.",
+  });
+
+  await page.goto("/blog/kategori/visual-qa-blog", {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(page.getByRole("heading", { name: "Visual QA Blog" })).toBeVisible();
+  const publicBlogCategoryDesktopPath = path.join(
+    adminDir,
+    "public-blog-category-1440x900.png"
+  );
+  await page.screenshot({ fullPage: true, path: publicBlogCategoryDesktopPath });
+  results.push({
+    name: "public-blog-category-1440x900",
+    screenshotPath: publicBlogCategoryDesktopPath,
+    status: "PASS",
+    note: "Public blog category page renders useful active category content.",
+  });
+
   await page.goto("/admin/services", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("heading", { name: "Hizmetler", exact: true })
@@ -580,6 +680,66 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     screenshotPath: mediaMobilePath,
     status: "PASS",
     note: "Media library remains usable on mobile.",
+  });
+
+  await page.goto("/admin/blog", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Blog Yazıları", exact: true })
+  ).toBeVisible();
+  const blogMobilePath = path.join(adminDir, "admin-blog-375x667.png");
+  await page.screenshot({ fullPage: true, path: blogMobilePath });
+  results.push({
+    name: "admin-blog-375x667",
+    screenshotPath: blogMobilePath,
+    status: "PASS",
+    note: "Blog CMS list remains usable on mobile.",
+  });
+
+  await page.goto("/blog", { waitUntil: "domcontentloaded" });
+  await expect(
+    page.getByRole("heading", { name: "Medikal cihaz servis notları" })
+  ).toBeVisible();
+  const publicBlogMobilePath = path.join(adminDir, "public-blog-375x667.png");
+  await page.screenshot({ fullPage: true, path: publicBlogMobilePath });
+  results.push({
+    name: "public-blog-375x667",
+    screenshotPath: publicBlogMobilePath,
+    status: "PASS",
+    note: "Public blog listing remains usable on mobile.",
+  });
+
+  await page.goto("/blog/visual-qa-teknik-servis-notu", {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(
+    page.getByRole("heading", { name: "Visual QA Teknik Servis Notu" })
+  ).toBeVisible();
+  const publicBlogDetailMobilePath = path.join(
+    adminDir,
+    "public-blog-detail-375x667.png"
+  );
+  await page.screenshot({ fullPage: true, path: publicBlogDetailMobilePath });
+  results.push({
+    name: "public-blog-detail-375x667",
+    screenshotPath: publicBlogDetailMobilePath,
+    status: "PASS",
+    note: "Public blog detail remains usable on mobile.",
+  });
+
+  await page.goto("/blog/kategori/visual-qa-blog", {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(page.getByRole("heading", { name: "Visual QA Blog" })).toBeVisible();
+  const publicBlogCategoryMobilePath = path.join(
+    adminDir,
+    "public-blog-category-375x667.png"
+  );
+  await page.screenshot({ fullPage: true, path: publicBlogCategoryMobilePath });
+  results.push({
+    name: "public-blog-category-375x667",
+    screenshotPath: publicBlogCategoryMobilePath,
+    status: "PASS",
+    note: "Public blog category remains usable on mobile.",
   });
 
   await page.goto("/admin/services", { waitUntil: "domcontentloaded" });

@@ -55,7 +55,21 @@ export const adminNavItems: AdminNavItem[] = [
     title: "Blog",
     href: "/admin/blog",
     icon: BookOpenText,
-    requiredPermission: "blog.manage",
+    requiredPermission: "blog.view",
+    children: [
+      {
+        title: "Blog Yazıları",
+        href: "/admin/blog",
+        icon: BookOpenText,
+        requiredPermission: "blog.view",
+      },
+      {
+        title: "Blog Kategorileri",
+        href: "/admin/blog/categories",
+        icon: BookOpenText,
+        requiredPermission: "blog.categories.manage",
+      },
+    ],
   },
   {
     title: "Medya",
@@ -73,7 +87,7 @@ export const adminNavItems: AdminNavItem[] = [
     title: "Ana Sayfa Yönetimi",
     href: "/admin/homepage",
     icon: Home,
-    requiredPermission: "homepage.manage",
+    requiredPermission: "homepage.view",
   },
   {
     title: "SEO",

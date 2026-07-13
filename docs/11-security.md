@@ -196,3 +196,13 @@ Filesystem and database changes are not treated as a single atomic operation. Wh
 Hizmet CRUD işlemleri server-side RBAC ve Zod validasyonu gerektirir. İkonlar allowlist üzerinden seçilir; arbitrary component/code adı kabul edilmez. CTA bağlantıları yalnızca güvenli internal path veya `http/https` mutlak URL olarak kabul edilir; `javascript:` ve benzeri unsafe şemalar reddedilir.
 
 Medya seçimi raw storage key kabul etmez. Sadece aktif image media kayıtları kullanılabilir; public DTO storage key veya internal user bilgisi döndürmez.
+## Homepage Content Security
+
+Ana sayfa yönetimi DB’den arbitrary component, HTML veya script çalıştırmaz. Section key değerleri allowlist ile sınırlıdır ve `content` JSON payload’ları key’e özel Zod şemalarıyla doğrulanır.
+
+CTA bağlantıları server-side doğrulanır; `javascript:` ve `data:` gibi unsafe scheme değerleri reddedilir. Medya referansları yalnızca aktif görsel medya ID’leriyle kabul edilir; raw storage key veya filesystem path admin formundan yazılamaz.
+
+Navigation görünürlüğü sadece UX katmanıdır. Ana sayfa içerik update, reorder, visibility ve SEO mutation’ları server-side `requirePermission()` ile korunur.
+## Blog Content Security
+
+Blog article bodies do not accept raw HTML, script, style or arbitrary component names. All content blocks are validated with Zod and rendered through an exhaustive typed renderer. Draft preview requires an authenticated admin session and `blog.view`; public pages return 404 for drafts, archived posts and future scheduled posts. Blog media references resolve by Media ID and never expose storage keys.

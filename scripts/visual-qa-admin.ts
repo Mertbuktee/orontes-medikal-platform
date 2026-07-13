@@ -32,7 +32,7 @@ const passwordHash = await argon2.hash(password, {
 });
 
 try {
-  await prisma.user.upsert({
+  const visualQaUser = await prisma.user.upsert({
     where: { email },
     create: {
       email,
@@ -160,6 +160,94 @@ try {
       height: 1,
       size: imageBuffer.length,
     })),
+  });
+
+  await prisma.blogCategory.upsert({
+    where: { id: "visual-qa-blog-category" },
+    create: {
+      id: "visual-qa-blog-category",
+      name: "Visual QA Blog",
+      slug: "visual-qa-blog",
+      description: "Visual QA ekran görüntüleri için sentetik blog kategorisi.",
+      seoTitle: "Visual QA Blog | Orontes Teknoloji",
+      seoDescription: "Visual QA için sentetik blog kategori sayfası.",
+      order: 999,
+      isActive: true,
+    },
+    update: {
+      name: "Visual QA Blog",
+      slug: "visual-qa-blog",
+      description: "Visual QA ekran görüntüleri için sentetik blog kategorisi.",
+      seoTitle: "Visual QA Blog | Orontes Teknoloji",
+      seoDescription: "Visual QA için sentetik blog kategori sayfası.",
+      order: 999,
+      isActive: true,
+      archivedAt: null,
+    },
+  });
+
+  await prisma.blogPost.upsert({
+    where: { id: "visual-qa-blog-post" },
+    create: {
+      id: "visual-qa-blog-post",
+      title: "Visual QA Teknik Servis Notu",
+      slug: "visual-qa-teknik-servis-notu",
+      excerpt:
+        "Visual QA ekran görüntüleri için oluşturulan sentetik teknik servis blog içeriği.",
+      content: [
+        {
+          id: "visual-qa-paragraph",
+          type: "paragraph",
+          text: "Bu içerik yalnızca visual QA ekranlarının dolu durumunu kontrol etmek için kullanılır.",
+        },
+        {
+          id: "visual-qa-heading",
+          type: "heading",
+          level: 2,
+          text: "Kontrol Başlığı",
+        },
+        {
+          id: "visual-qa-list",
+          type: "bulletList",
+          items: ["Liste maddesi", "İkinci madde"],
+        },
+        {
+          id: "visual-qa-callout",
+          type: "callout",
+          tone: "info",
+          title: "Bilgi",
+          text: "Bu kayıt production verisi değildir.",
+        },
+      ],
+      status: "PUBLISHED",
+      categoryId: "visual-qa-blog-category",
+      coverImageId: "visual-qa-media",
+      openGraphImageId: "visual-qa-media",
+      authorId: visualQaUser.id,
+      seoTitle: "Visual QA Teknik Servis Notu | Orontes Teknoloji",
+      seoDescription:
+        "Visual QA ekran görüntüleri için sentetik teknik servis blog yazısı.",
+      isFeatured: true,
+      publishedAt: new Date("2026-01-01T09:00:00.000Z"),
+    },
+    update: {
+      title: "Visual QA Teknik Servis Notu",
+      slug: "visual-qa-teknik-servis-notu",
+      excerpt:
+        "Visual QA ekran görüntüleri için oluşturulan sentetik teknik servis blog içeriği.",
+      status: "PUBLISHED",
+      categoryId: "visual-qa-blog-category",
+      coverImageId: "visual-qa-media",
+      openGraphImageId: "visual-qa-media",
+      authorId: visualQaUser.id,
+      seoTitle: "Visual QA Teknik Servis Notu | Orontes Teknoloji",
+      seoDescription:
+        "Visual QA ekran görüntüleri için sentetik teknik servis blog yazısı.",
+      isFeatured: true,
+      publishedAt: new Date("2026-01-01T09:00:00.000Z"),
+      scheduledFor: null,
+      archivedAt: null,
+    },
   });
 } finally {
   await prisma.$disconnect();

@@ -17,6 +17,7 @@ import { getServiceRequestStatusMeta } from "@/components/admin/service-request-
 import { requirePermission } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/database/prisma";
 import { PrismaDeviceGroupRepository } from "@/lib/database/repositories/device-groups";
+import { PrismaBlogRepository } from "@/lib/database/repositories/blog";
 import { PrismaHeroSlideRepository } from "@/lib/database/repositories/hero-slides";
 import { PrismaMediaRepository } from "@/lib/database/repositories/media";
 import { PrismaServiceRepository } from "@/lib/database/repositories/services";
@@ -38,6 +39,7 @@ type DeviceSummary = Awaited<
 type ServiceSummary = Awaited<
   ReturnType<PrismaServiceRepository["getDashboardSummary"]>
 >;
+type BlogSummary = Awaited<ReturnType<PrismaBlogRepository["getDashboardSummary"]>>;
 
 const readinessCards = [
   {
@@ -70,12 +72,14 @@ export default async function AdminDashboardPage() {
   const canViewHero = hasPermission(session.role, "heroSlides.view");
   const canViewDevices = hasPermission(session.role, "devices.view");
   const canViewServices = hasPermission(session.role, "services.view");
+  const canViewBlog = hasPermission(session.role, "blog.view");
   const [
     serviceRequestSummary,
     mediaSummary,
     heroSummary,
     deviceSummary,
     serviceSummary,
+    blogSummary,
   ] =
     await Promise.all([
     canViewRequests
@@ -92,6 +96,9 @@ export default async function AdminDashboardPage() {
       : Promise.resolve(null),
     canViewServices
       ? new PrismaServiceRepository(prisma).getDashboardSummary()
+      : Promise.resolve(null),
+    canViewBlog
+      ? new PrismaBlogRepository(prisma).getDashboardSummary()
       : Promise.resolve(null),
   ]);
 
@@ -157,7 +164,7 @@ export default async function AdminDashboardPage() {
         ))}
       </section>
 
-      {mediaSummary || heroSummary || deviceSummary || serviceSummary ? (
+      {mediaSummary || heroSummary || deviceSummary || serviceSummary || blogSummary ? (
         <section className="grid gap-4 lg:grid-cols-2">
           {mediaSummary ? (
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
@@ -246,6 +253,8 @@ export default async function AdminDashboardPage() {
           {serviceSummary ? (
             <ServiceSummaryPanel summary={serviceSummary} />
           ) : null}
+
+          {blogSummary ? <BlogSummaryPanel summary={blogSummary} /> : null}
         </section>
       ) : null}
 
@@ -319,7 +328,8 @@ export default async function AdminDashboardPage() {
                 item.href === "/admin/media" ||
                 item.href === "/admin/hero-slides" ||
                 item.href === "/admin/devices" ||
-                item.href === "/admin/services";
+                item.href === "/admin/services" ||
+                item.href === "/admin/blog/new";
 
               return (
                 <Link
@@ -339,6 +349,33 @@ export default async function AdminDashboardPage() {
             })}
           </div>
         </section>
+      </div>
+    </div>
+  );
+}
+
+function BlogSummaryPanel({ summary }: { summary: BlogSummary }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-950">Blog</h2>
+          <p className="text-sm text-slate-500">
+            Son gÃ¼ncelleme: {summary.latest?.title ?? "HenÃ¼z kayÄ±t yok"}
+          </p>
+        </div>
+        <Link
+          href="/admin/blog"
+          className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-orange-50"
+        >
+          YÃ¶net
+        </Link>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-4">
+        <SummaryCard icon={FileText} label="Taslak" value={summary.draft} />
+        <SummaryCard icon={FileText} label="YayÄ±nda" value={summary.published} />
+        <SummaryCard icon={FileText} label="PlanlÄ±" value={summary.scheduled} />
+        <SummaryCard icon={FileText} label="ArÅŸiv" value={summary.archived} />
       </div>
     </div>
   );

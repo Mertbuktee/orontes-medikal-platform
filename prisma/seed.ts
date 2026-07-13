@@ -8,7 +8,11 @@ import { fileTypeFromBuffer } from "file-type";
 
 import { getRequiredDatabaseUrl } from "../src/lib/database/env.ts";
 import {
+  getBlogCategorySeedRecords,
+  getBlogPostSeedRecords,
   getDeviceGroupSeedRecords,
+  getHomepageSectionSeedRecords,
+  getHomepageSeoSeedRecord,
   getHeroSeedRecords,
   getServiceSeedRecords,
 } from "../src/lib/database/seed-data.ts";
@@ -24,7 +28,46 @@ const prisma = new PrismaClient({
   }),
 });
 
+const HOMEPAGE_SEO_SETTING_KEY = "homepage.seo";
+
 async function main() {
+  for (const category of getBlogCategorySeedRecords()) {
+    await prisma.blogCategory.upsert({
+      where: { id: category.id },
+      create: category,
+      update: {
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        seoTitle: category.seoTitle,
+        seoDescription: category.seoDescription,
+        order: category.order,
+        isActive: category.isActive,
+        archivedAt: category.archivedAt,
+      },
+    });
+  }
+
+  for (const post of getBlogPostSeedRecords()) {
+    await prisma.blogPost.upsert({
+      where: { id: post.id },
+      create: {
+        ...post,
+        content: post.content,
+      },
+      update: {
+        title: post.title,
+        slug: post.slug,
+        excerpt: post.excerpt,
+        content: post.content,
+        categoryId: post.categoryId,
+        seoTitle: post.seoTitle,
+        seoDescription: post.seoDescription,
+        isFeatured: post.isFeatured,
+      },
+    });
+  }
+
   for (const device of getDeviceGroupSeedRecords()) {
     await prisma.deviceGroup.upsert({
       where: { id: device.id },
@@ -97,6 +140,42 @@ async function main() {
       update: slide,
     });
   }
+
+  for (const section of getHomepageSectionSeedRecords()) {
+    await prisma.homepageSection.upsert({
+      where: { key: section.key },
+      create: {
+        key: section.key,
+        title: section.title,
+        eyebrow: section.eyebrow,
+        description: section.description,
+        content: section.content,
+        order: section.order,
+        isVisible: section.isVisible,
+      },
+      update: {
+        title: section.title,
+        eyebrow: section.eyebrow,
+        description: section.description,
+        content: section.content,
+        order: section.order,
+        isVisible: section.isVisible,
+      },
+    });
+  }
+
+  await prisma.siteSetting.upsert({
+    where: { key: HOMEPAGE_SEO_SETTING_KEY },
+    create: {
+      key: HOMEPAGE_SEO_SETTING_KEY,
+      value: getHomepageSeoSeedRecord(),
+      type: "homepage-seo",
+    },
+    update: {
+      value: getHomepageSeoSeedRecord(),
+      type: "homepage-seo",
+    },
+  });
 }
 
 type SeedMediaInput = ReturnType<typeof getHeroSeedRecords>[number]["media"];

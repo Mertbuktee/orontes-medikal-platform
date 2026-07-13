@@ -489,3 +489,18 @@ Politika:
 - Varsayılan silme davranışı arşivlemedir.
 - Restore sonrası kayıt pasif kalır ve ayrıca aktifleştirilmelidir.
 - Sıralama normalize edilir ve public sorgular order alanına göre döner.
+## HomepageSection
+
+`HomepageSection` ana sayfa bölümlerinin yönetilebilir kayıtlarını tutar.
+
+- `key` benzersiz allowlist section anahtarıdır.
+- `title`, `eyebrow`, `description` public/admin metin alanlarıdır.
+- `content` JSONB olarak saklanır ancak application katmanında section key’e göre Zod ile doğrulanır.
+- `order` public sıralamayı belirler.
+- `isVisible=false` olan kayıtlar public homepage render’ına dahil edilmez.
+- `updatedById` opsiyonel admin kullanıcı referansıdır ve kullanıcı silinirse `SetNull` davranışı kullanılır.
+
+Homepage SEO ayarı `SiteSetting` içinde `homepage.seo` key’i ile tipli JSON olarak saklanır.
+## Blog CMS Tables
+
+`BlogPost` now supports draft/published/archived workflow, structured JSON content, featured state, scheduled publication timestamp, cover media, Open Graph media, optional author, created/updated actors and archive timestamp. `BlogCategory` supports description, SEO fields, order, active state and archive timestamp. `BlogPostRevision` stores previous structured content snapshots for published-post updates. Media rows are referenced, never deleted automatically by blog mutations.

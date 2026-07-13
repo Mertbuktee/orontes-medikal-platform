@@ -47,3 +47,35 @@ export function createLocalBusinessJsonLd() {
     },
   };
 }
+
+export function createArticleJsonLd(input: {
+  path: string;
+  headline: string;
+  description: string;
+  image?: string | null;
+  datePublished?: Date | null;
+  dateModified: Date;
+  authorName?: string | null;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: input.headline,
+    description: input.description,
+    image: input.image ? [input.image] : undefined,
+    datePublished: input.datePublished?.toISOString(),
+    dateModified: input.dateModified.toISOString(),
+    author: input.authorName
+      ? {
+          "@type": "Person",
+          name: input.authorName,
+        }
+      : undefined,
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.legalName,
+      url: absoluteUrl("/"),
+    },
+    mainEntityOfPage: absoluteUrl(input.path),
+  };
+}

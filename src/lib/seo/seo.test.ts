@@ -68,8 +68,8 @@ describe("public SEO architecture", () => {
     expect(new Set(descriptions).size).toBe(descriptions.length);
   });
 
-  it("sitemap includes every public route and excludes admin and API routes", () => {
-    const urls = sitemap().map((entry) => entry.url);
+  it("sitemap includes every public route and excludes admin and API routes", async () => {
+    const urls = (await sitemap()).map((entry) => entry.url);
 
     for (const route of publicRoutes) {
       expect(urls).toContain(absoluteUrl(route.path));

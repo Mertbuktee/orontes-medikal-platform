@@ -5,25 +5,38 @@ import { createElement } from "react";
 import { getPublicFeaturedServices } from "@/lib/services/public-services";
 import { getServiceIcon } from "@/lib/services/service-registry";
 
-export default async function Services() {
-  const services = await getPublicFeaturedServices(6);
+type ServicesProps = {
+  title?: string;
+  description?: string;
+  itemLimit?: number;
+  showViewAll?: boolean;
+  viewAllLabel?: string;
+};
+
+export default async function Services({
+  title = "Hizmetlerimiz",
+  description = "Medikal cihazların yaşam döngüsünü destekleyen profesyonel teknik servis çözümleri.",
+  itemLimit = 6,
+  showViewAll = true,
+  viewAllLabel = "Tüm Hizmetleri Gör",
+}: ServicesProps) {
+  const services = await getPublicFeaturedServices(itemLimit);
 
   return (
     <section id="hizmetler" className="bg-white py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-            Hizmetlerimiz
+            {title}
           </h2>
           <p className="mt-4 text-base leading-8 text-slate-600 sm:text-lg">
-            Medikal cihazların yaşam döngüsünü destekleyen profesyonel teknik
-            servis çözümleri.
+            {description}
           </p>
         </div>
 
         {services.length ? (
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map(({ title, shortDescription, slug, iconKey }) => (
+            {services.map(({ title: serviceTitle, shortDescription, slug, iconKey }) => (
               <Link
                 key={slug}
                 href={
@@ -48,7 +61,7 @@ export default async function Services() {
                 </div>
 
                 <h3 className="mt-6 text-lg font-semibold text-slate-950">
-                  {title}
+                  {serviceTitle}
                 </h3>
                 <p className="mt-3 text-sm leading-7 text-slate-600">
                   {shortDescription}
@@ -64,15 +77,17 @@ export default async function Services() {
           </div>
         )}
 
-        <div className="mt-10 flex justify-center">
-          <Link
-            href="/hizmetler"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:text-orange-600 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
-          >
-            Tüm Hizmetleri Gör
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
-        </div>
+        {showViewAll ? (
+          <div className="mt-10 flex justify-center">
+            <Link
+              href="/hizmetler"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:text-orange-600 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
+            >
+              {viewAllLabel}
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          </div>
+        ) : null}
       </div>
     </section>
   );

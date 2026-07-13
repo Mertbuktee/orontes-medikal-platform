@@ -312,3 +312,16 @@ Public route değişmez:
 - `/hizmetler` aktif hizmetleri listeler.
 - Ana sayfa yalnızca aktif ve öne çıkan hizmetleri gösterir.
 - Elektronik kart tamiri hizmeti `/elektronik-kart-tamiri` landing page'ine yönlenmeye devam eder.
+## Homepage Admin Actions
+
+Ana sayfa yönetimi ilk aşamada Server Actions ile çalışır:
+
+- section update
+- section reorder
+- visibility toggle
+- homepage SEO update
+
+Her action admin session, RBAC permission, Zod validation, repository call, audit log ve ilgili cache/path revalidation akışından geçer. Public API endpoint’i eklenmedi; public homepage server-side section registry ile DB-backed içerikleri okur.
+## Blog CMS Actions
+
+Blog CMS uses server actions under `/admin/blog` for create, update, publish, unpublish, archive, category create/update/reorder/archive and authenticated preview navigation. Public `/blog` and `/blog/[slug]` are read-only routes backed by repository queries; there is no public mutation endpoint and no public draft URL.

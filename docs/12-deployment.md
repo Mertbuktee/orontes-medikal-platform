@@ -1,5 +1,7 @@
 # Deployment Checklist
 
+> Güncel canlı karar kaynağı: `docs/16-production-runbook.md`. Bu dosya tarihsel checklist notlarını da içerir; canlı öncesi son kontrol için önce production runbook okunmalıdır.
+
 Bu dosya Orontes Medikal Platform canlıya alınmadan önce ve canlıya alındıktan sonra unutulmaması gereken teknik, güvenlik, SEO ve operasyon adımlarını takip etmek için tutulur.
 
 Public site şu an feature-freeze adayıdır. Admin panel foundation başlamadan önce bu checklist korunmalı; canlıya çıkış öncesinde her madde tekrar gözden geçirilmelidir.
@@ -422,3 +424,6 @@ npm run db:seed
 ```
 
 If `db:generate` still reports `EPERM`, close remaining project Node processes and run `npm run db:generate` again. Do not delete `node_modules` as a first response; the issue is usually a locked generated client file.
+## Blog Publishing Deployment Notes
+
+Scheduled blog publishing currently has a safe foundation but no always-on background worker. Future production automation should run an authenticated/isolated publish-due-posts job or queue worker. Sitemap includes only currently public posts; production DB migrations must run before deployment so `BlogPostRevision` and new blog fields exist before Next build/prerender.

@@ -477,3 +477,29 @@ Yönetilen alanlar:
 - Opsiyonel CTA etiketi ve güvenli CTA bağlantısı
 
 Normal silme davranışı arşivlemedir. Kalıcı silme yalnızca arşivlenmiş ve referanssız kayıtlar için SUPER_ADMIN politikasıyla kullanılmalıdır. Media kayıtları hizmet silindiğinde otomatik silinmez.
+# Ana Sayfa Yönetimi
+
+Ana sayfa içerikleri `/admin/homepage` altında yönetilir.
+
+- `homepage.view`: ana sayfa yönetim ekranlarını okur.
+- `homepage.update`: section metni ve tip kontrollü içerikleri günceller.
+- `homepage.reorder`: ana sayfa bölümlerini yukarı/aşağı/ilk/son taşıyabilir.
+- `homepage.publish`: section görünürlüğünü yönetir.
+- `homepage.seo.manage`: ana sayfa meta title, description ve OG görsel ayarlarını yönetir.
+
+Hero slider, cihaz grupları, hizmetler ve ileride blog yazıları kendi modüllerinde yönetilir. Ana sayfa yönetimi bu modülleri yeniden kurmaz; yalnızca görünürlük, sıralama, section metinleri, CTA içerikleri ve preview limitlerini yönetmek için temel sağlar.
+
+Section içerikleri JSON olarak saklansa da her section key için Zod şemasıyla doğrulanır. DB’den arbitrary component adı, HTML veya raw media storage key okunmaz.
+## Blog CMS
+
+Blog yazilari `/admin/blog` altinda, kategoriler `/admin/blog/categories` altinda yonetilir.
+
+- Icerik ham HTML olarak saklanmaz; paragraph, heading, list, quote, image, callout ve divider bloklarindan olusan typed JSON saklanir.
+- Public article body render sirasinda `dangerouslySetInnerHTML` kullanmaz; React text escaping ve allowlisted block renderer kullanilir.
+- Draft preview `/admin/blog/[id]/preview` route'u oturum ve `blog.view` izni gerektirir, noindex metadata tasir ve public URL degildir.
+- Publish, schedule, archive ve category yonetimi ayri server-side permission kontrolleriyle korunur.
+- Gecici typed blog icerikleri seed sirasinda DRAFT olarak tasinir; fake author/date ile otomatik yayinlanmaz.
+- `/blog` yalniz yayinlanmis, arsivlenmemis ve zamani gelmis yazilari listeler. `/blog/[slug]` draft, scheduled future ve archived icerikler icin 404 verir.
+- `/blog/kategori/[slug]` yalniz aktif, arsivlenmemis ve en az bir yayinlanmis/gorunur yazisi olan kategorileri acar. Bos veya pasif kategoriler public tarafta 404 politikasina tabidir ve sitemap'e eklenmez.
+- Planli yayin UI'si otomatik worker aktifmis gibi davranmaz. Production asamasinda ayrica publish-due-posts worker/cron kurulana kadar planli yazilar yalnizca "Planlandi" olarak etiketlenir.
+- `BlogPostRevision` tablo temeli hazirdir; gelismis revision karsilastirma/geri alma UI'i editorial workflow hardening asamasina ertelenmistir.

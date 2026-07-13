@@ -131,3 +131,18 @@ Repository reorder/archive/delete behavior should use isolated database integrat
 # Hizmet Modülü Testleri
 
 Hizmet validasyonu için slug normalizasyonu, allowlist ikon kontrolü, CTA URL güvenliği, CTA eşleşme kuralı ve liste sorgusu normalizasyonu test edilir. Repository ve public entegrasyon testleri cihaz modülündeki DB stratejisiyle aynı izole test veritabanı yaklaşımını kullanmalıdır.
+## Homepage Content Tests
+
+Ana sayfa yönetimi için öncelikli test kapsamı:
+
+- section key allowlist doğrulaması
+- section payload Zod şemaları
+- güvenli CTA URL doğrulaması
+- Why Us / Process aktif item minimumları
+- public render’da görünür section sıralaması
+- mutation sonrası `homepage-content` ve `homepage-seo` cache invalidation
+
+Repository ve visual QA kapsamı ileride section başına özel görsel editörler eklendikçe genişletilecektir.
+## Blog CMS Tests
+
+Blog validation tests cover safe structured blocks, H1 rejection, unknown block rejection, empty article rejection and Turkish slug normalization. Category policy tests cover active category exposure, inactive category rejection, empty-category 404 policy and sitemap inclusion/exclusion. Visual QA includes admin blog list/create/edit/preview and public blog list/detail/category routes on desktop and mobile. Repository and visual coverage should be expanded with real DB fixtures before final production freeze, especially publish/schedule/cache and draft preview authorization paths.

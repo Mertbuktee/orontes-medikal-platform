@@ -96,7 +96,11 @@ model User {
   deviceGroupsUpdated   DeviceGroup[]                 @relation("DeviceGroupUpdater")
   servicesCreated       Service[]                     @relation("ServiceCreator")
   servicesUpdated       Service[]                     @relation("ServiceUpdater")
+  homepageSectionsUpdated HomepageSection[]           @relation("HomepageSectionUpdater")
   authoredPosts         BlogPost[]                    @relation("BlogPostAuthor")
+  blogPostsCreated      BlogPost[]                    @relation("BlogPostCreator")
+  blogPostsUpdated      BlogPost[]                    @relation("BlogPostUpdater")
+  blogPostRevisions     BlogPostRevision[]            @relation("BlogPostRevisionCreator")
   updatedSettings       SiteSetting[]                 @relation("SiteSettingUpdater")
   auditLogs             AuditLog[]                    @relation("AuditLogActor")
 
@@ -288,6 +292,7 @@ model Media {
   services       Service[] @relation("ServiceImage")
   serviceOpenGraphs Service[] @relation("ServiceOpenGraphImage")
   blogPostCovers BlogPost[]  @relation("BlogPostCoverImage")
+  blogPostOpenGraphs BlogPost[] @relation("BlogPostOpenGraphImage")
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
@@ -345,37 +350,100 @@ model HeroSlide {
 }
 
 model BlogCategory {
-  id        String     @id @default(cuid())
-  name      String     @db.VarChar(120)
-  slug      String     @unique @db.VarChar(160)
-  posts     BlogPost[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id             String     @id @default(cuid())
+  name           String     @db.VarChar(120)
+  slug           String     @unique @db.VarChar(160)
+  description    String?
+  seoTitle       String     @default("") @db.VarChar(180)
+  seoDescription String     @default("") @db.VarChar(320)
+  order          Int        @default(1)
+  isActive       Boolean    @default(true)
+  posts          BlogPost[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  archivedAt     DateTime?
+
+  @@index([order])
+  @@index([isActive, order])
+  @@index([archivedAt])
 }
 
 model BlogPost {
-  id             String        @id @default(cuid())
-  title          String        @db.VarChar(180)
-  slug           String        @unique @db.VarChar(220)
-  excerpt        String
-  content        Json
-  status         ContentStatus @default(DRAFT)
-  categoryId     String
-  category       BlogCategory  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  coverImageId   String?
-  coverImage     Media?        @relation("BlogPostCoverImage", fields: [coverImageId], references: [id], onDelete: Restrict)
-  authorId       String
-  author         User          @relation("BlogPostAuthor", fields: [authorId], references: [id], onDelete: Restrict)
-  seoTitle       String        @db.VarChar(180)
-  seoDescription String        @db.VarChar(320)
-  publishedAt    DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id               String        @id @default(cuid())
+  title            String        @db.VarChar(200)
+  slug             String        @unique @db.VarChar(180)
+  excerpt          String
+  content          Json
+  status           ContentStatus @default(DRAFT)
+  categoryId       String?
+  category         BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  coverImageId     String?
+  coverImage       Media?        @relation("BlogPostCoverImage", fields: [coverImageId], references: [id], onDelete: Restrict)
+  openGraphImageId String?
+  openGraphImage   Media?        @relation("BlogPostOpenGraphImage", fields: [openGraphImageId], references: [id], onDelete: Restrict)
+  authorId         String?
+  author           User?         @relation("BlogPostAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  seoTitle         String        @db.VarChar(180)
+  seoDescription   String        @db.VarChar(320)
+  isFeatured       Boolean       @default(false)
+  publishedAt      DateTime?
+  scheduledFor     DateTime?
+  createdById      String?
+  createdBy        User?         @relation("BlogPostCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedById      String?
+  updatedBy        User?         @relation("BlogPostUpdater", fields: [updatedById], references: [id], onDelete: SetNull)
+  revisions        BlogPostRevision[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  archivedAt       DateTime?
 
   @@index([status, publishedAt])
+  @@index([status, scheduledFor])
   @@index([categoryId])
   @@index([authorId])
   @@index([coverImageId])
+  @@index([openGraphImageId])
+  @@index([createdById])
+  @@index([updatedById])
+  @@index([isFeatured, status, publishedAt])
+  @@index([archivedAt])
+}
+
+model BlogPostRevision {
+  id             String   @id @default(cuid())
+  blogPostId     String
+  blogPost       BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  title          String   @db.VarChar(200)
+  excerpt        String
+  content        Json
+  seoTitle       String   @db.VarChar(180)
+  seoDescription String   @db.VarChar(320)
+  createdById    String?
+  createdBy      User?    @relation("BlogPostRevisionCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt      DateTime @default(now())
+
+  @@index([blogPostId])
+  @@index([createdById])
+  @@index([createdAt])
+}
+
+model HomepageSection {
+  id          String   @id @default(cuid())
+  key         String   @unique @db.VarChar(80)
+  title       String   @db.VarChar(180)
+  eyebrow     String?  @db.VarChar(80)
+  description String
+  content     Json
+  order       Int
+  isVisible   Boolean  @default(true)
+  updatedById String?
+  updatedBy   User?    @relation("HomepageSectionUpdater", fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([order])
+  @@index([isVisible, order])
+  @@index([updatedById])
 }
 
 model SiteSetting {

@@ -10,14 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const features = [
-  "Cihaz değişim maliyetini azaltır",
-  "Arıza kaynağı netleşir",
-  "Kart ömrü uzatılır",
-  "Gereksiz parça değişimi önlenir",
-  "Servis süreci hızlanır",
-  "Sürdürülebilir çözüm sağlar",
-];
+import type { BoardRepairContent } from "@/lib/homepage/homepage-types";
 
 const decisionSteps = [
   {
@@ -52,16 +45,31 @@ const decisionSteps = [
   },
 ];
 
-const equipment = [
-  "Temizlenmiş kart teslimi",
-  "Test edilmiş çalışma durumu",
-  "Arıza notu paylaşımı",
-  "Değişen parça bilgisi",
-  "Güvenli paketleme",
-  "Teslim öncesi son kontrol",
-];
+const defaultContent: BoardRepairContent = {
+  badge: "Elektronik Kart Tamiri",
+  title: "Elektronik Kart Tamirinde Uzman Teknik Servis",
+  description:
+    "Medikal cihazlara ait elektronik kartlarda arıza tespiti, komponent değişimi, lehimleme, besleme devresi analizi ve fonksiyon testlerini profesyonel ekipmanlarla gerçekleştiriyoruz.",
+  featureItems: [
+    "Cihaz değişim maliyetini azaltır",
+    "Arıza kaynağı netleşir",
+    "Kart ömrü uzatılır",
+    "Gereksiz parça değişimi önlenir",
+    "Servis süreci hızlanır",
+    "Sürdürülebilir çözüm sağlar",
+  ],
+  primaryCtaLabel: "Servis Talebi",
+  primaryCtaHref: "/servis-talebi",
+  secondaryCtaLabel: "İletişime Geç",
+  secondaryCtaHref: "/iletisim",
+  mediaId: null,
+};
 
-export default function BoardRepair() {
+type BoardRepairProps = {
+  content?: BoardRepairContent;
+};
+
+export default function BoardRepair({ content = defaultContent }: BoardRepairProps) {
   return (
     <section
       id="kart-tamiri"
@@ -72,25 +80,19 @@ export default function BoardRepair() {
 
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
         <div className="flex flex-col justify-center">
-          <h2 className="max-w-2xl text-3xl font-semibold leading-tight text-white sm:text-5xl">
-            Elektronik Kart Tamirinde
-            <span className="block text-orange-300">Uzman Teknik Servis</span>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-200">
+            {content.badge}
+          </p>
+          <h2 className="mt-3 max-w-2xl text-3xl font-semibold leading-tight text-white sm:text-5xl">
+            {content.title}
           </h2>
 
           <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-            Medikal cihazlara ait elektronik kartlarda arıza tespiti, komponent
-            değişimi, lehimleme, besleme devresi analizi ve fonksiyon testlerini
-            profesyonel ekipmanlarla gerçekleştiriyoruz.
+            {content.description}
           </p>
 
-          <div className="mt-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-orange-200">
-              Neden Kart Onarımı?
-            </p>
-          </div>
-
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {features.map((feature) => (
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+            {content.featureItems.map((feature) => (
               <div
                 key={feature}
                 className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm font-medium text-slate-100 shadow-sm backdrop-blur"
@@ -103,16 +105,16 @@ export default function BoardRepair() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
-              href="/servis-talebi"
+              href={content.primaryCtaHref}
               className="inline-flex h-11 items-center justify-center rounded-lg bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-colors hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
             >
-              Servis Talebi
+              {content.primaryCtaLabel}
             </Link>
             <Link
-              href="/iletisim"
+              href={content.secondaryCtaHref}
               className="inline-flex h-11 items-center justify-center rounded-lg border border-white/15 bg-white/10 px-5 text-sm font-semibold text-white shadow-sm backdrop-blur transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
             >
-              İletişime Geç
+              {content.secondaryCtaLabel}
             </Link>
           </div>
         </div>
@@ -157,44 +159,24 @@ export default function BoardRepair() {
               ))}
             </div>
 
-            <div className="mt-6 overflow-hidden rounded-2xl border border-orange-300/20 bg-linear-to-br from-orange-500/15 via-white/[0.06] to-sky-400/10 shadow-lg shadow-black/10">
-              <div className="flex flex-col gap-4 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-start gap-3 sm:items-center">
-                  <div className="flex size-11 items-center justify-center rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-500/25">
-                    <Wrench className="size-5" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-200">
-                      Teslim güveni
-                    </p>
-                    <h4 className="mt-1 text-base font-semibold text-white sm:text-lg">
-                      Servis Sonrası Teslim Standartları
-                    </h4>
-                  </div>
+            <div className="mt-6 rounded-2xl border border-orange-300/20 bg-linear-to-br from-orange-500/15 via-white/[0.06] to-sky-400/10 p-5">
+              <div className="flex items-center gap-3">
+                <div className="flex size-11 items-center justify-center rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-500/25">
+                  <Wrench className="size-5" aria-hidden="true" />
                 </div>
-                <div className="w-fit rounded-full border border-sky-300/20 bg-sky-400/10 px-3 py-1 text-xs font-semibold text-sky-100">
-                  Kontrol + Bilgilendirme + Teslim
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-200">
+                    Teslim güveni
+                  </p>
+                  <h4 className="mt-1 text-base font-semibold text-white sm:text-lg">
+                    Servis Sonrası Teslim Standartları
+                  </h4>
                 </div>
               </div>
-
-              <div className="grid gap-2 p-5 sm:grid-cols-2">
-                {equipment.map((item) => (
-                  <div
-                    key={item}
-                    className="group flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950/35 px-3 py-3 text-sm text-slate-100 transition-colors hover:border-orange-300/30 hover:bg-white/[0.08]"
-                  >
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-orange-300/10 text-orange-200 ring-1 ring-orange-300/20">
-                      <BadgeCheck className="size-4" aria-hidden="true" />
-                    </span>
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="border-t border-white/10 bg-slate-950/35 px-5 py-3 text-xs leading-5 text-slate-300">
+              <p className="mt-4 text-sm leading-6 text-slate-300">
                 Onarım tamamlandıktan sonra kartın durumu, yapılan işlem ve
                 teslim hazırlığı kontrollü şekilde değerlendirilir.
-              </div>
+              </p>
             </div>
           </div>
         </div>

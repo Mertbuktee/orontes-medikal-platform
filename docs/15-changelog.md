@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added a current production runbook that tracks go-live environment, migration, storage, admin bootstrap, rate-limit, SEO, legal and post-launch operations in one place.
+- Added database-backed Homepage Content Management with section visibility/order, typed section JSON validation, public homepage registry rendering, homepage SEO settings, seed data, RBAC permissions and admin overview/section/SEO routes.
+- Added unsaved live preview modals for Homepage section editors so admins can inspect section changes before publishing them.
+- Added Blog CMS foundation with structured content blocks, admin post/category routes, authenticated draft preview, DB-backed `/blog`, real `/blog/[slug]` pages, Article JSON-LD, sitemap integration and draft-only seed migration.
+- Finalized Blog CMS public category architecture with `/blog/kategori/[slug]`, active/published-only sitemap policy, scheduled-publishing disclosure and targeted Blog visual QA coverage.
 - Added database-backed Device Group management with admin list/detail/create/edit routes, media selection, icon and capability allowlists, active/featured controls, ordering, public homepage preview integration and `/cihazlar` DB-backed rendering.
 - Added database-backed Hero Slider management with media selection, admin create/edit/detail/list routes, ordering controls, slider settings, public DB-backed rendering, audit events and dashboard summaries.
 - Added the production media library foundation with Prisma media variants, secure admin upload, duplicate detection, private media storage, public hardened variant delivery, media listing/detail screens and visual QA coverage.

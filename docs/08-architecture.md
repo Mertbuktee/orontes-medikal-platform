@@ -404,3 +404,16 @@ Admin mutations revalidate `/`, `/cihazlar`, `/admin/devices` and `/admin/dashbo
 Hizmet içerikleri admin panelinden `Service` modeli üzerinden yönetilir. Public ana sayfa önizlemesi aktif ve öne çıkan hizmetleri, `/hizmetler` sayfası ise aktif ve arşivlenmemiş tüm hizmetleri repository katmanından okur.
 
 UI bileşenleri Prisma sorgusu çalıştırmaz; `PrismaServiceRepository` admin ve public DTO sınırlarını ayırır. Public DTO storage key, kullanıcı ID'si veya audit metadata içermez. Admin mutasyonları server action üzerinden RBAC, Zod validasyonu, audit log ve public path revalidation akışından geçer.
+## Database-Backed Homepage Content Flow
+
+Ana sayfa, `HomepageSection` kayıtlarını server-side yükleyen allowlist bir section registry ile render edilir. Database yalnızca bilinen section key değerlerini ve Zod ile doğrulanan JSON içerikleri saklar; public render arbitrary component adı veya HTML kabul etmez.
+
+Public cache tag’leri:
+
+- `homepage-content`
+- `homepage-seo`
+
+Ana sayfa modülü Hero Slider, Device Groups, Services ve ileride Blog modüllerinin sahip olduğu içerikleri yeniden modellemez. Bu modül yalnızca section görünürlüğü, sıra, başlık/açıklama, CTA içerikleri, preview limitleri ve homepage SEO ayarlarını yönetir.
+## Blog CMS Architecture
+
+Blog CMS structured-content model uses validated JSON blocks instead of raw HTML. Admin forms write through server actions and `PrismaBlogRepository`; public `/blog`, `/blog/[slug]` and `/blog/kategori/[slug]` read only published, non-archived posts whose publication time is public. Category pages require an active category with at least one useful public post; empty categories use a 404 policy and stay out of sitemap. Draft preview stays under authenticated admin routes and is marked noindex. Public cache tags are `blog-posts`, `blog-categories` and per-post path invalidation. Scheduled publishing has a data model and UI state only; the production worker/cron is deliberately deferred.

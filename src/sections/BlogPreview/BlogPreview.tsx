@@ -1,9 +1,28 @@
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BookOpenText } from "lucide-react";
 import Link from "next/link";
 
-import { getBlogIcon, getBlogPostHref, getPublishedBlogPosts } from "@/content/blog-posts";
+import { getPublicBlogPosts } from "@/lib/blog/public-blog";
 
-export default function BlogPreview() {
+type BlogPreviewProps = {
+  title?: string;
+  description?: string;
+  itemLimit?: number;
+  showViewAll?: boolean;
+  viewAllLabel?: string;
+};
+
+export default async function BlogPreview({
+  title = "Teknik Bilgi ve Servis Notları",
+  description = "Medikal cihaz bakım, onarım ve arıza süreçleri hakkında bilgilendirici içerikler.",
+  itemLimit = 3,
+  showViewAll = true,
+  viewAllLabel = "Tüm Yazıları Gör",
+}: BlogPreviewProps) {
+  const posts = await getPublicBlogPosts({
+    limit: itemLimit,
+    featuredOnly: true,
+  });
+
   return (
     <section
       id="blog"
@@ -14,45 +33,42 @@ export default function BlogPreview() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-            Teknik Bilgi ve Servis Notları
+            {title}
           </h2>
           <p className="mt-4 text-base leading-7 text-slate-600 sm:text-lg">
-            Medikal cihaz bakım, onarım ve arıza süreçleri hakkında bilgilendirici
-            içerikler.
+            {description}
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
-          {getPublishedBlogPosts().map(({ id, title, excerpt, category, slug, iconKey }) => {
-            const Icon = getBlogIcon(iconKey);
-
-            return (
+        {posts.length ? (
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            {posts.map((post) => (
               <article
-                key={id}
+                key={post.id}
                 className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl hover:shadow-slate-200/80"
               >
                 <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-sky-500 via-orange-400 to-orange-500 opacity-80" />
 
                 <div className="flex items-start justify-between gap-4">
                   <span className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700">
-                    {category}
+                    {post.category?.name ?? "Teknik Not"}
                   </span>
                   <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 transition-colors group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:ring-orange-100">
-                    <Icon className="size-5" aria-hidden="true" />
+                    <BookOpenText className="size-5" aria-hidden="true" />
                   </span>
                 </div>
 
                 <h3 className="mt-6 text-xl font-semibold leading-snug text-slate-950">
-                  {title}
+                  {post.title}
                 </h3>
                 <p className="mt-3 text-sm leading-7 text-slate-600 md:min-h-20">
-                  {excerpt}
+                  {post.excerpt}
                 </p>
 
                 <Link
-                  href={getBlogPostHref(slug)}
+                  href={`/blog/${post.slug}`}
                   className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-sky-700 transition-colors hover:text-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
-                  aria-label={`${title} yazısını incele`}
+                  aria-label={`${post.title} yazısını incele`}
                 >
                   Yazıyı İncele
                   <ArrowUpRight
@@ -61,19 +77,25 @@ export default function BlogPreview() {
                   />
                 </Link>
               </article>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-12 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm font-semibold text-slate-500">
+            Yayında öne çıkan blog yazısı bulunmuyor.
+          </div>
+        )}
 
-        <div className="mt-10 flex justify-center">
-          <Link
-            href="/blog"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:text-orange-600 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
-          >
-            Tüm Yazıları Gör
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
-        </div>
+        {showViewAll ? (
+          <div className="mt-10 flex justify-center">
+            <Link
+              href="/blog"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:text-orange-600 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
+            >
+              {viewAllLabel}
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          </div>
+        ) : null}
       </div>
     </section>
   );
