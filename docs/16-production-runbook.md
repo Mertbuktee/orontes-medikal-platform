@@ -206,16 +206,19 @@ npm run db:deploy
 
 ## Deferred But Not Forgotten
 
-- Redis/shared rate limiter.
-- S3-compatible production storage adapter.
-- Blog scheduled publishing worker/cron and editorial review workflow.
-- Malware scanning / PDF hardening.
-- Blog CMS ve gerçek `/blog/[slug]`.
-- Kullanıcılar, roller ve audit log ekranları.
-- Site ayarları / iletişim / global SEO yönetimi.
-- Notification modülü: e-posta/SMS/WhatsApp teslimi.
-- Retention/KVKK silme-anonimleştirme prosedürü.
-- Legal metinlerin hukuk/KVKK uzmanı tarafından onayı.
+- TASK-034: Site ayarlari, iletisim bilgileri, global SEO, logo/favicon, social links ve policy URL yonetimi.
+- Redis/shared rate limiter for login, service request and admin mutation limits.
+- S3-compatible production storage adapter and CDN/object-storage delivery policy.
+- Blog scheduled publishing worker/cron. Current UI only records the planned date and must not imply automatic publishing is active.
+- Blog editorial workflow hardening: revision compare/restore UI, review/approval flow and publish checklist.
+- Malware scanning / PDF hardening with ClamAV or a managed scanning service before accepting production PDFs at scale.
+- Kullanicilar, roller, active sessions and audit log screens.
+- Notification module: e-posta/SMS/WhatsApp delivery for service request lifecycle events.
+- Customer-facing service request status tracking after privacy and token policy are designed.
+- Search Console, analytics and marketing integrations, gated behind cookie consent categories.
+- Retention/KVKK silme-anonimlestirme proseduru and backup retention policy.
+- Legal metinlerin hukuk/KVKK uzmani tarafindan onayi.
+- Production monitoring/alerting: app errors, upload failures, login anomalies, rate-limit spikes, DB/storage quota and backup job failures.
 
 ## Update Policy
 
