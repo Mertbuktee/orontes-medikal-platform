@@ -184,3 +184,10 @@ User-management coverage prioritizes privilege-escalation policy and lifecycle b
 - Audit presentation unit testleri hassas metadata redaction, allowlisted metadata sunumu, kategori/severity turetimi, IP ve user-agent redaction davranisini kapsar.
 - Visual QA kapsamina `/admin/audit` ve `/admin/security` desktop/mobile ekranlari eklendi.
 - Export ve aggregate sorgular canli PII gostermeden safe DTO uzerinden test edilmelidir.
+
+## Notification ve Mail Testleri
+
+- Mail config testleri production guard, missing SMTP config ve development capture davranisini kapsar.
+- Template testleri HTML escape, unsafe URL reddi ve plain-text fallback davranisini kapsar.
+- Queue testleri enqueue, idempotency, retry backoff, SENT/FAILED transition ve worker batch davranisini kapsamalidir.
+- Visual QA notification listesi, preferences, email settings ve delivery list ekranlarini synthetic data ile yakalar.

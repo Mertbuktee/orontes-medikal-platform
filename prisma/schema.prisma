@@ -56,6 +56,29 @@ enum AuditAction {
   ACCOUNT_LOCKED
 }
 
+enum NotificationCategory {
+  SERVICE_REQUEST_NEW
+  SERVICE_REQUEST_ASSIGNED
+  SERVICE_REQUEST_STATUS_CHANGED
+  SERVICE_REQUEST_NOTE_ADDED
+  CONTENT_PUBLISHED
+  CONTENT_SCHEDULED
+  SECURITY_ALERT
+  PASSWORD_CHANGED
+  MFA_CHANGED
+  SESSION_REVOKED
+  SYSTEM_ALERT
+}
+
+enum EmailDeliveryStatus {
+  PENDING
+  SENDING
+  SENT
+  FAILED
+  RETRY_SCHEDULED
+  CANCELLED
+}
+
 enum MediaCategory {
   GENERAL
   HERO
@@ -130,6 +153,8 @@ model User {
   blogPostRevisions     BlogPostRevision[]            @relation("BlogPostRevisionCreator")
   updatedSettings       SiteSetting[]                 @relation("SiteSettingUpdater")
   auditLogs             AuditLog[]                    @relation("AuditLogActor")
+  notificationPreferences NotificationPreference[]     @relation("UserNotificationPreferences")
+  notifications         Notification[]                 @relation("UserNotifications")
 
   @@index([email])
   @@index([role])
@@ -538,6 +563,83 @@ model SiteSetting {
 
   @@index([type])
   @@index([updatedById])
+}
+
+model NotificationPreference {
+  id           String               @id @default(cuid())
+  userId       String
+  user         User                 @relation("UserNotificationPreferences", fields: [userId], references: [id], onDelete: Cascade)
+  category     NotificationCategory
+  emailEnabled Boolean              @default(true)
+  inAppEnabled Boolean              @default(true)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@unique([userId, category])
+  @@index([userId])
+  @@index([category])
+}
+
+model Notification {
+  id        String               @id @default(cuid())
+  userId    String
+  user      User                 @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  category  NotificationCategory
+  title     String               @db.VarChar(180)
+  message   String               @db.VarChar(1000)
+  linkUrl   String?              @db.VarChar(300)
+  readAt    DateTime?
+  createdAt DateTime             @default(now())
+  expiresAt DateTime?
+  deliveries EmailDelivery[]     @relation("NotificationEmailDeliveries")
+
+  @@index([userId, readAt, createdAt])
+  @@index([category])
+  @@index([expiresAt])
+}
+
+model EmailDelivery {
+  id                String              @id @default(cuid())
+  notificationId    String?
+  notification      Notification?       @relation("NotificationEmailDeliveries", fields: [notificationId], references: [id], onDelete: SetNull)
+  templateKey       String              @db.VarChar(120)
+  templatePayload   Json
+  recipient         String              @db.VarChar(254)
+  subject           String              @db.VarChar(220)
+  provider          String              @db.VarChar(60)
+  providerMessageId String?             @db.VarChar(180)
+  status            EmailDeliveryStatus @default(PENDING)
+  attemptCount      Int                 @default(0)
+  lastAttemptAt     DateTime?
+  nextAttemptAt     DateTime?
+  sentAt            DateTime?
+  failedAt          DateTime?
+  errorCode         String?             @db.VarChar(120)
+  errorSummary      String?             @db.VarChar(500)
+  idempotencyKey    String?             @unique @db.VarChar(220)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  attempts          EmailDeliveryAttempt[]
+
+  @@index([status, nextAttemptAt])
+  @@index([recipient])
+  @@index([templateKey])
+  @@index([createdAt])
+  @@index([notificationId])
+}
+
+model EmailDeliveryAttempt {
+  id              String              @id @default(cuid())
+  emailDeliveryId String
+  emailDelivery   EmailDelivery       @relation(fields: [emailDeliveryId], references: [id], onDelete: Cascade)
+  attemptNumber   Int
+  status          EmailDeliveryStatus
+  errorCode       String?             @db.VarChar(120)
+  errorSummary    String?             @db.VarChar(500)
+  attemptedAt     DateTime            @default(now())
+
+  @@index([emailDeliveryId])
+  @@index([attemptedAt])
 }
 
 model AuditLog {

@@ -257,3 +257,12 @@ Audit Log viewer ve Security Center veri minimizasyonu ile calisir:
 - Audit kayitlari normal admin UI'dan duzenlenemez veya silinemez.
 
 Ertelenen production hardening: merkezi SIEM aktarimi, dis alarm kurallari, cold archive ve ileri anomaly detection.
+
+## SMTP ve Notification Guvenligi
+
+- SMTP credential'lari SiteSetting veya database icinde tutulmaz; sadece server env/secret manager tarafindan okunur.
+- `MAIL_PROVIDER=development` ve `MAIL_DISABLE_DELIVERY=true` production deployment sinyalinde reddedilir.
+- Development capture output `storage/private/mail-capture/` altindadir ve public dizinde degildir.
+- Reset/setup raw token'lari EmailDelivery payload'inda saklanmaz; token yalniz hedef URL icinde provider/capture adapter'ina gider.
+- Test email, retry ve preference mutation'lari same-origin ve server-side permission kontrolleriyle calisir.
+- EmailDelivery admin UI full raw body, SMTP secret, token, customer message veya private attachment URL gostermez.

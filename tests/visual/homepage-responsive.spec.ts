@@ -431,6 +431,50 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     note: "Security Center renders account, session and configuration summaries.",
   });
 
+  await page.goto("/admin/notifications", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Bildirim Merkezi", exact: true })).toBeVisible();
+  const notificationsDesktopPath = path.join(adminDir, "admin-notifications-1440x900.png");
+  await page.screenshot({ fullPage: true, path: notificationsDesktopPath });
+  results.push({
+    name: "admin-notifications-1440x900",
+    screenshotPath: notificationsDesktopPath,
+    status: "PASS",
+    note: "Notification center renders list or empty state.",
+  });
+
+  await page.goto("/admin/account/notifications", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Bildirim Tercihleri", exact: true })).toBeVisible();
+  const notificationPrefsDesktopPath = path.join(adminDir, "admin-notification-preferences-1440x900.png");
+  await page.screenshot({ fullPage: true, path: notificationPrefsDesktopPath });
+  results.push({
+    name: "admin-notification-preferences-1440x900",
+    screenshotPath: notificationPrefsDesktopPath,
+    status: "PASS",
+    note: "Notification preferences render mandatory security policy copy.",
+  });
+
+  await page.goto("/admin/settings/email", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "E-posta Ayarlari", exact: true })).toBeVisible();
+  const emailSettingsDesktopPath = path.join(adminDir, "admin-email-settings-1440x900.png");
+  await page.screenshot({ fullPage: true, path: emailSettingsDesktopPath });
+  results.push({
+    name: "admin-email-settings-1440x900",
+    screenshotPath: emailSettingsDesktopPath,
+    status: "PASS",
+    note: "Email settings render provider state, queue health and test email form.",
+  });
+
+  await page.goto("/admin/notifications/email-deliveries", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "E-posta Teslimatlari", exact: true })).toBeVisible();
+  const emailDeliveriesDesktopPath = path.join(adminDir, "admin-email-deliveries-1440x900.png");
+  await page.screenshot({ fullPage: true, path: emailDeliveriesDesktopPath });
+  results.push({
+    name: "admin-email-deliveries-1440x900",
+    screenshotPath: emailDeliveriesDesktopPath,
+    status: "PASS",
+    note: "Email delivery operations render redacted recipients and queue status.",
+  });
+
   await page.goto("/admin/settings", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("heading", { name: "Site Ayarları", exact: true })
@@ -965,6 +1009,28 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     screenshotPath: securityMobilePath,
     status: "PASS",
     note: "Security Center remains usable on mobile.",
+  });
+
+  await page.goto("/admin/notifications", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Bildirim Merkezi", exact: true })).toBeVisible();
+  const notificationsMobilePath = path.join(adminDir, "admin-notifications-375x667.png");
+  await page.screenshot({ fullPage: true, path: notificationsMobilePath });
+  results.push({
+    name: "admin-notifications-375x667",
+    screenshotPath: notificationsMobilePath,
+    status: "PASS",
+    note: "Notification center remains usable on mobile.",
+  });
+
+  await page.goto("/admin/settings/email", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "E-posta Ayarlari", exact: true })).toBeVisible();
+  const emailSettingsMobilePath = path.join(adminDir, "admin-email-settings-375x667.png");
+  await page.screenshot({ fullPage: true, path: emailSettingsMobilePath });
+  results.push({
+    name: "admin-email-settings-375x667",
+    screenshotPath: emailSettingsMobilePath,
+    status: "PASS",
+    note: "Email settings remain usable on mobile.",
   });
 
   await page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" });

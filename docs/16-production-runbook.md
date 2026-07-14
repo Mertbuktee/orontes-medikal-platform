@@ -259,3 +259,12 @@ Her yeni admin/public/security modülü tamamlandığında bu dosya güncellenec
 - CSV audit export is SUPER_ADMIN-only through `audit.export`; every export is itself audited.
 - Before go-live, decide retention windows for hot PostgreSQL audit data, cold archive and backup restore testing.
 - Deferred but tracked: SIEM forwarding, external alert rules, anomaly detection, cold archive automation and advanced forensic timeline.
+
+## TASK-039 Mail And Notification Notes
+
+- Before go-live, configure `MAIL_PROVIDER=smtp`, sender identity, SMTP TLS/port settings and provider credentials in the deployment secret manager.
+- Verify SPF, DKIM and DMARC for the sender domain before relying on transactional delivery.
+- Schedule `npm run mail:process -- --batchSize=25` as a cron/container worker; queued mail is not automatic unless this worker is scheduled.
+- Confirm `MAIL_PROVIDER=development` and `MAIL_DISABLE_DELIVERY=true` are not present in production.
+- Monitor `/admin/notifications/email-deliveries` for `FAILED` and `RETRY_SCHEDULED` rows after launch.
+- Deferred but tracked: SMS, push notifications, bounce/event webhooks, provider-specific SDK adapters and external queue broker.

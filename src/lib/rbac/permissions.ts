@@ -83,6 +83,14 @@ export const permissions = [
   "security.sessions.view",
   "security.accounts.view",
   "security.events.view",
+  "notifications.view",
+  "notifications.preferences.manage.own",
+  "notifications.emailDeliveries.view",
+  "notifications.emailDeliveries.retry",
+  "notifications.emailDeliveries.cancel",
+  "notifications.settings.view",
+  "notifications.settings.update",
+  "notifications.testEmail.send",
 ] as const;
 
 export type Permission = (typeof permissions)[number];
@@ -161,6 +169,14 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
     "security.sessions.view",
     "security.accounts.view",
     "security.events.view",
+    "notifications.view",
+    "notifications.preferences.manage.own",
+    "notifications.emailDeliveries.view",
+    "notifications.emailDeliveries.retry",
+    "notifications.emailDeliveries.cancel",
+    "notifications.settings.view",
+    "notifications.settings.update",
+    "notifications.testEmail.send",
   ],
   EDITOR: [
     "dashboard.view",
@@ -201,6 +217,8 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
     "account.security.manage",
     "sessions.manage.own",
     "mfa.manage.own",
+    "notifications.view",
+    "notifications.preferences.manage.own",
   ],
   SERVICE_STAFF: [
     "dashboard.view",
@@ -213,6 +231,8 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
     "account.security.manage",
     "sessions.manage.own",
     "mfa.manage.own",
+    "notifications.view",
+    "notifications.preferences.manage.own",
   ],
   VIEWER: [
     "dashboard.view",
@@ -220,6 +240,8 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
     "account.security.manage",
     "sessions.manage.own",
     "mfa.manage.own",
+    "notifications.view",
+    "notifications.preferences.manage.own",
   ],
 };
 
@@ -236,6 +258,7 @@ const adminRoutePermissions: Array<{
   { prefix: "/admin/hero-slides", permission: "heroSlides.view" },
   { prefix: "/admin/homepage", permission: "homepage.view" },
   { prefix: "/admin/seo", permission: "seo.manage" },
+  { prefix: "/admin/settings/email", permission: "notifications.settings.view" },
   { prefix: "/admin/settings", permission: "settings.view" },
   { prefix: "/admin/account/security", permission: "account.security.manage" },
   { prefix: "/admin/users", permission: "users.view" },
@@ -243,6 +266,9 @@ const adminRoutePermissions: Array<{
   { prefix: "/admin/audit", permission: "audit.view" },
   { prefix: "/admin/audit-log", permission: "audit.view" },
   { prefix: "/admin/security", permission: "security.view" },
+  { prefix: "/admin/notifications/email-deliveries", permission: "notifications.emailDeliveries.view" },
+  { prefix: "/admin/notifications", permission: "notifications.view" },
+  { prefix: "/admin/account/notifications", permission: "notifications.preferences.manage.own" },
 ];
 
 export function hasPermission(role: Role, permission: Permission) {

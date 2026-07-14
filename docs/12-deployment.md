@@ -460,3 +460,11 @@ Custom roles, SCIM/SSO and enterprise identity federation are intentionally defe
 - Audit export dosyalari kullanici istegine anlik uretilir, server diskinde kalici olarak tutulmaz.
 - Expired session cleanup periyodik calistirilmalidir; Security Center suresi gecmis temizlenmemis oturumlari uyarir.
 - Canli sonrasi izleme icin ertelenen isler: SIEM entegrasyonu, dis alarm/notification, cold archive ve audit retention politikasi.
+
+## SMTP, DNS ve Mail Worker Deployment
+
+- Production mail icin `MAIL_PROVIDER=smtp`, `MAIL_FROM_NAME`, `MAIL_FROM_ADDRESS`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD` tanimlanmalidir.
+- Sender domain icin SPF, DKIM ve DMARC kayitlari canliya cikmadan once dogrulanmalidir.
+- `npm run mail:process -- --batchSize=25` cron/container worker olarak periyodik calistirilmalidir; otomatik delivery bunun schedule edilmesine baglidir.
+- Development capture modu production'da kullanilamaz.
+- Bounce webhook, provider-specific event webhook, SMS ve push delivery sonraki asamaya ertelidir.

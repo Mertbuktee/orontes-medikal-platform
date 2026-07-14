@@ -19,6 +19,8 @@ describe("admin RBAC contracts", () => {
       "account.security.manage",
       "sessions.manage.own",
       "mfa.manage.own",
+      "notifications.view",
+      "notifications.preferences.manage.own",
     ]);
   });
 
@@ -81,6 +83,9 @@ describe("admin RBAC contracts", () => {
     expect(canAccessAdminRoute("VIEWER", "/admin/dashboard")).toBe(true);
     expect(canAccessAdminRoute("VIEWER", "/admin/service-requests")).toBe(true);
     expect(canAccessAdminRoute("VIEWER", "/admin/account/security")).toBe(true);
+    expect(canAccessAdminRoute("VIEWER", "/admin/notifications")).toBe(true);
+    expect(canAccessAdminRoute("VIEWER", "/admin/account/notifications")).toBe(true);
+    expect(canAccessAdminRoute("VIEWER", "/admin/notifications/email-deliveries")).toBe(false);
     expect(canAccessAdminRoute("VIEWER", "/admin/blog")).toBe(false);
     expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/service-requests")).toBe(true);
     expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/devices")).toBe(true);

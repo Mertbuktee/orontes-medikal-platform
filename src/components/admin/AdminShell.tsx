@@ -10,9 +10,14 @@ import type { AdminSessionMode } from "@/lib/auth/admin-session";
 type AdminShellProps = {
   children: ReactNode;
   sessionMode: AdminSessionMode;
+  unreadNotificationCount?: number;
 };
 
-export function AdminShell({ children, sessionMode }: AdminShellProps) {
+export function AdminShell({
+  children,
+  sessionMode,
+  unreadNotificationCount = 0,
+}: AdminShellProps) {
   const pathname = usePathname();
 
   return (
@@ -20,7 +25,11 @@ export function AdminShell({ children, sessionMode }: AdminShellProps) {
       <div className="flex min-h-screen">
         <AdminSidebar currentPath={pathname} />
         <div className="min-w-0 flex-1">
-          <AdminTopbar currentPath={pathname} sessionMode={sessionMode} />
+          <AdminTopbar
+            currentPath={pathname}
+            sessionMode={sessionMode}
+            unreadNotificationCount={unreadNotificationCount}
+          />
           <main className="px-4 py-6 sm:px-6 lg:px-8">{children}</main>
         </div>
       </div>

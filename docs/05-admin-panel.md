@@ -559,3 +559,12 @@ Custom role editing, SCIM/SSO ve enterprise identity federation bu asamada bilin
 - `/admin/security` kimlik dogrulama, oturum, hesap guvenligi, konfigurasyon hazirligi ve son guvenlik olaylarini gercek PostgreSQL verisinden ozetler.
 - ADMIN guvenlik merkezini gorebilir; audit export yalnizca SUPER_ADMIN tarafinda kalir.
 - Ertelenen isler: SIEM entegrasyonu, dis alarm/notification akisi, cold archive, gelismis anomaly detection ve tam forensic timeline.
+
+## Bildirimler ve E-posta Operasyonu
+
+- `/admin/notifications` kullanicinin kendi panel ici bildirimlerini listeler ve okundu isaretler.
+- `/admin/account/notifications` kullanicinin kendi bildirim tercihlerini yonetir; kritik guvenlik e-postalari kapatilamaz.
+- `/admin/settings/email` SMTP/capture provider durumunu, queue sagligini ve test e-postasini gosterir.
+- `/admin/notifications/email-deliveries` redakte edilmis delivery listesi, retry ve cancel operasyonlarini sunar.
+- Delivery operasyonlari `notifications.emailDeliveries.*`, provider ayarlari `notifications.settings.*`, test mail `notifications.testEmail.send` izinleriyle korunur.
+- SMS, push notification, bounce webhook ve provider-specific SDK ekranlari sonraki hardening asamasina ertelendi.

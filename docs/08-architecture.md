@@ -461,3 +461,11 @@ Audit kayitlari `AuditLog` modelinde immutable uygulama davranisi ile tutulur. U
 Sunum katmani `src/lib/audit/audit-presentation.ts` uzerinden category, severity, label ve safe metadata turetir. Ham metadata render edilmez. Audit yazma noktalarinda parola, token, cookie, session, storage path, musteri mesaji, telefon ve e-posta gibi hassas anahtarlar kalici kayda dusmeden suzulur.
 
 Security Center kisitli ve permission-aware aggregate sorgular kullanir. Admin verisi public cache tag'lerine baglanmaz; sayfalar dynamic/private server rendering ile calisir.
+
+## Notification ve Transactional Email Akisi
+
+Mail sistemi provider-agnostic arayuz kullanir. Ilk provider SMTP (`nodemailer`), development varsayilani ise `storage/private/mail-capture/` altina capture eden guvenli adapter'dir.
+
+Email outbox `EmailDelivery` modeliyle tutulur. Business mutation tamamlandiktan sonra delivery kaydi olusturulur; `npm run mail:process` due kayitlari claim eder, provider'a gonderir, `SENT`, `RETRY_SCHEDULED` veya `FAILED` durumuna tasir. Retry policy max 5 deneme ve artan backoff kullanir.
+
+In-app bildirimler `Notification`, kullanici tercihleri `NotificationPreference` modeliyle tutulur. UI dogrudan Prisma kullanmaz; `PrismaNotificationRepository` ve `NotificationService` uzerinden DTO akisi saglanir.

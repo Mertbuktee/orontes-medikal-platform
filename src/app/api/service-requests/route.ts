@@ -140,6 +140,17 @@ export function createServiceRequestHandler({
           serviceRequestId: savedRequest.id,
           hasAttachment: Boolean(storedAttachment),
         });
+        const { NotificationService } = await import(
+          "@/lib/notifications/notification-service"
+        );
+        await new NotificationService()
+          .notifyNewServiceRequest({
+            serviceRequestId: savedRequest.id,
+            requestShortId: savedRequest.id.slice(0, 8).toUpperCase(),
+            customerLabel: parsed.data.company || parsed.data.fullName,
+            hasAttachment: Boolean(storedAttachment),
+          })
+          .catch(() => undefined);
       } catch (error) {
         if (storedAttachment) {
           await storage

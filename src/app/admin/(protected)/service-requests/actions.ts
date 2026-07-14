@@ -12,6 +12,8 @@ import { getAdminRequestContext } from "@/lib/auth/request-context";
 import { prisma } from "@/lib/database/prisma";
 import { PrismaServiceRequestRepository } from "@/lib/database/repositories/service-requests";
 import { noopServiceRequestEventPublisher } from "@/lib/domain/service-request-events";
+import { makeAdminUrl } from "@/lib/notifications/email-templates";
+import { NotificationService } from "@/lib/notifications/notification-service";
 
 const statusSchema = z.object({
   id: z.string().min(1),
@@ -111,6 +113,34 @@ export async function assignServiceRequest(formData: FormData) {
     id: parsed.data.id,
     assignedUserId: parsed.data.assignedUserId ?? null,
   });
+
+  if (parsed.data.assignedUserId) {
+    const assignee = await prisma.user.findUnique({
+      where: { id: parsed.data.assignedUserId },
+      select: { id: true, email: true, name: true },
+    });
+    if (assignee) {
+      await new NotificationService().notifyUser({
+        userId: assignee.id,
+        category: "SERVICE_REQUEST_ASSIGNED",
+        title: "Servis talebi atandi",
+        message: `Talep ${updated.id.slice(0, 8).toUpperCase()} size atandi.`,
+        linkUrl: `/admin/service-requests/${updated.id}`,
+        email: {
+          to: { email: assignee.email, name: assignee.name },
+          templateKey: "service-request-assigned",
+          payload: {
+            requestShortId: updated.id.slice(0, 8).toUpperCase(),
+            customerLabel: updated.company || updated.fullName,
+            hasAttachment: false,
+            adminUrl: await makeAdminUrl(`/admin/service-requests/${updated.id}`),
+          },
+          idempotencyKey: `service-request-assigned:${updated.id}:${assignee.id}:${Date.now()}`,
+        },
+        context: requestContext,
+      });
+    }
+  }
 
   await auditRepository.appendAuditLog({
     actorId: session.userId,

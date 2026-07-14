@@ -34,3 +34,11 @@
 - Audit metadata redaction merkezi hale getirildi.
 - Audit sorgulari icin ek index migration'i olusturuldu.
 - Visual QA ve unit test kapsami genisletildi.
+
+## TASK-039 - Notification, SMTP ve Operations Alerting
+
+- SMTP provider abstraction, development mail capture adapter ve typed email template registry eklendi.
+- NotificationPreference, Notification, EmailDelivery ve EmailDeliveryAttempt modelleriyle DB-backed notification/outbox altyapisi kuruldu.
+- `/admin/notifications`, `/admin/account/notifications`, `/admin/settings/email` ve `/admin/notifications/email-deliveries` ekranlari eklendi.
+- `npm run mail:process` bounded batch worker komutu eklendi.
+- Public servis talebi ve servis atama akislari internal bildirim/email outbox uretecek sekilde baglandi.

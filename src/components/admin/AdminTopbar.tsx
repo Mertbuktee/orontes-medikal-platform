@@ -1,4 +1,4 @@
-import { LogOut, UserCog } from "lucide-react";
+import { Bell, LogOut, UserCog } from "lucide-react";
 import Link from "next/link";
 
 import { AdminBreadcrumbs } from "@/components/admin/AdminBreadcrumbs";
@@ -8,9 +8,14 @@ import type { AdminSessionMode } from "@/lib/auth/admin-session";
 type AdminTopbarProps = {
   currentPath: string;
   sessionMode: AdminSessionMode;
+  unreadNotificationCount?: number;
 };
 
-export function AdminTopbar({ currentPath, sessionMode }: AdminTopbarProps) {
+export function AdminTopbar({
+  currentPath,
+  sessionMode,
+  unreadNotificationCount = 0,
+}: AdminTopbarProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
       <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
@@ -35,6 +40,18 @@ export function AdminTopbar({ currentPath, sessionMode }: AdminTopbarProps) {
                 : "Oturum durumu bilinmiyor"}
             </p>
           </div>
+          <Link
+            href="/admin/notifications"
+            aria-label="Bildirimler"
+            className="relative inline-flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+          >
+            <Bell className="size-4" aria-hidden="true" />
+            {unreadNotificationCount > 0 ? (
+              <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-orange-500 px-1.5 text-center text-[11px] font-bold text-white">
+                {Math.min(unreadNotificationCount, 99)}
+              </span>
+            ) : null}
+          </Link>
           <Link
             href="/admin/account/security"
             aria-label="Hesap güvenliği"

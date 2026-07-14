@@ -1,5 +1,6 @@
 import {
   Activity,
+  Bell,
   BookOpenText,
   Boxes,
   ClipboardList,
@@ -8,6 +9,7 @@ import {
   Images,
   LayoutDashboard,
   LockKeyhole,
+  Mail,
   MonitorCog,
   Search,
   Settings,
@@ -28,182 +30,73 @@ export type AdminNavItem = {
 };
 
 export const adminNavItems: AdminNavItem[] = [
+  nav("Dashboard", "/admin/dashboard", LayoutDashboard, "dashboard.view"),
+  nav("Servis Talepleri", "/admin/service-requests", ClipboardList, "serviceRequests.view"),
+  nav("Cihaz Gruplari", "/admin/devices", MonitorCog, "devices.view"),
+  nav("Hizmetler", "/admin/services", Boxes, "services.view"),
   {
-    title: "Dashboard",
-    href: "/admin/dashboard",
-    icon: LayoutDashboard,
-    requiredPermission: "dashboard.view",
-  },
-  {
-    title: "Servis Talepleri",
-    href: "/admin/service-requests",
-    icon: ClipboardList,
-    requiredPermission: "serviceRequests.view",
-  },
-  {
-    title: "Cihaz Grupları",
-    href: "/admin/devices",
-    icon: MonitorCog,
-    requiredPermission: "devices.view",
-  },
-  {
-    title: "Hizmetler",
-    href: "/admin/services",
-    icon: Boxes,
-    requiredPermission: "services.view",
-  },
-  {
-    title: "Blog",
-    href: "/admin/blog",
-    icon: BookOpenText,
-    requiredPermission: "blog.view",
+    ...nav("Blog", "/admin/blog", BookOpenText, "blog.view"),
     children: [
-      {
-        title: "Blog Yazıları",
-        href: "/admin/blog",
-        icon: BookOpenText,
-        requiredPermission: "blog.view",
-      },
-      {
-        title: "Blog Kategorileri",
-        href: "/admin/blog/categories",
-        icon: BookOpenText,
-        requiredPermission: "blog.categories.manage",
-      },
+      nav("Blog Yazilari", "/admin/blog", BookOpenText, "blog.view"),
+      nav("Blog Kategorileri", "/admin/blog/categories", BookOpenText, "blog.categories.manage"),
     ],
   },
+  nav("Medya", "/admin/media", ImageIcon, "media.view"),
+  nav("Hero Slider", "/admin/hero-slides", Images, "heroSlides.view"),
+  nav("Ana Sayfa Yonetimi", "/admin/homepage", Home, "homepage.view"),
+  nav("SEO", "/admin/seo", Search, "seo.manage"),
+  nav("Site Ayarlari", "/admin/settings", Settings, "settings.view"),
+  nav("Hesap Guvenligi", "/admin/account/security", UserCog, "account.security.manage"),
   {
-    title: "Medya",
-    href: "/admin/media",
-    icon: ImageIcon,
-    requiredPermission: "media.view",
+    ...nav("Bildirimler", "/admin/notifications", Bell, "notifications.view"),
+    children: [
+      nav("Bildirim Merkezi", "/admin/notifications", Bell, "notifications.view"),
+      nav(
+        "E-posta Teslimatlari",
+        "/admin/notifications/email-deliveries",
+        Mail,
+        "notifications.emailDeliveries.view"
+      ),
+      nav(
+        "Bildirim Tercihleri",
+        "/admin/account/notifications",
+        Bell,
+        "notifications.preferences.manage.own"
+      ),
+    ],
   },
-  {
-    title: "Hero Slider",
-    href: "/admin/hero-slides",
-    icon: Images,
-    requiredPermission: "heroSlides.view",
-  },
-  {
-    title: "Ana Sayfa Yönetimi",
-    href: "/admin/homepage",
-    icon: Home,
-    requiredPermission: "homepage.view",
-  },
-  {
-    title: "SEO",
-    href: "/admin/seo",
-    icon: Search,
-    requiredPermission: "seo.manage",
-  },
-  {
-    title: "Site Ayarları",
-    href: "/admin/settings",
-    icon: Settings,
-    requiredPermission: "settings.view",
-  },
-  {
-    title: "Hesap Güvenliği",
-    href: "/admin/account/security",
-    icon: UserCog,
-    requiredPermission: "account.security.manage",
-  },
-  {
-    title: "Kullanıcılar",
-    href: "/admin/users",
-    icon: Users,
-    requiredPermission: "users.view",
-  },
-  {
-    title: "Roller ve Yetkiler",
-    href: "/admin/roles",
-    icon: LockKeyhole,
-    requiredPermission: "roles.view",
-  },
-  {
-    title: "Güvenlik Merkezi",
-    href: "/admin/security",
-    icon: ShieldCheck,
-    requiredPermission: "security.view",
-  },
-  {
-    title: "Audit Log",
-    href: "/admin/audit",
-    icon: Activity,
-    requiredPermission: "audit.view",
-  },
+  nav("Kullanicilar", "/admin/users", Users, "users.view"),
+  nav("Roller ve Yetkiler", "/admin/roles", LockKeyhole, "roles.view"),
+  nav("Guvenlik Merkezi", "/admin/security", ShieldCheck, "security.view"),
+  nav("Audit Log", "/admin/audit", Activity, "audit.view"),
 ];
 
 export const adminQuickActionItems = [
-  {
-    title: "Servis Taleplerini Görüntüle",
-    href: "/admin/service-requests",
-    icon: ClipboardList,
-    requiredPermission: "serviceRequests.view",
-  },
-  {
-    title: "Yeni Blog Yazısı",
-    href: "/admin/blog/new",
-    icon: BookOpenText,
-    requiredPermission: "blog.create",
-  },
-  {
-    title: "Yeni Cihaz Grubu",
-    href: "/admin/devices/new",
-    icon: MonitorCog,
-    requiredPermission: "devices.create",
-  },
-  {
-    title: "Yeni Hizmet",
-    href: "/admin/services/new",
-    icon: Boxes,
-    requiredPermission: "services.create",
-  },
-  {
-    title: "Hero Slider Yönetimi",
-    href: "/admin/hero-slides",
-    icon: Images,
-    requiredPermission: "heroSlides.view",
-  },
-  {
-    title: "Medya Yükle",
-    href: "/admin/media",
-    icon: ImageIcon,
-    requiredPermission: "media.upload",
-  },
-  {
-    title: "Ana Sayfayı Düzenle",
-    href: "/admin/homepage",
-    icon: Home,
-    requiredPermission: "homepage.update",
-  },
-  {
-    title: "Site Ayarları",
-    href: "/admin/settings",
-    icon: Settings,
-    requiredPermission: "settings.view",
-  },
-  {
-    title: "Kullanıcılar",
-    href: "/admin/users",
-    icon: Users,
-    requiredPermission: "users.view",
-  },
-  {
-    title: "Güvenlik Merkezi",
-    href: "/admin/security",
-    icon: ShieldCheck,
-    requiredPermission: "security.view",
-  },
-  {
-    title: "Audit Log",
-    href: "/admin/audit",
-    icon: Activity,
-    requiredPermission: "audit.view",
-  },
+  nav("Servis Taleplerini Goruntule", "/admin/service-requests", ClipboardList, "serviceRequests.view"),
+  nav("Yeni Blog Yazisi", "/admin/blog/new", BookOpenText, "blog.create"),
+  nav("Yeni Cihaz Grubu", "/admin/devices/new", MonitorCog, "devices.create"),
+  nav("Yeni Hizmet", "/admin/services/new", Boxes, "services.create"),
+  nav("Hero Slider Yonetimi", "/admin/hero-slides", Images, "heroSlides.view"),
+  nav("Medya Yukle", "/admin/media", ImageIcon, "media.upload"),
+  nav("Ana Sayfayi Duzenle", "/admin/homepage", Home, "homepage.update"),
+  nav("Site Ayarlari", "/admin/settings", Settings, "settings.view"),
+  nav("Bildirimler", "/admin/notifications", Bell, "notifications.view"),
+  nav("E-posta Teslimatlari", "/admin/notifications/email-deliveries", Mail, "notifications.emailDeliveries.view"),
+  nav("Kullanicilar", "/admin/users", Users, "users.view"),
+  nav("Guvenlik Merkezi", "/admin/security", ShieldCheck, "security.view"),
+  nav("Audit Log", "/admin/audit", Activity, "audit.view"),
 ] satisfies Array<{
   title: string;
   href: string;
   icon: LucideIcon;
   requiredPermission: Permission;
 }>;
+
+function nav(
+  title: string,
+  href: string,
+  icon: LucideIcon,
+  requiredPermission: Permission
+) {
+  return { title, href, icon, requiredPermission };
+}

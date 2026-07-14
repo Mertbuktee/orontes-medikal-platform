@@ -1,7 +1,7 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
-
 import { assertServerOnly } from "@/lib/auth/server-only";
+import { getTransactionalEmailProvider } from "@/lib/notifications/email-provider";
+import { renderEmailTemplate } from "@/lib/notifications/email-templates";
+import { getMailConfig } from "@/lib/notifications/mail-config";
 
 assertServerOnly("transactional email");
 
@@ -16,56 +16,36 @@ export interface TransactionalEmailService {
   sendPasswordResetEmail(input: PasswordResetEmailInput): Promise<void>;
 }
 
-export class DevelopmentPasswordResetEmailService
+export class ProviderBackedTransactionalEmailService
   implements TransactionalEmailService
 {
-  constructor(
-    private readonly root = path.join(
-      process.cwd(),
-      "storage",
-      "private",
-      "auth",
-      "password-reset-emails"
-    )
-  ) {}
-
   async sendPasswordResetEmail(input: PasswordResetEmailInput) {
-    await mkdir(this.root, { recursive: true });
-    const fileName = `${Date.now()}-${safeEmailFilePart(input.recipientEmail)}.txt`;
-    await writeFile(
-      path.join(this.root, fileName),
-      [
-        "DEVELOPMENT PASSWORD RESET EMAIL",
-        `Recipient: ${input.recipientEmail}`,
-        `Name: ${input.recipientName}`,
-        `Expires: ${input.expiresAt.toISOString()}`,
-        `Reset URL: ${input.resetUrl}`,
-        "",
-        "This file is a development-only sink. Do not use it in production.",
-      ].join("\n"),
-      { flag: "wx" }
-    );
+    const config = getMailConfig();
+    const provider = getTransactionalEmailProvider(config);
+    const rendered = await renderEmailTemplate({
+      key: "password-reset",
+      payload: {
+        recipientName: input.recipientName,
+        resetUrl: input.resetUrl,
+        expiresAt: input.expiresAt.toISOString(),
+      },
+      supportEmail: config.supportEmail,
+    });
+
+    const result = await provider.send({
+      to: [{ email: input.recipientEmail, name: input.recipientName }],
+      subject: rendered.subject,
+      html: rendered.html,
+      text: rendered.text,
+      tags: ["password-reset"],
+    });
+
+    if (!result.accepted) {
+      throw new Error(result.errorCode ?? "MAIL_DELIVERY_FAILED");
+    }
   }
 }
 
-export class UnconfiguredProductionEmailService
-  implements TransactionalEmailService
-{
-  async sendPasswordResetEmail() {
-    throw new Error("Transactional email provider is not configured.");
-  }
-}
-
-export function getTransactionalEmailService(
-  env: NodeJS.ProcessEnv = process.env
-): TransactionalEmailService {
-  if (env.MAIL_PROVIDER === "development" || env.APP_ENV !== "production") {
-    return new DevelopmentPasswordResetEmailService();
-  }
-
-  return new UnconfiguredProductionEmailService();
-}
-
-function safeEmailFilePart(email: string) {
-  return email.toLowerCase().replace(/[^a-z0-9._-]/g, "_").slice(0, 80);
+export function getTransactionalEmailService(): TransactionalEmailService {
+  return new ProviderBackedTransactionalEmailService();
 }

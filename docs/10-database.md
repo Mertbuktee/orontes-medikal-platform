@@ -568,3 +568,11 @@ Security Center ve Audit Log viewer icin non-destructive indexler eklendi:
 - `action, createdAt`
 
 Category ve severity su an veritabaninda duplicate kolon olarak tutulmaz; `AuditAction`, `entityType` ve safe metadata uzerinden uygulama katmaninda turetilir. Bu, geriye donuk kayitlari migrate etmeden yeni sunum kurallarini uygulamayi saglar.
+
+## NotificationPreference, Notification ve EmailDelivery
+
+- `NotificationPreference`: `userId + category` unique; email ve in-app tercihlerini ayri tutar.
+- `Notification`: current-user panel ici bildirimleri; `userId, readAt, createdAt` index'i ile unread listeleri hizlandirir.
+- `EmailDelivery`: transactional outbox kaydi; template key, minimal immutable payload, redakte edilebilir recipient, status, attempts ve retry zamanini tutar.
+- `EmailDeliveryAttempt`: deneme gecmisi; provider secret veya raw email body saklamaz.
+- `status + nextAttemptAt` index'i mail worker due batch claim akisi icindir.

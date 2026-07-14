@@ -381,3 +381,12 @@ No action accepts or returns password hashes, session tokens, token hashes, MFA 
 - `GET /admin/security`: server-rendered security center; `security.view` gerektirir.
 
 Bu rotalar public API degildir; admin session ve server-side RBAC ile korunur. Export ham metadata, token, cookie, password hash veya storage path icermez.
+
+## Admin Notification Actions
+
+- `markNotificationRead`, `markAllNotificationsRead`: yalniz current user bildirimlerini gunceller.
+- `updateNotificationPreference`: kendi tercihlerini gunceller; mandatory security e-postalari kapatilamaz.
+- `sendTestEmail`: `notifications.testEmail.send` izni, same-origin ve rate limit gerektirir.
+- `retryEmailDelivery`, `cancelEmailDelivery`: delivery operasyon izinleriyle korunur.
+
+Mail worker public route degildir; `npm run mail:process` CLI komutu bounded batch isler.
