@@ -551,3 +551,11 @@ Dashboard role-aware calisir. `EDITOR` agirlikli olarak icerik sagligini, `SERVI
 - `/admin/roles` fixed system role matrix'i read-only olarak gosterir; permission source of truth kod tarafindaki `rolePermissions` map'idir.
 
 Custom role editing, SCIM/SSO ve enterprise identity federation bu asamada bilincli olarak ertelenmistir.
+## Audit Log ve Guvenlik Merkezi
+
+- `/admin/audit` salt okunur audit viewer olarak calisir; kayit duzenleme veya silme yoktur.
+- `/admin/audit/[id]` ham JSON yerine yalnizca allowlist'lenmis, redakte edilmis metadata gosterir.
+- CSV export yalnizca `audit.export` izni olan kullanicilara aciktir ve export islemi ayrica audit'e yazilir.
+- `/admin/security` kimlik dogrulama, oturum, hesap guvenligi, konfigurasyon hazirligi ve son guvenlik olaylarini gercek PostgreSQL verisinden ozetler.
+- ADMIN guvenlik merkezini gorebilir; audit export yalnizca SUPER_ADMIN tarafinda kalir.
+- Ertelenen isler: SIEM entegrasyonu, dis alarm/notification akisi, cold archive, gelismis anomaly detection ve tam forensic timeline.

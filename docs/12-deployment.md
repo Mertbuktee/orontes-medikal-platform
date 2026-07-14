@@ -454,3 +454,9 @@ Custom roles, SCIM/SSO and enterprise identity federation are intentionally defe
 - Remember Me için `ADMIN_REMEMBER_SESSION_MAX_AGE_SECONDS` bilinçli belirlenmelidir.
 - MFA etkinleştirilmeden önce `MFA_ENCRYPTION_KEY` base64 encoded 32-byte secret olarak sağlanmalıdır.
 - Password reset URL'leri validated `APP_ORIGIN` üzerinden üretilir; production'da localhost canonical/origin kabul edilmez.
+## Audit ve Security Center Deployment Notlari
+
+- Production'da `APP_ORIGIN`, mail provider ve MFA encryption ayarlari Security Center tarafinda durum olarak gorunur; sir degerleri UI'da gosterilmez.
+- Audit export dosyalari kullanici istegine anlik uretilir, server diskinde kalici olarak tutulmaz.
+- Expired session cleanup periyodik calistirilmalidir; Security Center suresi gecmis temizlenmemis oturumlari uyarir.
+- Canli sonrasi izleme icin ertelenen isler: SIEM entegrasyonu, dis alarm/notification, cold archive ve audit retention politikasi.

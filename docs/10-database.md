@@ -558,3 +558,13 @@ Creator/updater/deactivator relations use `SetNull` so deleting or archiving an 
 
 - Recovery code değerleri yalnız SHA-256 hash olarak saklanır.
 - Her code tek kullanımlıdır; yeniden üretim eski kullanılmamış kodları geçersiz kılar.
+## AuditLog Query Indexleri
+
+Security Center ve Audit Log viewer icin non-destructive indexler eklendi:
+
+- `actorId, createdAt`
+- `entityType, createdAt`
+- `entityType, entityId, createdAt`
+- `action, createdAt`
+
+Category ve severity su an veritabaninda duplicate kolon olarak tutulmaz; `AuditAction`, `entityType` ve safe metadata uzerinden uygulama katmaninda turetilir. Bu, geriye donuk kayitlari migrate etmeden yeni sunum kurallarini uygulamayi saglar.

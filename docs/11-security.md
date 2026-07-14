@@ -246,3 +246,14 @@ Any future export/reporting feature must go through a separate privacy review be
 - MFA secretları production'da `MFA_ENCRYPTION_KEY` ile AES-256-GCM şifrelenmeden saklanmamalıdır.
 - Recovery code değerleri yalnız hash olarak saklanır ve yeniden gösterilmez.
 - Full TOTP enforcement bu milestone'da aktif değildir; UI bunu production-complete MFA olarak göstermemelidir.
+## Audit Log Gizliligi
+
+Audit Log viewer ve Security Center veri minimizasyonu ile calisir:
+
+- Ham metadata admin UI'da render edilmez.
+- Parola, passwordHash, token, tokenHash, cookie, session, secret, MFA secret, recovery code, database URL, SMTP bilgisi, storage path, dosya adi, musteri mesaji, telefon ve e-posta anahtarlari audit yaziminda suzulur.
+- IP adresleri maskelenir, user-agent metinleri tarayici ozeti olarak gosterilir.
+- CSV export yalnizca `audit.export` iznine baglidir ve export islemi audit'e yazilir.
+- Audit kayitlari normal admin UI'dan duzenlenemez veya silinemez.
+
+Ertelenen production hardening: merkezi SIEM aktarimi, dis alarm kurallari, cold archive ve ileri anomaly detection.

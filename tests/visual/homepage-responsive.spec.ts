@@ -409,6 +409,28 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     note: "Fixed role matrix renders with effective permissions.",
   });
 
+  await page.goto("/admin/audit", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Audit Log", exact: true })).toBeVisible();
+  const auditDesktopPath = path.join(adminDir, "admin-audit-1440x900.png");
+  await page.screenshot({ fullPage: true, path: auditDesktopPath });
+  results.push({
+    name: "admin-audit-1440x900",
+    screenshotPath: auditDesktopPath,
+    status: "PASS",
+    note: "Audit Log viewer renders safe event rows and filters.",
+  });
+
+  await page.goto("/admin/security", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Guvenlik Merkezi", exact: true })).toBeVisible();
+  const securityDesktopPath = path.join(adminDir, "admin-security-1440x900.png");
+  await page.screenshot({ fullPage: true, path: securityDesktopPath });
+  results.push({
+    name: "admin-security-1440x900",
+    screenshotPath: securityDesktopPath,
+    status: "PASS",
+    note: "Security Center renders account, session and configuration summaries.",
+  });
+
   await page.goto("/admin/settings", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("heading", { name: "Site Ayarları", exact: true })
@@ -921,6 +943,28 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     screenshotPath: adminRolesMobilePath,
     status: "PASS",
     note: "Role matrix remains readable on mobile.",
+  });
+
+  await page.goto("/admin/audit", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Audit Log", exact: true })).toBeVisible();
+  const auditMobilePath = path.join(adminDir, "admin-audit-375x667.png");
+  await page.screenshot({ fullPage: true, path: auditMobilePath });
+  results.push({
+    name: "admin-audit-375x667",
+    screenshotPath: auditMobilePath,
+    status: "PASS",
+    note: "Audit Log viewer remains usable on mobile.",
+  });
+
+  await page.goto("/admin/security", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Guvenlik Merkezi", exact: true })).toBeVisible();
+  const securityMobilePath = path.join(adminDir, "admin-security-375x667.png");
+  await page.screenshot({ fullPage: true, path: securityMobilePath });
+  results.push({
+    name: "admin-security-375x667",
+    screenshotPath: securityMobilePath,
+    status: "PASS",
+    note: "Security Center remains usable on mobile.",
   });
 
   await page.goto("/admin/dashboard", { waitUntil: "domcontentloaded" });

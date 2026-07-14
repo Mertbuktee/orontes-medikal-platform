@@ -4,16 +4,18 @@ import { ChevronRight } from "lucide-react";
 const segmentLabels: Record<string, string> = {
   dashboard: "Dashboard",
   "service-requests": "Servis Talepleri",
-  devices: "Cihaz Grupları",
+  devices: "Cihaz Gruplari",
   services: "Hizmetler",
   blog: "Blog",
   media: "Medya",
-  homepage: "Ana Sayfa Yönetimi",
+  homepage: "Ana Sayfa Yonetimi",
   seo: "SEO",
-  settings: "Site Ayarları",
-  users: "Kullanıcılar",
+  settings: "Site Ayarlari",
+  users: "Kullanicilar",
   roles: "Roller ve Yetkiler",
+  audit: "Audit Log",
   "audit-log": "Audit Log",
+  security: "Guvenlik Merkezi",
 };
 
 type AdminBreadcrumbsProps = {
@@ -37,7 +39,7 @@ export function AdminBreadcrumbs({ currentPath }: AdminBreadcrumbsProps) {
         </li>
         {activeSegments.map((segment, index) => {
           const href = `/admin/${activeSegments.slice(0, index + 1).join("/")}`;
-          const label = segmentLabels[segment] ?? "Modül";
+          const label = segmentLabels[segment] ?? "Modul";
           const current = index === activeSegments.length - 1;
 
           return (

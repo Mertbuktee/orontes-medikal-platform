@@ -2,6 +2,7 @@ import type { AuditAction, Prisma, PrismaClient, Role } from "@prisma/client";
 
 import type { AdminRequestContext } from "./request-context.ts";
 import { canAuthenticateAdminSession } from "./session-validation.ts";
+import { stripForbiddenAuditMetadata } from "@/lib/audit/audit-presentation";
 
 export type AuthUserRecord = {
   id: string;
@@ -252,15 +253,16 @@ export class AdminAuthRepository {
     metadata?: Prisma.InputJsonValue;
     context: AdminRequestContext;
   }) {
+    const safeMetadata = stripForbiddenAuditMetadata(input.metadata);
     return this.client.auditLog.create({
       data: {
         actorId: input.actorId ?? null,
         action: input.action,
         entityType: input.entityType,
         entityId: input.entityId,
-        metadata: input.metadata,
+        metadata: safeMetadata as Prisma.InputJsonValue,
         ipAddress: input.context.ipAddress,
-        userAgent: input.context.userAgent,
+        userAgent: input.context.userAgent?.slice(0, 512),
       },
     });
   }

@@ -52,7 +52,7 @@ export default async function AdminDashboardPage({
     session.role === "EDITOR";
   const canViewMedia = hasPermission(session.role, "media.view");
   const canViewSettings = hasPermission(session.role, "settings.view");
-  const canViewSecurity = hasPermission(session.role, "audit.view");
+  const canViewSecurity = hasPermission(session.role, "security.view");
 
   const [
     serviceSummary,

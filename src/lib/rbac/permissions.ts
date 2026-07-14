@@ -78,6 +78,11 @@ export const permissions = [
   "roles.view",
   "roles.manage",
   "audit.view",
+  "audit.export",
+  "security.view",
+  "security.sessions.view",
+  "security.accounts.view",
+  "security.events.view",
 ] as const;
 
 export type Permission = (typeof permissions)[number];
@@ -152,6 +157,10 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
     "users.password.forceReset",
     "roles.view",
     "audit.view",
+    "security.view",
+    "security.sessions.view",
+    "security.accounts.view",
+    "security.events.view",
   ],
   EDITOR: [
     "dashboard.view",
@@ -231,7 +240,9 @@ const adminRoutePermissions: Array<{
   { prefix: "/admin/account/security", permission: "account.security.manage" },
   { prefix: "/admin/users", permission: "users.view" },
   { prefix: "/admin/roles", permission: "roles.view" },
+  { prefix: "/admin/audit", permission: "audit.view" },
   { prefix: "/admin/audit-log", permission: "audit.view" },
+  { prefix: "/admin/security", permission: "security.view" },
 ];
 
 export function hasPermission(role: Role, permission: Permission) {

@@ -112,17 +112,23 @@ export const adminNavItems: AdminNavItem[] = [
     title: "Kullanıcılar",
     href: "/admin/users",
     icon: Users,
-    requiredPermission: "users.manage",
+    requiredPermission: "users.view",
   },
   {
     title: "Roller ve Yetkiler",
     href: "/admin/roles",
     icon: LockKeyhole,
-    requiredPermission: "roles.manage",
+    requiredPermission: "roles.view",
+  },
+  {
+    title: "Güvenlik Merkezi",
+    href: "/admin/security",
+    icon: ShieldCheck,
+    requiredPermission: "security.view",
   },
   {
     title: "Audit Log",
-    href: "/admin/audit-log",
+    href: "/admin/audit",
     icon: Activity,
     requiredPermission: "audit.view",
   },
@@ -174,7 +180,7 @@ export const adminQuickActionItems = [
   {
     title: "Site Ayarları",
     href: "/admin/settings",
-    icon: ShieldCheck,
+    icon: Settings,
     requiredPermission: "settings.view",
   },
   {
@@ -184,10 +190,16 @@ export const adminQuickActionItems = [
     requiredPermission: "users.view",
   },
   {
-    title: "Roller ve Yetkiler",
-    href: "/admin/roles",
-    icon: LockKeyhole,
-    requiredPermission: "roles.view",
+    title: "Güvenlik Merkezi",
+    href: "/admin/security",
+    icon: ShieldCheck,
+    requiredPermission: "security.view",
+  },
+  {
+    title: "Audit Log",
+    href: "/admin/audit",
+    icon: Activity,
+    requiredPermission: "audit.view",
   },
 ] satisfies Array<{
   title: string;

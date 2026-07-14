@@ -373,3 +373,11 @@ No action accepts or returns password hashes, session tokens, token hashes, MFA 
   - `revokeAllOwnSessions`
 - Tüm state-changing action'lar authenticated session veya same-origin kontrolü yapar.
 - Password reset yanıtları hesap varlığını açığa çıkarmaz; provider hataları raw detayları client'a dönmez.
+## Admin Audit ve Security Endpointleri
+
+- `GET /admin/audit`: server-rendered audit listesi; `audit.view` gerektirir.
+- `GET /admin/audit/[id]`: redakte edilmis audit detay sayfasi; `audit.view` gerektirir.
+- `GET /admin/audit/export`: guvenli CSV export; `audit.export` gerektirir, `Cache-Control: private, no-store` ve `X-Content-Type-Options: nosniff` kullanir.
+- `GET /admin/security`: server-rendered security center; `security.view` gerektirir.
+
+Bu rotalar public API degildir; admin session ve server-side RBAC ile korunur. Export ham metadata, token, cookie, password hash veya storage path icermez.

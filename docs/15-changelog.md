@@ -27,3 +27,10 @@
 - Hizmetler için aktif/pasif, ana sayfada öne çıkarma, sıralama, arşivleme, SEO alanları, medya ilişkisi ve audit log akışı eklendi.
 - Ana sayfa Hizmetler önizlemesi ve `/hizmetler` sayfası artık public DB sorgularından beslenir.
 - Yerel typed hizmet içeriği seed/import kaynağı olarak korunur; production public içerik için ana kaynak veritabanıdır.
+## TASK-038 - Audit Log Viewer ve Security Center
+
+- `/admin/audit`, `/admin/audit/[id]` ve guvenli CSV export eklendi.
+- `/admin/security` kimlik dogrulama, hesap, oturum, konfigurasyon ve son guvenlik olaylari ozetlerini gercek veriden gosterir.
+- Audit metadata redaction merkezi hale getirildi.
+- Audit sorgulari icin ek index migration'i olusturuldu.
+- Visual QA ve unit test kapsami genisletildi.

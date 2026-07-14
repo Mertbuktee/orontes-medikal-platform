@@ -251,3 +251,11 @@ npm run db:deploy
 ## Update Policy
 
 Her yeni admin/public/security modülü tamamlandığında bu dosya güncellenecek. Canlıya çıkmadan önce bu dosya son kez baştan sona okunacak ve işaretlenmemiş production maddeleri kapatılmadan deploy yapılmayacak.
+## TASK-038 Audit And Security Notes
+
+- Audit Log viewer is read-only. Do not add edit/delete audit actions without a retention/legal design.
+- Security Center must never show raw secrets, token hashes, cookie values, password hashes, raw MFA secrets, recovery codes, storage paths or full customer PII.
+- Production must wire expired-session cleanup into an intentional scheduled job.
+- CSV audit export is SUPER_ADMIN-only through `audit.export`; every export is itself audited.
+- Before go-live, decide retention windows for hot PostgreSQL audit data, cold archive and backup restore testing.
+- Deferred but tracked: SIEM forwarding, external alert rules, anomaly detection, cold archive automation and advanced forensic timeline.

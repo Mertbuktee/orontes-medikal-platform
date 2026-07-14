@@ -179,3 +179,8 @@ User-management coverage prioritizes privilege-escalation policy and lifecycle b
 - Password reset token entropy, hashing, TTL and validation helpers are unit-tested.
 - MFA AES-256-GCM encryption/decryption, wrong-key failure and recovery-code hashing are unit-tested.
 - Full DB-backed password reset/session revocation integration should be covered with isolated test database before production hardening.
+## Audit ve Security Center Testleri
+
+- Audit presentation unit testleri hassas metadata redaction, allowlisted metadata sunumu, kategori/severity turetimi, IP ve user-agent redaction davranisini kapsar.
+- Visual QA kapsamina `/admin/audit` ve `/admin/security` desktop/mobile ekranlari eklendi.
+- Export ve aggregate sorgular canli PII gostermeden safe DTO uzerinden test edilmelidir.

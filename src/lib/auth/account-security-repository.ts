@@ -1,5 +1,6 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
 
+import { stripForbiddenAuditMetadata } from "@/lib/audit/audit-presentation";
 import type { AdminRequestContext } from "@/lib/auth/request-context";
 import { assertServerOnly } from "@/lib/auth/server-only";
 
@@ -239,15 +240,16 @@ export class AccountSecurityRepository {
     metadata?: Prisma.InputJsonValue;
     context: AdminRequestContext;
   }) {
+    const safeMetadata = stripForbiddenAuditMetadata(input.metadata);
     return this.client.auditLog.create({
       data: {
         actorId: input.actorId ?? null,
         action: input.action,
         entityType: input.entityType,
         entityId: input.entityId,
-        metadata: input.metadata,
+        metadata: safeMetadata as Prisma.InputJsonValue,
         ipAddress: input.context.ipAddress,
-        userAgent: input.context.userAgent,
+        userAgent: input.context.userAgent?.slice(0, 512),
       },
     });
   }

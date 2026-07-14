@@ -454,3 +454,10 @@ User management keeps fixed system roles as the RBAC source of truth. The databa
 - Development email adapter reset linkini `storage/private/auth/password-reset-emails/` altında development-only sink'e yazar. Production mail provider ayrıca yapılandırılmalıdır.
 - MFA foundation AES-256-GCM encryption boundary ve hashlenmiş recovery-code storage sağlar. Full TOTP challenge/enforcement, TOTP/QR dependency onayından sonra etkinleştirilecek ayrı adımdır.
 - Account-security verileri public cache kullanmaz; protected page ve Server Actions request-time çalışır.
+## Audit ve Security Center Akisi
+
+Audit kayitlari `AuditLog` modelinde immutable uygulama davranisi ile tutulur. UI, Prisma'ya dogrudan erismez; `PrismaAuditLogRepository` liste, detay, export ve security summary DTO'lari uretir.
+
+Sunum katmani `src/lib/audit/audit-presentation.ts` uzerinden category, severity, label ve safe metadata turetir. Ham metadata render edilmez. Audit yazma noktalarinda parola, token, cookie, session, storage path, musteri mesaji, telefon ve e-posta gibi hassas anahtarlar kalici kayda dusmeden suzulur.
+
+Security Center kisitli ve permission-aware aggregate sorgular kullanir. Admin verisi public cache tag'lerine baglanmaz; sayfalar dynamic/private server rendering ile calisir.
