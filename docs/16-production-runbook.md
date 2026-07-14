@@ -45,6 +45,19 @@ Production deployment sinyali (`APP_ENV=production` veya `VERCEL_ENV=production`
 - Canonical, sitemap, robots ve JSON-LD localhost üretemez.
 - `ADMIN_DEV_BYPASS` production'da çalışmamalı.
 
+## Site Settings Source Of Truth
+
+Canlıda şirket kimliği, iletişim, sosyal medya, footer, marka görselleri ve global SEO için ana kaynak `/admin/settings` altındaki DB-backed Site Settings kayıtlarıdır.
+
+Sınıflandırma:
+
+- `src/lib/site-settings/site-settings-types.ts` içindeki `defaultSiteSettings` sadece development fallback ve bootstrap seed kaynağıdır.
+- Production'da DB erişimi başarısız olursa public Site Settings fallback kullanmaz; hata açık şekilde yükselir.
+- `src/config/site.ts` public route listesi, canonical origin guard ve route metadata bootstrap değerleri için korunur; canlı kimlik verisinin güncel kaynağı Site Settings olmalıdır.
+- Footer sosyal linkleri, iletişim bilgileri, Organization/LocalBusiness JSON-LD ve notification e-posta marka bilgisi Site Settings'ten beslenmelidir.
+- Analytics, Search Console, logo, favicon, default OG image, phone, e-mail, WhatsApp, address, Instagram ve LinkedIn değerleri canlıya çıkmadan admin panelden doğrulanmalıdır.
+- Eksik Site Settings kayıt grupları dashboard/site-readiness denetiminde manuel kontrol maddesi olarak ele alınmalıdır; seed defaultları canlı doğrulamanın yerine geçmez.
+
 ## Database And Migration Flow
 
 Production'da `db:migrate` kullanılmaz.

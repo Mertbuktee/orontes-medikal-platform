@@ -59,6 +59,7 @@ export default async function Navbar() {
 
   return (
     <NavbarClient
+      companyName={settings.general.companyName}
       logoSrc={logoSrc}
       logoAlt={`${settings.general.companyName} logosu`}
       contactItems={contactItems}

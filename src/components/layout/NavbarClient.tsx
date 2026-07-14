@@ -29,6 +29,7 @@ export type NavbarSocialItem = {
 };
 
 type NavbarClientProps = {
+  companyName: string;
   logoSrc: string;
   logoAlt: string;
   contactItems: NavbarContactItem[];
@@ -110,6 +111,7 @@ function SocialIcon({ name }: { name: NavbarSocialItem["icon"] }) {
 }
 
 export function NavbarClient({
+  companyName,
   logoSrc,
   logoAlt,
   contactItems,
@@ -163,7 +165,7 @@ export function NavbarClient({
                 href={item.href}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={`Orontes ${item.label} hesabını aç`}
+                aria-label={`${companyName} ${item.label} hesabını aç`}
                 className={cn(
                   "flex size-10 items-center justify-center rounded-full text-background/85 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-background/60 focus-visible:outline-none",
                   item.hoverClass
@@ -211,7 +213,7 @@ export function NavbarClient({
           <SheetContent side="right" className="w-[min(360px,calc(100vw-24px))] overflow-y-auto">
             <SheetTitle className="sr-only">Mobil menü</SheetTitle>
             <SheetDescription className="sr-only">
-              Orontes Teknoloji sayfa bağlantıları ve iletişim aksiyonları.
+              {companyName} sayfa bağlantıları ve iletişim aksiyonları.
             </SheetDescription>
             <div className="mt-8 grid gap-3">
               {navItems.map((item) => (

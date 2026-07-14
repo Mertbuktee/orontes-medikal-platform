@@ -12,6 +12,7 @@ import { PrismaNotificationRepository } from "@/lib/database/repositories/notifi
 import { getTransactionalEmailProvider } from "@/lib/notifications/email-provider";
 import { renderEmailTemplate } from "@/lib/notifications/email-templates";
 import { getMailConfig } from "@/lib/notifications/mail-config";
+import { getPublicSiteSettingsUncached } from "@/lib/site-settings/public-site-settings";
 import {
   emailDeliveryActionSchema,
   notificationPreferenceSchema,
@@ -86,16 +87,20 @@ export async function sendTestEmail(formData: FormData) {
   if (!limit.allowed) redirect("/admin/settings/email?status=rate-limited");
 
   const config = getMailConfig();
+  const settings = await getPublicSiteSettingsUncached();
+  const supportEmail =
+    config.supportEmail || settings.contact.emailSupport || settings.contact.emailPrimary;
   const repository = new PrismaNotificationRepository(prisma);
   const rendered = await renderEmailTemplate({
     key: "test-email",
     payload: {
-      title: "Orontes test e-postasi",
+      title: `${settings.general.companyName} test e-postasi`,
       body: "Bu mesaj SMTP ve notification altyapisini test etmek icin olusturuldu.",
       ctaHref: "/admin/settings/email",
       ctaLabel: "E-posta ayarlarini ac",
     },
-    supportEmail: config.supportEmail,
+    companyName: settings.general.companyName,
+    supportEmail,
   });
   const provider = getTransactionalEmailProvider(config);
   const delivery = await repository.enqueueEmail({
@@ -104,7 +109,7 @@ export async function sendTestEmail(formData: FormData) {
     subject: rendered.subject,
     provider: config.provider,
     templatePayload: {
-      title: "Orontes test e-postasi",
+      title: `${settings.general.companyName} test e-postasi`,
       body: "Bu mesaj SMTP ve notification altyapisini test etmek icin olusturuldu.",
     },
   });

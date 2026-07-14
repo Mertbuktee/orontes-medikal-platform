@@ -2,6 +2,7 @@ import { assertServerOnly } from "@/lib/auth/server-only";
 import { getTransactionalEmailProvider } from "@/lib/notifications/email-provider";
 import { renderEmailTemplate } from "@/lib/notifications/email-templates";
 import { getMailConfig } from "@/lib/notifications/mail-config";
+import { getPublicSiteSettingsUncached } from "@/lib/site-settings/public-site-settings";
 
 assertServerOnly("transactional email");
 
@@ -21,6 +22,9 @@ export class ProviderBackedTransactionalEmailService
 {
   async sendPasswordResetEmail(input: PasswordResetEmailInput) {
     const config = getMailConfig();
+    const settings = await getPublicSiteSettingsUncached();
+    const supportEmail =
+      config.supportEmail || settings.contact.emailSupport || settings.contact.emailPrimary;
     const provider = getTransactionalEmailProvider(config);
     const rendered = await renderEmailTemplate({
       key: "password-reset",
@@ -29,7 +33,8 @@ export class ProviderBackedTransactionalEmailService
         resetUrl: input.resetUrl,
         expiresAt: input.expiresAt.toISOString(),
       },
-      supportEmail: config.supportEmail,
+      companyName: settings.general.companyName,
+      supportEmail,
     });
 
     const result = await provider.send({

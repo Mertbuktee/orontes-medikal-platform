@@ -14,6 +14,7 @@ import {
   type EmailTemplateKey,
 } from "@/lib/notifications/email-templates";
 import { getMailConfig } from "@/lib/notifications/mail-config";
+import { getPublicSiteSettingsUncached } from "@/lib/site-settings/public-site-settings";
 
 assertServerOnly("notification service");
 
@@ -73,10 +74,14 @@ export class NotificationService {
     context?: AdminRequestContext;
   }) {
     const mailConfig = getMailConfig();
+    const settings = await getPublicSiteSettingsUncached();
+    const supportEmail =
+      mailConfig.supportEmail || settings.contact.emailSupport || settings.contact.emailPrimary;
     const rendered = await renderEmailTemplate({
       key: input.templateKey,
       payload: input.payload,
-      supportEmail: mailConfig.supportEmail,
+      companyName: settings.general.companyName,
+      supportEmail,
     });
     const delivery = await this.repository.enqueueEmail({
       notificationId: input.notificationId,
@@ -153,6 +158,10 @@ export class NotificationService {
 
   async processDueEmails(input: { batchSize: number; context?: AdminRequestContext }) {
     const provider = getTransactionalEmailProvider();
+    const mailConfig = getMailConfig();
+    const settings = await getPublicSiteSettingsUncached();
+    const supportEmail =
+      mailConfig.supportEmail || settings.contact.emailSupport || settings.contact.emailPrimary;
     const claimed = await this.repository.claimDueBatch(input.batchSize);
     const results = {
       claimed: claimed.length,
@@ -165,6 +174,8 @@ export class NotificationService {
       const rendered = await renderEmailTemplate({
         key: delivery.templateKey as EmailTemplateKey,
         payload: delivery.templatePayload,
+        companyName: settings.general.companyName,
+        supportEmail,
       });
       const result = await provider.send({
         to: [{ email: delivery.recipient }],

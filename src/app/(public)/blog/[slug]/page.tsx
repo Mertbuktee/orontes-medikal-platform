@@ -19,6 +19,7 @@ import {
   createArticleJsonLd,
   createBreadcrumbJsonLd,
 } from "@/lib/seo/structured-data";
+import { getPublicSiteSettings } from "@/lib/site-settings/public-site-settings";
 
 type BlogDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -68,7 +69,11 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const dateModified = parseBlogDate(post.updatedAt);
   if (!dateModified) notFound();
 
-  const related = (await getPublicBlogPosts({ limit: 4 }))
+  const [relatedPosts, settings] = await Promise.all([
+    getPublicBlogPosts({ limit: 4 }),
+    getPublicSiteSettings(),
+  ]);
+  const related = relatedPosts
     .filter((item) => item.id !== post.id)
     .slice(0, 3);
   const breadcrumbItems = [
@@ -86,6 +91,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     datePublished: parseBlogDate(post.publishedAt),
     dateModified,
     authorName: post.authorName,
+    settings,
   });
   const breadcrumbJsonLd = createBreadcrumbJsonLd(breadcrumbItems);
 

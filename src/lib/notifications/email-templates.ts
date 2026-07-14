@@ -95,16 +95,16 @@ export type RenderedEmailTemplate = {
 export async function renderEmailTemplate(input: {
   key: EmailTemplateKey;
   payload: unknown;
-  companyName?: string;
-  supportEmail?: string;
+  companyName: string;
+  supportEmail: string;
 }): Promise<RenderedEmailTemplate> {
   const payload = templatePayloadSchemas[input.key].parse(input.payload) as EmailTemplatePayload;
-  const companyName = input.companyName ?? "Orontes Teknoloji";
+  const companyName = input.companyName;
   const subject = getSubject(input.key, payload, companyName);
   const intro = getIntro(input.key, payload);
   const ctaHref = getCtaHref(payload);
   const ctaLabel = String(payload.ctaLabel ?? defaultCtaLabel(input.key));
-  const supportEmail = input.supportEmail ?? "info@orontesteknoloji.com";
+  const supportEmail = input.supportEmail;
   const text = [
     subject,
     "",

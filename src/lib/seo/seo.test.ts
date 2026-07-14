@@ -5,7 +5,11 @@ import { describe, expect, it } from "vitest";
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
 import { absoluteUrl, publicRoutes, resolveSiteOrigin } from "@/config/site";
-import { createBreadcrumbJsonLd } from "@/lib/seo/structured-data";
+import {
+  createArticleJsonLd,
+  createBreadcrumbJsonLd,
+} from "@/lib/seo/structured-data";
+import { defaultSiteSettings } from "@/lib/site-settings/site-settings-types";
 
 const workspaceRoot = process.cwd();
 
@@ -125,6 +129,24 @@ describe("public SEO architecture", () => {
     }
   });
 
+  it("keeps footer social links controlled by site settings", () => {
+    const footer = readFileSync(
+      path.join(workspaceRoot, "src/components/layout/Footer.tsx"),
+      "utf8"
+    );
+    const navbar = readFileSync(
+      path.join(workspaceRoot, "src/components/layout/NavbarClient.tsx"),
+      "utf8"
+    );
+
+    expect(footer).toContain("settings.social.instagram");
+    expect(footer).toContain("settings.social.linkedin");
+    expect(footer).not.toContain("linkedin.com/in/mertbukte");
+    expect(footer).not.toContain("Powered by");
+    expect(navbar).toContain("companyName");
+    expect(navbar).not.toContain("Orontes Teknoloji sayfa bağlantıları");
+  });
+
   it("breadcrumb JSON-LD is generated without invented review data", () => {
     const jsonLd = createBreadcrumbJsonLd([
       { name: "Ana Sayfa", path: "/" },
@@ -134,5 +156,24 @@ describe("public SEO architecture", () => {
     expect(jsonLd["@type"]).toBe("BreadcrumbList");
     expect(JSON.stringify(jsonLd)).not.toContain("AggregateRating");
     expect(JSON.stringify(jsonLd)).not.toContain("review");
+  });
+
+  it("article JSON-LD publisher follows site settings identity", () => {
+    const jsonLd = createArticleJsonLd({
+      path: "/blog/test",
+      headline: "Test",
+      description: "Test description",
+      dateModified: new Date("2026-01-01T00:00:00.000Z"),
+      settings: {
+        ...defaultSiteSettings,
+        general: {
+          ...defaultSiteSettings.general,
+          legalCompanyName: "Ayar Merkezi Ltd.",
+          companyName: "Ayar Merkezi",
+        },
+      },
+    });
+
+    expect(jsonLd.publisher.name).toBe("Ayar Merkezi Ltd.");
   });
 });

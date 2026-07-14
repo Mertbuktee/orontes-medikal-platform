@@ -216,20 +216,7 @@ export default async function Footer() {
           </div>
 
           <div className="mt-12 flex flex-col gap-5 border-t border-white/10 pt-6 text-sm text-slate-400 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-2">
-              <p>© {currentYear} {settings.footer.copyrightText}</p>
-              <p>
-                Powered by{" "}
-                <Link
-                  href="https://www.linkedin.com/in/mertbukte/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex min-h-10 items-center font-semibold text-orange-300 transition hover:text-orange-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071526]"
-                >
-                  Mert BÜKTE
-                </Link>
-              </p>
-            </div>
+            <p>© {currentYear} {settings.footer.copyrightText}</p>
             <nav aria-label="Yasal bağlantılar">
               <ul className="flex flex-wrap gap-x-5 gap-y-2">
                 {visiblePolicyLinks.map((link) => (

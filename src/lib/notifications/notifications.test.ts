@@ -61,6 +61,8 @@ describe("notification and mail foundation", () => {
         body: "Body",
         ctaHref: "javascript:alert(1)",
       },
+      companyName: "Test Company",
+      supportEmail: "support@example.com",
     });
 
     expect(rendered.html).not.toContain("javascript:");

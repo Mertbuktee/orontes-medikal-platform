@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "codex/**"
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: orontes_test
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: orontes_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U orontes_test -d orontes_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      APP_ENV: development
+      APP_ORIGIN: http://localhost:3000
+      TRUST_PROXY: "false"
+      DATABASE_URL: postgresql://orontes_test:test_password@localhost:5432/orontes_test?schema=public
+      ADMIN_DEV_BYPASS: "false"
+      MAIL_PROVIDER: development
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.13.1"
+          cache: npm
+      - run: npm ci
+      - run: npm run db:generate
+      - run: npm run db:validate
+      - run: npm run test
+      - run: npm run lint
+      - run: npm run build
+      - run: docker build --target runner -t orontes-medikal-platform:ci .

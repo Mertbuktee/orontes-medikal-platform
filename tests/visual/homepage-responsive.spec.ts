@@ -421,7 +421,7 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
   });
 
   await page.goto("/admin/security", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "Guvenlik Merkezi", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Güvenlik Merkezi", exact: true })).toBeVisible();
   const securityDesktopPath = path.join(adminDir, "admin-security-1440x900.png");
   await page.screenshot({ fullPage: true, path: securityDesktopPath });
   results.push({
@@ -454,7 +454,7 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
   });
 
   await page.goto("/admin/settings/email", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "E-posta Ayarlari", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "E-posta Ayarları", exact: true })).toBeVisible();
   const emailSettingsDesktopPath = path.join(adminDir, "admin-email-settings-1440x900.png");
   await page.screenshot({ fullPage: true, path: emailSettingsDesktopPath });
   results.push({
@@ -1001,7 +1001,7 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
   });
 
   await page.goto("/admin/security", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "Guvenlik Merkezi", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Güvenlik Merkezi", exact: true })).toBeVisible();
   const securityMobilePath = path.join(adminDir, "admin-security-375x667.png");
   await page.screenshot({ fullPage: true, path: securityMobilePath });
   results.push({
@@ -1023,7 +1023,7 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
   });
 
   await page.goto("/admin/settings/email", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "E-posta Ayarlari", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "E-posta Ayarları", exact: true })).toBeVisible();
   const emailSettingsMobilePath = path.join(adminDir, "admin-email-settings-375x667.png");
   await page.screenshot({ fullPage: true, path: emailSettingsMobilePath });
   results.push({

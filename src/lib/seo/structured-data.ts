@@ -1,4 +1,4 @@
-import { absoluteUrl, siteConfig } from "@/config/site";
+import { absoluteUrl } from "@/config/site";
 import {
   defaultSiteSettings,
   type SiteSettings,
@@ -70,7 +70,10 @@ export function createArticleJsonLd(input: {
   datePublished?: Date | null;
   dateModified: Date;
   authorName?: string | null;
+  settings?: SiteSettings;
 }) {
+  const settings = input.settings ?? defaultSiteSettings;
+
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -87,7 +90,7 @@ export function createArticleJsonLd(input: {
       : undefined,
     publisher: {
       "@type": "Organization",
-      name: siteConfig.legalName,
+      name: settings.general.legalCompanyName || settings.general.companyName,
       url: absoluteUrl("/"),
     },
     mainEntityOfPage: absoluteUrl(input.path),

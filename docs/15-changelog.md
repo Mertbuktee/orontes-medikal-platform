@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Cleaned stale visual QA Turkish text expectations and tightened Site Settings source-of-truth behavior for footer social links, Article JSON-LD publisher identity and notification email branding.
+- Added production-hardening foundations: standalone Docker build, production Compose/Nginx references, runtime environment validation, health/readiness endpoints, backup/restore-check scripts, smoke tests, CI workflow and go-live checklist.
 - Added production admin operations dashboard with real PostgreSQL summaries for service requests, content health, media health, site readiness, security activity, recent activity feed, role-aware widgets and lightweight accessible charts.
 - Added production user, fixed-role and permission management with user lifecycle screens, setup-link onboarding, role matrix, session revocation, forced password reset, privilege-escalation policy and last SUPER_ADMIN protection.
 - Added admin account-security foundation with Remember Me session policy, password change, active-session management, password-reset tokens, development email sink, MFA encryption/recovery-code foundation and account-security visual QA.

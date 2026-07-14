@@ -433,6 +433,39 @@ Scheduled blog publishing currently has a safe foundation but no always-on backg
 Before go-live, verify `/admin/settings` values for company identity, phone, e-mail, WhatsApp message, address, maps, logo, favicon, default OG image, social links, legal visibility and canonical origin. `APP_ORIGIN` remains the deployment guard; `site.seo.canonicalOrigin` may override public URL generation only when intentionally configured.
 
 Maintenance mode can be enabled from admin settings for public pages. Admin routes remain available so an authorized user can disable it. Analytics/search IDs must not be wired to third-party scripts unless cookie-consent gating for the related category is active.
+
+## Production Hardening Reference
+
+Production deployment references now live in:
+
+- `Dockerfile` for multi-stage web and worker images.
+- `docker-compose.production.yml` for a single-server reference topology.
+- `deploy/nginx/orontes.conf` for reverse proxy and TLS termination reference.
+- `docs/16-production-checklist.md` for the final go-live gate.
+
+Required non-destructive checks:
+
+```bash
+npm run db:deploy
+npm run backup:database
+npm run backup:verify -- <backup.dump>
+npm run smoke
+```
+
+Health endpoints:
+
+- `/api/health/live` confirms the process responds and does not require the database.
+- `/api/health/ready` checks database, private storage root and runtime environment readiness.
+
+Go-live blockers that remain provider/environment specific:
+
+- Real DNS and TLS certificates.
+- Production PostgreSQL credentials and network policy.
+- Off-host backup storage and restore verification schedule.
+- S3-compatible object storage or persistent private storage volume.
+- SMTP provider credentials and a scheduled mail worker.
+- Redis/distributed rate limiting if running more than one web instance.
+- External log/metric/error monitoring and alert routing.
 # Admin Account Security Deployment
 
 ## User Management Deployment Notes

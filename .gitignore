@@ -23,6 +23,7 @@
 # production
 /build
 /storage/private/
+/backups/
 
 # misc
 .DS_Store

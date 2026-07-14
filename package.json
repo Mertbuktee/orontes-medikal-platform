@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node .next/standalone/server.js",
     "lint": "eslint",
     "test": "vitest run",
     "qa:visual": "node scripts/run-visual-qa.mjs",
@@ -19,7 +19,10 @@
     "admin:list-users": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/admin-list-users.ts",
     "admin:rotate-password": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/admin-rotate-password.ts",
     "service-requests:import": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/service-requests-import.ts",
-    "mail:process": "tsx scripts/mail-process.ts"
+    "mail:process": "tsx scripts/mail-process.ts",
+    "backup:database": "node scripts/db-backup.mjs",
+    "backup:verify": "node scripts/db-restore-check.mjs",
+    "smoke": "node scripts/smoke-test.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
