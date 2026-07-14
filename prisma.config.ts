@@ -1,3 +1,5 @@
+import "./scripts/load-local-env";
+
 import { defineConfig } from "prisma/config";
 
 export default defineConfig({

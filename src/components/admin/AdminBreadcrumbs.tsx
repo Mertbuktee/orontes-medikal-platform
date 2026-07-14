@@ -4,18 +4,18 @@ import { ChevronRight } from "lucide-react";
 const segmentLabels: Record<string, string> = {
   dashboard: "Dashboard",
   "service-requests": "Servis Talepleri",
-  devices: "Cihaz Gruplari",
+  devices: "Cihaz Grupları",
   services: "Hizmetler",
   blog: "Blog",
   media: "Medya",
-  homepage: "Ana Sayfa Yonetimi",
+  homepage: "Ana Sayfa Yönetimi",
   seo: "SEO",
-  settings: "Site Ayarlari",
-  users: "Kullanicilar",
+  settings: "Site Ayarları",
+  users: "Kullanıcılar",
   roles: "Roller ve Yetkiler",
   audit: "Audit Log",
   "audit-log": "Audit Log",
-  security: "Guvenlik Merkezi",
+  security: "Güvenlik Merkezi",
 };
 
 type AdminBreadcrumbsProps = {

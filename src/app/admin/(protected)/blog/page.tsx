@@ -17,22 +17,32 @@ type AdminBlogPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function AdminBlogPage({ searchParams }: AdminBlogPageProps) {
+export default async function AdminBlogPage({
+  searchParams,
+}: AdminBlogPageProps) {
   const session = await requirePermission("blog.view");
   const params = await searchParams;
   const filters = {
     query: getParam(params.query),
-    status: getParam(params.status) as "DRAFT" | "PUBLISHED" | "ARCHIVED" | "all" | undefined,
+    status: getParam(params.status) as
+      | "DRAFT"
+      | "PUBLISHED"
+      | "ARCHIVED"
+      | "all"
+      | undefined,
     categoryId: getParam(params.categoryId),
     page: Number(getParam(params.page) ?? 1),
     pageSize: Number(getParam(params.pageSize) ?? 20),
-    sort: getParam(params.sort) as "newest" | "oldest" | "updated" | "published" | undefined,
+    sort: getParam(params.sort) as
+      | "newest"
+      | "oldest"
+      | "updated"
+      | "published"
+      | undefined,
   };
   const repository = new PrismaBlogRepository(prisma);
-  const [result, categories] = await Promise.all([
-    repository.listAdminPosts(filters),
-    repository.listAdminCategories(),
-  ]);
+  const result = await repository.listAdminPosts(filters);
+  const categories = await repository.listAdminCategories();
   const canCreate = hasPermission(session.role, "blog.create");
   const canUpdate = hasPermission(session.role, "blog.update");
   const canPublish = hasPermission(session.role, "blog.publish");
@@ -125,7 +135,10 @@ export default async function AdminBlogPage({ searchParams }: AdminBlogPageProps
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap gap-2 text-xs font-semibold">
-                  <StatusBadge status={post.status} scheduledFor={post.scheduledFor} />
+                  <StatusBadge
+                    status={post.status}
+                    scheduledFor={post.scheduledFor}
+                  />
                   {post.isFeatured ? (
                     <span className="rounded-full bg-orange-50 px-2.5 py-1 text-orange-700">
                       Öne çıkan
@@ -148,7 +161,8 @@ export default async function AdminBlogPage({ searchParams }: AdminBlogPageProps
                 </p>
                 <p className="mt-3 text-xs text-slate-500">
                   Yazar: {post.author?.name ?? "-"} · Güncelleme:{" "}
-                  {post.updatedAt.toLocaleDateString("tr-TR")}
+                  {post.updatedAt.toLocaleDateString("tr-TR")} · Okunma:{" "}
+                  {post.viewCount}
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2 lg:justify-end">

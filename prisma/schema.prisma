@@ -492,6 +492,7 @@ model BlogPost {
   seoTitle         String        @db.VarChar(180)
   seoDescription   String        @db.VarChar(320)
   isFeatured       Boolean       @default(false)
+  viewCount        Int           @default(0)
   publishedAt      DateTime?
   scheduledFor     DateTime?
   createdById      String?
@@ -512,6 +513,7 @@ model BlogPost {
   @@index([createdById])
   @@index([updatedById])
   @@index([isFeatured, status, publishedAt])
+  @@index([viewCount])
   @@index([archivedAt])
 }
 

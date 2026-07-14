@@ -32,8 +32,8 @@ export default async function AdminSecurityPage({
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="Guvenlik Merkezi"
-        description="Kimlik dogrulama, oturum, hesap guvenligi ve kritik audit sinyallerini tek ekrandan izleyin."
+        title="Güvenlik Merkezi"
+        description="Kimlik doğrulama, oturum, hesap güvenliği ve kritik audit sinyallerini tek ekrandan izleyin."
         eyebrow="Security Center"
       />
 
@@ -55,16 +55,16 @@ export default async function AdminSecurityPage({
       </form>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Metric label="Basarili giris" value={summary.authentication.successfulLogins} />
-        <Metric label="Basarisiz giris" value={summary.authentication.failedLogins} tone={summary.authentication.failedLogins ? "warning" : "default"} />
+        <Metric label="Başarılı giriş" value={summary.authentication.successfulLogins} />
+        <Metric label="Başarısız giriş" value={summary.authentication.failedLogins} tone={summary.authentication.failedLogins ? "warning" : "default"} />
         <Metric label="Kilitlenen hesap" value={summary.authentication.accountLocks} tone={summary.authentication.accountLocks ? "warning" : "default"} />
         <Metric label="Aktif oturum" value={summary.sessions.active} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-        <Panel title="Hesap Guvenligi" href="/admin/users">
+        <Panel title="Hesap Güvenliği" href="/admin/users">
           <div className="grid gap-3 sm:grid-cols-2">
-            <SmallStat label="Toplam kullanici" value={summary.accounts.total} />
+            <SmallStat label="Toplam kullanıcı" value={summary.accounts.total} />
             <SmallStat label="Aktif" value={summary.accounts.active} />
             <SmallStat label="Pasif" value={summary.accounts.inactive} />
             <SmallStat label="Kilitli" value={summary.accounts.locked} />
@@ -81,7 +81,7 @@ export default async function AdminSecurityPage({
           </div>
         </Panel>
 
-        <Panel title="Konfigurasyon Hazirligi" href="/admin/settings">
+        <Panel title="Konfigürasyon Hazırlığı" href="/admin/settings">
           <div className="space-y-3">
             {summary.configuration.map((item) => (
               <div key={item.key} className="rounded-2xl border border-slate-200 p-4">

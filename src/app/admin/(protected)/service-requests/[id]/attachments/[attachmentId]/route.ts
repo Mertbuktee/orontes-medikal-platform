@@ -46,18 +46,26 @@ export async function GET(request: NextRequest, context: AttachmentRouteContext)
       context: getAdminRequestContext(request.headers),
     });
 
+    const inlinePreview = shouldPreviewInline(request, attachment.mimeType);
+
     return new NextResponse(buffer, {
       headers: {
         "Content-Type": attachment.mimeType,
         "Content-Length": String(buffer.length),
-        "Content-Disposition": `attachment; filename="${createDownloadName(attachment)}"`,
+        "Content-Disposition": `${inlinePreview ? "inline" : "attachment"}; filename="${createDownloadName(attachment)}"`,
         "Cache-Control": "private, no-store",
+        "Content-Security-Policy": "default-src 'none'; img-src 'self' data:; object-src 'none'",
         "X-Content-Type-Options": "nosniff",
       },
     });
   } catch {
     return notFoundResponse();
   }
+}
+
+function shouldPreviewInline(request: NextRequest, mimeType: string) {
+  const preview = request.nextUrl.searchParams.get("preview") === "1";
+  return preview && ["image/jpeg", "image/png", "image/webp"].includes(mimeType);
 }
 
 function notFoundResponse() {

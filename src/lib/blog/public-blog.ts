@@ -34,6 +34,15 @@ export async function getPublicBlogPostBySlug(slug: string) {
   return repository.getPublicPostBySlug(slug);
 }
 
+export async function incrementPublicBlogPostView(slug: string) {
+  const [{ prisma }, { PrismaBlogRepository }] = await Promise.all([
+    import("@/lib/database/prisma"),
+    import("@/lib/database/repositories/blog"),
+  ]);
+  const repository = new PrismaBlogRepository(prisma);
+  await repository.incrementPublishedPostView(slug);
+}
+
 export const getPublicBlogCategories = unstable_cache(
   async () => {
     const [{ prisma }, { PrismaBlogRepository }] = await Promise.all([

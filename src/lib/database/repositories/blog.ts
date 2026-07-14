@@ -68,6 +68,7 @@ const blogPostSelect = {
   seoTitle: true,
   seoDescription: true,
   isFeatured: true,
+  viewCount: true,
   publishedAt: true,
   scheduledFor: true,
   createdById: true,
@@ -123,6 +124,15 @@ export class PrismaBlogRepository {
     });
 
     return post ? mapPublicBlogPost(post) : null;
+  }
+
+  async incrementPublishedPostView(slug: string) {
+    const now = new Date();
+
+    await this.client.blogPost.updateMany({
+      where: publicPostWhere({ slug, now }),
+      data: { viewCount: { increment: 1 } },
+    });
   }
 
   async listPublicPublishedPosts(input: {
@@ -644,6 +654,7 @@ function mapPublicBlogPost(post: Prisma.BlogPostGetPayload<{ select: typeof blog
     authorName: post.author?.name ?? null,
     seoTitle: post.seoTitle,
     seoDescription: post.seoDescription,
+    viewCount: post.viewCount,
     publishedAt: post.publishedAt,
     updatedAt: post.updatedAt,
     isFeatured: post.isFeatured,

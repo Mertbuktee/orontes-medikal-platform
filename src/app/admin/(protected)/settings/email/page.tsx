@@ -20,30 +20,30 @@ export default async function AdminEmailSettingsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="E-posta Ayarlari"
-        description="SMTP/provider durumu, development capture modu, test e-postasi ve queue sagligini izleyin."
+        title="E-posta Ayarları"
+        description="SMTP/provider durumu, development capture modu, test e-postası ve queue sağlığını izleyin."
         eyebrow="Bildirimler"
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Metric label="Provider" value={config.provider} />
-        <Metric label="Durum" value={health.ok ? "Hazir" : "Uyari"} tone={health.ok ? "default" : "warning"} />
-        <Metric label="Delivery disabled" value={config.disableDelivery ? "Evet" : "Hayir"} />
-        <Metric label="From" value={config.fromAddress ? "Tanimli" : "Eksik"} tone={config.fromAddress ? "default" : "warning"} />
+        <Metric label="Durum" value={health.ok ? "Hazır" : "Uyarı"} tone={health.ok ? "default" : "warning"} />
+        <Metric label="Delivery disabled" value={config.disableDelivery ? "Evet" : "Hayır"} />
+        <Metric label="From" value={config.fromAddress ? "Tanımlı" : "Eksik"} tone={config.fromAddress ? "default" : "warning"} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-950">Provider Durumu</h2>
           <dl className="mt-5 space-y-3 text-sm">
-            <Row label="SMTP host" value={config.smtp.host ? "Tanimli" : "Eksik"} />
+            <Row label="SMTP host" value={config.smtp.host ? "Tanımlı" : "Eksik"} />
             <Row label="SMTP port" value={config.smtp.port ? String(config.smtp.port) : "Eksik"} />
             <Row label="SMTP secure" value={config.smtp.secure ? "true" : "false"} />
-            <Row label="Pool" value={config.smtp.pool ? "Aktif" : "Kapali"} />
+            <Row label="Pool" value={config.smtp.pool ? "Aktif" : "Kapalı"} />
             <Row label="Health error" value={health.errorCode ?? "-"} />
           </dl>
           <p className="mt-5 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-            SMTP parolasi ve provider secretlari burada gosterilmez. Production sir degerleri deployment secret manager tarafinda tutulmalidir.
+            SMTP parolası ve provider secretları burada gösterilmez. Production sır değerleri deployment secret manager tarafında tutulmalıdır.
           </p>
         </div>
 

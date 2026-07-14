@@ -29,7 +29,7 @@ export default async function AdminAuditDetailPage({
     <div className="space-y-6">
       <AdminPageHeader
         title={event.presentation.label}
-        description="Bu kayit salt okunurdur. Ham metadata, token, parola, cookie, IP ve dosya yolu gibi hassas alanlar gosterilmez."
+        description="Bu kayıt salt okunurdur. Ham metadata, token, parola, cookie, IP ve dosya yolu gibi hassas alanlar gösterilmez."
         eyebrow="Audit Detay"
       />
 

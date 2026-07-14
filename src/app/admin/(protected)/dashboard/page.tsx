@@ -54,43 +54,40 @@ export default async function AdminDashboardPage({
   const canViewSettings = hasPermission(session.role, "settings.view");
   const canViewSecurity = hasPermission(session.role, "security.view");
 
-  const [
-    serviceSummary,
-    timeline,
-    distribution,
-    workload,
-    recentRequests,
-    assignedWork,
-    contentHealth,
-    mediaHealth,
-    siteReadiness,
-    securitySummary,
-    recentActivity,
-  ] = await Promise.all([
-    canViewRequests
-      ? repository.getServiceRequestSummary(range)
-      : Promise.resolve(null),
-    canViewRequests
-      ? repository.getServiceRequestTimeline(range)
-      : Promise.resolve(null),
-    canViewRequests
-      ? repository.getServiceRequestStatusDistribution()
-      : Promise.resolve(null),
-    canViewRequests
-      ? repository.getOpenWorkload({ userId: session.userId, role: session.role })
-      : Promise.resolve(null),
-    canViewRequests ? repository.getRecentServiceRequests(8) : Promise.resolve(null),
-    canViewRequests ? repository.getAssignedWork(session.userId) : Promise.resolve(null),
-    canViewContentHealth ? repository.getContentHealth() : Promise.resolve(null),
-    canViewMedia ? repository.getMediaHealth() : Promise.resolve(null),
-    canViewSettings
-      ? new SiteSettingsRepository(prisma)
-          .getSettings()
-          .then((settings) => repository.getSiteReadiness(settings))
-      : Promise.resolve(null),
-    canViewSecurity ? repository.getSecuritySummary(range) : Promise.resolve(null),
-    repository.getRecentActivity({ permissions, limit: 15 }),
-  ]);
+  const serviceSummary = canViewRequests
+    ? await repository.getServiceRequestSummary(range)
+    : null;
+  const timeline = canViewRequests
+    ? await repository.getServiceRequestTimeline(range)
+    : null;
+  const distribution = canViewRequests
+    ? await repository.getServiceRequestStatusDistribution()
+    : null;
+  const workload = canViewRequests
+    ? await repository.getOpenWorkload({ userId: session.userId, role: session.role })
+    : null;
+  const recentRequests = canViewRequests
+    ? await repository.getRecentServiceRequests(8)
+    : null;
+  const assignedWork = canViewRequests
+    ? await repository.getAssignedWork(session.userId)
+    : null;
+  const contentHealth = canViewContentHealth
+    ? await repository.getContentHealth()
+    : null;
+  const mediaHealth = canViewMedia ? await repository.getMediaHealth() : null;
+  const siteReadiness = canViewSettings
+    ? await new SiteSettingsRepository(prisma)
+        .getSettings()
+        .then((settings) => repository.getSiteReadiness(settings))
+    : null;
+  const securitySummary = canViewSecurity
+    ? await repository.getSecuritySummary(range)
+    : null;
+  const recentActivity = await repository.getRecentActivity({
+    permissions,
+    limit: 15,
+  });
 
   return (
     <div className="space-y-6">
@@ -121,6 +118,37 @@ export default async function AdminDashboardPage({
             />
           ))}
         </section>
+      ) : null}
+
+      {recentRequests ? (
+        <Panel
+          title="Son Servis Talepleri"
+          description="Telefon, e-posta, mesaj ve dosya adı gösterilmez."
+          icon={ClipboardList}
+          action={{ href: "/admin/service-requests", label: "Tümünü Gör" }}
+        >
+          <div className="grid gap-3 lg:grid-cols-2">
+            {recentRequests.length ? (
+              recentRequests.map((item) => (
+                <RequestListItem
+                  key={item.id}
+                  id={item.id}
+                  title={item.company || `Talep ${shortId(item.id)}`}
+                  status={item.status}
+                  date={item.createdAt}
+                  meta={[
+                    item.assignedUser?.name
+                      ? `Atanan: ${item.assignedUser.name}`
+                      : "Atanmamış",
+                    item.attachments.length ? "Dosyalı" : "Dosyasız",
+                  ].join(" · ")}
+                />
+              ))
+            ) : (
+              <EmptyState text="Henüz servis talebi bulunmuyor." />
+            )}
+          </div>
+        </Panel>
       ) : null}
 
       {canViewRequests && timeline && distribution && workload ? (
@@ -172,7 +200,7 @@ export default async function AdminDashboardPage({
         </section>
       ) : null}
 
-      <section className="grid gap-6 xl:grid-cols-[1fr_0.85fr]">
+      <section className="hidden">
         {recentRequests ? (
           <Panel
             title="Son Servis Talepleri"

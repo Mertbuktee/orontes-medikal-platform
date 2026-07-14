@@ -1,3 +1,5 @@
+import "./load-local-env.ts";
+
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import argon2 from "argon2";

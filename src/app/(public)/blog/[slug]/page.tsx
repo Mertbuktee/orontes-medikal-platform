@@ -8,7 +8,11 @@ import { BlogArticleRenderer } from "@/components/blog/BlogArticleRenderer";
 import { Breadcrumbs } from "@/components/common/Breadcrumbs";
 import { absoluteUrl } from "@/config/site";
 import { formatBlogDate, parseBlogDate, toBlogIsoString } from "@/lib/blog/blog-date";
-import { getPublicBlogPostBySlug, getPublicBlogPosts } from "@/lib/blog/public-blog";
+import {
+  getPublicBlogPostBySlug,
+  getPublicBlogPosts,
+  incrementPublicBlogPostView,
+} from "@/lib/blog/public-blog";
 import { getMediaVariantUrl } from "@/lib/media/media-url";
 import { createPageMetadata } from "@/lib/seo/metadata";
 import {
@@ -60,6 +64,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { slug } = await params;
   const post = await getPublicBlogPostBySlug(slug);
   if (!post) notFound();
+  await incrementPublicBlogPostView(post.slug);
   const dateModified = parseBlogDate(post.updatedAt);
   if (!dateModified) notFound();
 

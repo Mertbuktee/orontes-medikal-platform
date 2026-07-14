@@ -8,12 +8,12 @@ type AdminSidebarProps = {
 
 export function AdminSidebar({ currentPath }: AdminSidebarProps) {
   return (
-    <aside className="hidden w-72 shrink-0 border-r border-white/10 bg-[#061423] text-white lg:flex lg:flex-col">
+    <aside className="sticky top-0 hidden h-screen w-72 shrink-0 border-r border-white/10 bg-[#061423] text-white lg:flex lg:flex-col">
       <div className="border-b border-white/10 px-5 py-5">
         <Link
           href="/admin/dashboard"
           className="flex min-h-11 items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#061423]"
-          aria-label="Orontes yonetim paneli ana sayfasi"
+          aria-label="Orontes yönetim paneli ana sayfası"
         >
           <span className="flex size-11 items-center justify-center rounded-xl bg-orange-500 text-sm font-bold text-white shadow-lg shadow-orange-500/25">
             O
@@ -23,14 +23,14 @@ export function AdminSidebar({ currentPath }: AdminSidebarProps) {
               Orontes
             </span>
             <span className="block text-base font-semibold text-white">
-              Yonetim Paneli
+              Yönetim Paneli
             </span>
           </span>
         </Link>
       </div>
 
       <nav
-        aria-label="Admin yonetim menusu"
+        aria-label="Admin yönetim menüsü"
         className="flex-1 overflow-y-auto px-4 py-5"
       >
         <AdminNavList currentPath={currentPath} />
@@ -42,7 +42,7 @@ export function AdminSidebar({ currentPath }: AdminSidebarProps) {
             Oturum
           </p>
           <p className="mt-2 text-sm text-slate-300">
-            Admin erisimi veritabanli oturum ve rol kontrolleriyle korunur.
+            Admin erişimi veritabanlı oturum ve rol kontrolleriyle korunur.
           </p>
         </div>
       </div>

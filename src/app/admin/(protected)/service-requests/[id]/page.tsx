@@ -15,6 +15,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { ServiceRequestAttachmentViewer } from "@/components/admin/service-requests/ServiceRequestAttachmentViewer";
 import {
   formatFileSize,
   getAllowedNextStatuses,
@@ -67,6 +68,19 @@ export default async function ServiceRequestDetailPage({
   const allowedNextStatuses = getAllowedNextStatuses(request.status);
   const auditEvents = canViewAudit
     ? await auditRepository.listServiceRequestAuditEvents(request.id)
+    : [];
+  const imageAttachments = canViewAttachment
+    ? request.attachments
+        .filter((attachment) =>
+          ["image/jpeg", "image/png", "image/webp"].includes(attachment.mimeType)
+        )
+        .map((attachment) => ({
+          id: attachment.id,
+          mimeType: attachment.mimeType,
+          sizeLabel: formatFileSize(attachment.size),
+          previewUrl: `/admin/service-requests/${request.id}/attachments/${attachment.id}?preview=1`,
+          downloadUrl: `/admin/service-requests/${request.id}/attachments/${attachment.id}`,
+        }))
     : [];
 
   return (
@@ -332,6 +346,9 @@ export default async function ServiceRequestDetailPage({
 
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
             <h2 className="text-lg font-semibold text-slate-950">Ekler</h2>
+            {imageAttachments.length ? (
+              <ServiceRequestAttachmentViewer attachments={imageAttachments} />
+            ) : null}
             <div className="mt-4 space-y-3">
               {request.attachments.length ? (
                 request.attachments.map((attachment) => (
