@@ -1,7 +1,6 @@
 import { LogOut } from "lucide-react";
 
 import type { AdminSessionMode } from "@/lib/auth/admin-session";
-import { PanelSwitcher } from "@/components/technical/PanelSwitcher";
 import { TechnicalBreadcrumbs } from "@/components/technical/TechnicalBreadcrumbs";
 import { TechnicalMobileNav } from "@/components/technical/TechnicalMobileNav";
 
@@ -28,7 +27,6 @@ export function TechnicalTopbar({
         </div>
 
         <div className="flex items-center gap-3">
-          <PanelSwitcher active="technical" />
           <div className="hidden text-right sm:block">
             <p className="text-sm font-semibold text-slate-900">
               Teknik oturum

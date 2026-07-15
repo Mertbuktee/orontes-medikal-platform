@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 import { createE2EFixture, expectAdminRoute, loginAs } from './fixtures';
 
@@ -49,5 +49,11 @@ test.describe('admin RBAC route boundaries', () => {
     } finally {
       await fixture.cleanup();
     }
+  });
+
+  test('technical entry has its own login page', async ({ page }) => {
+    await page.goto('/technical', { waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL(/\/technical\/login/);
+    await expect(page.getByRole('heading', { name: /Teknik Servis Paneli/i })).toBeVisible();
   });
 });

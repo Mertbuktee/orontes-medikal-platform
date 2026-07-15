@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { AdminBreadcrumbs } from "@/components/admin/AdminBreadcrumbs";
 import { AdminMobileNav } from "@/components/admin/AdminMobileNav";
-import { PanelSwitcher } from "@/components/technical/PanelSwitcher";
 import type { AdminSessionMode } from "@/lib/auth/admin-session";
 
 type AdminTopbarProps = {
@@ -31,7 +30,6 @@ export function AdminTopbar({
         </div>
 
         <div className="flex items-center gap-3">
-          <PanelSwitcher active="admin" />
           <div className="hidden text-right sm:block">
             <p className="text-sm font-semibold text-slate-900">
               Admin oturumu
