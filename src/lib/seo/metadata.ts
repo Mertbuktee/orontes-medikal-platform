@@ -1,17 +1,19 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
-import { absoluteUrl, siteConfig } from "@/config/site";
+import { absoluteUrl } from '@/config/site';
 
 type PageMetadataInput = {
   title: string;
   description: string;
   path: string;
+  siteName?: string;
 };
 
 export function createPageMetadata({
   title,
   description,
   path,
+  siteName,
 }: PageMetadataInput): Metadata {
   return {
     title,
@@ -23,9 +25,9 @@ export function createPageMetadata({
       title,
       description,
       url: absoluteUrl(path),
-      siteName: siteConfig.name,
-      type: "website",
-      locale: "tr_TR",
+      siteName,
+      type: 'website',
+      locale: 'tr_TR',
     },
   };
 }

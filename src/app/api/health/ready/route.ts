@@ -3,7 +3,9 @@ import { access, stat, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { prisma } from '@/lib/database/prisma';
+import { SiteSettingsRepository } from '@/lib/database/repositories/site-settings';
 import { validateRuntimeEnvironment } from '@/lib/env/production';
+import { validateProductionSiteSettings } from '@/lib/site-settings/site-settings-validation';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,14 +13,18 @@ type ComponentState = 'ok' | 'degraded' | 'failed';
 
 export async function GET() {
   const started = Date.now();
-  const [database, storage] = await Promise.all([
+  const [database, storage, siteSettings] = await Promise.all([
     checkDatabase(),
     checkStorage(),
+    checkSiteSettings(),
   ]);
   const environment = validateRuntimeEnvironment();
-  const components = { database, storage };
+  const components = { database, storage, siteSettings };
   const ok =
-    database.status === 'ok' && storage.status === 'ok' && environment.ok;
+    database.status === 'ok' &&
+    storage.status === 'ok' &&
+    siteSettings.status !== 'failed' &&
+    environment.ok;
 
   return Response.json(
     {
@@ -71,6 +77,46 @@ async function checkStorage(): Promise<{ status: ComponentState }> {
     return { status: 'failed' };
   } finally {
     await unlink(probePath).catch(() => undefined);
+  }
+}
+
+async function checkSiteSettings(): Promise<{
+  status: ComponentState;
+  errors: string[];
+  warnings: string[];
+}> {
+  try {
+    const repository = new SiteSettingsRepository(prisma);
+    const missingGroups = await withTimeout(
+      repository.getMissingGroups(),
+      2500,
+    );
+    const settings = await withTimeout(repository.getSettings(), 2500);
+    const validation = validateProductionSiteSettings(settings);
+    const errors = [
+      ...missingGroups.map((key) => `Missing Site Settings group: ${key}`),
+      ...validation.errors,
+    ];
+
+    if (errors.length) {
+      return { status: 'failed', errors, warnings: validation.warnings };
+    }
+
+    return {
+      status: validation.warnings.length ? 'degraded' : 'ok',
+      errors: [],
+      warnings: validation.warnings,
+    };
+  } catch (error) {
+    return {
+      status: 'failed',
+      errors: [
+        error instanceof Error
+          ? error.message
+          : 'Site Settings could not be verified.',
+      ],
+      warnings: [],
+    };
   }
 }
 

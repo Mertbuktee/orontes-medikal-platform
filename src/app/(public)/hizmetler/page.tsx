@@ -1,22 +1,22 @@
-import type { Metadata } from "next";
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
-import { createElement } from "react";
+import type { Metadata } from 'next';
+import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { createElement } from 'react';
 
-import { Breadcrumbs } from "@/components/common/Breadcrumbs";
-import { publicRoutes } from "@/config/site";
-import { getPublicActiveServices } from "@/lib/services/public-services";
-import { getServiceIcon } from "@/lib/services/service-registry";
-import { createPageMetadata } from "@/lib/seo/metadata";
+import { Breadcrumbs } from '@/components/common/Breadcrumbs';
+import { publicRoutes } from '@/config/site';
+import { getPublicActiveServices } from '@/lib/services/public-services';
+import { getServiceIcon } from '@/lib/services/service-registry';
+import { createPageMetadata } from '@/lib/seo/metadata';
 
-const route = publicRoutes.find((item) => item.path === "/hizmetler");
+const route = publicRoutes.find((item) => item.path === '/hizmetler');
 
 export const metadata: Metadata = createPageMetadata({
-  title: route?.title ?? "Medikal Cihaz Teknik Servis Hizmetleri | Orontes Teknoloji",
+  title: route?.title ?? 'Medikal Cihaz Teknik Servis Hizmetleri',
   description:
     route?.description ??
-    "Medikal cihaz bakım, onarım ve teknik servis hizmetleri.",
-  path: "/hizmetler",
+    'Medikal cihaz bakım, onarım ve teknik servis hizmetleri.',
+  path: '/hizmetler',
 });
 
 export default async function ServicesPage() {
@@ -29,12 +29,12 @@ export default async function ServicesPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Breadcrumbs
             items={[
-              { name: "Ana Sayfa", path: "/" },
-              { name: "Hizmetler", path: "/hizmetler" },
+              { name: 'Ana Sayfa', path: '/' },
+              { name: 'Hizmetler', path: '/hizmetler' },
             ]}
           />
           <div className="max-w-4xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-600">
+            <p className="text-sm font-semibold tracking-[0.18em] text-orange-600 uppercase">
               Orontes Teknik Servis
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
@@ -54,7 +54,14 @@ export default async function ServicesPage() {
           {serviceItems.length ? (
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {serviceItems.map(
-                ({ id, title, slug, shortDescription, fullDescription, iconKey }) => (
+                ({
+                  id,
+                  title,
+                  slug,
+                  shortDescription,
+                  fullDescription,
+                  iconKey,
+                }) => (
                   <article
                     id={slug}
                     key={id}
@@ -62,8 +69,8 @@ export default async function ServicesPage() {
                   >
                     <div className="flex size-12 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 group-hover:bg-orange-50 group-hover:text-orange-600">
                       {createElement(getServiceIcon(iconKey), {
-                        className: "size-6",
-                        "aria-hidden": true,
+                        className: 'size-6',
+                        'aria-hidden': true,
                       })}
                     </div>
                     <h2 className="mt-6 text-xl font-semibold text-slate-950">
@@ -75,16 +82,16 @@ export default async function ServicesPage() {
                     <p className="mt-4 text-sm leading-7 text-slate-700">
                       {fullDescription}
                     </p>
-                    {slug === "elektronik-kart-tamiri" ? (
+                    {slug === 'elektronik-kart-tamiri' ? (
                       <Link
                         href="/elektronik-kart-tamiri"
-                        className="mt-5 inline-flex min-h-10 items-center text-sm font-semibold text-sky-700 transition hover:text-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
+                        className="mt-5 inline-flex min-h-10 items-center text-sm font-semibold text-sky-700 transition hover:text-orange-600 focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:outline-none"
                       >
                         Elektronik kart tamiri detaylarını inceleyin
                       </Link>
                     ) : null}
                   </article>
-                )
+                ),
               )}
             </div>
           ) : (
@@ -93,7 +100,8 @@ export default async function ServicesPage() {
                 Yayında olan hizmet içeriği bulunmuyor.
               </h2>
               <p className="mt-2 text-sm text-slate-500">
-                Hizmet içerikleri yönetim panelinden aktif edildiğinde burada görüntülenecek.
+                Hizmet içerikleri yönetim panelinden aktif edildiğinde burada
+                görüntülenecek.
               </p>
             </div>
           )}
@@ -110,7 +118,7 @@ export default async function ServicesPage() {
             </div>
             <Link
               href="/servis-talebi"
-              className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 sm:mt-0 sm:w-auto"
+              className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white transition hover:bg-orange-600 focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:outline-none sm:mt-0 sm:w-auto"
             >
               Servis Talebi Oluştur
               <ArrowRight className="size-4" aria-hidden="true" />

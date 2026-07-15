@@ -1,30 +1,30 @@
-import type { Metadata } from "next";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { createElement } from "react";
+import type { Metadata } from 'next';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { createElement } from 'react';
 
-import { Breadcrumbs } from "@/components/common/Breadcrumbs";
-import { publicRoutes } from "@/config/site";
-import { getDeviceIcon } from "@/lib/devices/device-registry";
-import { getPublicActiveDevices } from "@/lib/devices/public-devices";
-import { createPageMetadata } from "@/lib/seo/metadata";
+import { Breadcrumbs } from '@/components/common/Breadcrumbs';
+import { publicRoutes } from '@/config/site';
+import { getDeviceIcon } from '@/lib/devices/device-registry';
+import { getPublicActiveDevices } from '@/lib/devices/public-devices';
+import { createPageMetadata } from '@/lib/seo/metadata';
 
-const route = publicRoutes.find((item) => item.path === "/cihazlar");
+const route = publicRoutes.find((item) => item.path === '/cihazlar');
 
 export const metadata: Metadata = createPageMetadata({
-  title: route?.title ?? "Medikal Cihaz Teknik Servisi | Orontes Teknoloji",
+  title: route?.title ?? 'Medikal Cihaz Teknik Servisi',
   description:
     route?.description ??
-    "Medikal cihaz grupları için teknik servis çözümleri.",
-  path: "/cihazlar",
+    'Medikal cihaz grupları için teknik servis çözümleri.',
+  path: '/cihazlar',
 });
 
 const trustItems = [
-  "Elektronik kart onarımı",
-  "Mekanik servis",
-  "Arıza analizi",
-  "Türkiye geneli cihaz kabulü",
+  'Elektronik kart onarımı',
+  'Mekanik servis',
+  'Arıza analizi',
+  'Türkiye geneli cihaz kabulü',
 ];
 
 export default async function DevicesPage() {
@@ -37,13 +37,13 @@ export default async function DevicesPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Breadcrumbs
             items={[
-              { name: "Ana Sayfa", path: "/" },
-              { name: "Cihazlar", path: "/cihazlar" },
+              { name: 'Ana Sayfa', path: '/' },
+              { name: 'Cihazlar', path: '/cihazlar' },
             ]}
           />
 
           <div className="mx-auto max-w-4xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-600">
+            <p className="text-sm font-semibold tracking-[0.18em] text-orange-600 uppercase">
               Cihaz kapsamı
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
@@ -107,8 +107,8 @@ export default async function DevicesPage() {
                       ) : null}
                       <div className="flex size-12 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 group-hover:bg-orange-50 group-hover:text-orange-600">
                         {createElement(getDeviceIcon(iconKey), {
-                          className: "size-6",
-                          "aria-hidden": true,
+                          className: 'size-6',
+                          'aria-hidden': true,
                         })}
                       </div>
                       <h2 className="mt-6 text-base font-semibold text-slate-950">
@@ -129,7 +129,7 @@ export default async function DevicesPage() {
                       </div>
                     </article>
                   );
-                }
+                },
               )}
             </div>
           ) : (
@@ -155,14 +155,14 @@ export default async function DevicesPage() {
               </p>
               <Link
                 href="/hizmetler"
-                className="mt-3 inline-flex min-h-10 items-center text-sm font-semibold text-sky-700 transition hover:text-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
+                className="mt-3 inline-flex min-h-10 items-center text-sm font-semibold text-sky-700 transition hover:text-orange-600 focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:outline-none"
               >
                 Hizmet kapsamını inceleyin
               </Link>
             </div>
             <Link
               href="/servis-talebi"
-              className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 sm:mt-0 sm:w-auto"
+              className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 text-sm font-semibold text-white transition hover:bg-orange-600 focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:outline-none sm:mt-0 sm:w-auto"
             >
               Servis Talebi Oluştur
               <ArrowRight className="size-4" aria-hidden="true" />

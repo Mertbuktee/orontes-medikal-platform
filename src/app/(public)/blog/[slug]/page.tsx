@@ -1,25 +1,29 @@
-import type { Metadata } from "next";
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import Script from "next/script";
+import type { Metadata } from 'next';
+import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import Script from 'next/script';
 
-import { BlogArticleRenderer } from "@/components/blog/BlogArticleRenderer";
-import { Breadcrumbs } from "@/components/common/Breadcrumbs";
-import { absoluteUrl } from "@/config/site";
-import { formatBlogDate, parseBlogDate, toBlogIsoString } from "@/lib/blog/blog-date";
+import { BlogArticleRenderer } from '@/components/blog/BlogArticleRenderer';
+import { Breadcrumbs } from '@/components/common/Breadcrumbs';
+import { absoluteUrl } from '@/config/site';
+import {
+  formatBlogDate,
+  parseBlogDate,
+  toBlogIsoString,
+} from '@/lib/blog/blog-date';
 import {
   getPublicBlogPostBySlug,
   getPublicBlogPosts,
   incrementPublicBlogPostView,
-} from "@/lib/blog/public-blog";
-import { getMediaVariantUrl } from "@/lib/media/media-url";
-import { createPageMetadata } from "@/lib/seo/metadata";
+} from '@/lib/blog/public-blog';
+import { getMediaVariantUrl } from '@/lib/media/media-url';
+import { createPageMetadata } from '@/lib/seo/metadata';
 import {
   createArticleJsonLd,
   createBreadcrumbJsonLd,
-} from "@/lib/seo/structured-data";
-import { getPublicSiteSettings } from "@/lib/site-settings/public-site-settings";
+} from '@/lib/seo/structured-data';
+import { getPublicSiteSettings } from '@/lib/site-settings/public-site-settings';
 
 type BlogDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -33,8 +37,9 @@ export async function generateMetadata({
 
   if (!post) {
     return createPageMetadata({
-      title: "Blog yazısı bulunamadı | Orontes Teknoloji",
-      description: "Aradığınız blog yazısı yayında değil veya kaldırılmış olabilir.",
+      title: 'Blog yazısı bulunamadı',
+      description:
+        'Aradığınız blog yazısı yayında değil veya kaldırılmış olabilir.',
       path: `/blog/${slug}`,
     });
   }
@@ -49,10 +54,16 @@ export async function generateMetadata({
       title: post.seoTitle,
       description: post.seoDescription,
       url: absoluteUrl(`/blog/${post.slug}`),
-      type: "article",
-      locale: "tr_TR",
+      type: 'article',
+      locale: 'tr_TR',
       images: post.openGraphImageId
-        ? [{ url: absoluteUrl(getMediaVariantUrl(post.openGraphImageId, "LARGE")) }]
+        ? [
+            {
+              url: absoluteUrl(
+                getMediaVariantUrl(post.openGraphImageId, 'LARGE'),
+              ),
+            },
+          ]
         : undefined,
       publishedTime: toBlogIsoString(post.publishedAt),
       modifiedTime: toBlogIsoString(post.updatedAt),
@@ -77,8 +88,8 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     .filter((item) => item.id !== post.id)
     .slice(0, 3);
   const breadcrumbItems = [
-    { name: "Ana Sayfa", path: "/" },
-    { name: "Blog", path: "/blog" },
+    { name: 'Ana Sayfa', path: '/' },
+    { name: 'Blog', path: '/blog' },
     { name: post.title, path: `/blog/${post.slug}` },
   ];
   const articleJsonLd = createArticleJsonLd({
@@ -86,7 +97,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
     headline: post.title,
     description: post.excerpt,
     image: post.openGraphImageId
-      ? absoluteUrl(getMediaVariantUrl(post.openGraphImageId, "LARGE"))
+      ? absoluteUrl(getMediaVariantUrl(post.openGraphImageId, 'LARGE'))
       : null,
     datePublished: parseBlogDate(post.publishedAt),
     dateModified,
@@ -110,13 +121,15 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
       <article className="py-16 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <Breadcrumbs items={breadcrumbItems} />
-          <p className="mt-8 text-sm font-semibold uppercase tracking-[0.18em] text-orange-600">
-            {post.category?.name ?? "Teknik Not"}
+          <p className="mt-8 text-sm font-semibold tracking-[0.18em] text-orange-600 uppercase">
+            {post.category?.name ?? 'Teknik Not'}
           </p>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
             {post.title}
           </h1>
-          <p className="mt-5 text-lg leading-8 text-slate-600">{post.excerpt}</p>
+          <p className="mt-5 text-lg leading-8 text-slate-600">
+            {post.excerpt}
+          </p>
           <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-500">
             {formatBlogDate(post.publishedAt) ? (
               <time>{formatBlogDate(post.publishedAt)}</time>
@@ -170,13 +183,16 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   );
 }
 
-function estimateReadingMinutes(blocks: Array<{ type: string } & Record<string, unknown>>) {
+function estimateReadingMinutes(
+  blocks: Array<{ type: string } & Record<string, unknown>>,
+) {
   const text = blocks
     .map((block) => {
-      if ("text" in block && typeof block.text === "string") return block.text;
-      if ("items" in block && Array.isArray(block.items)) return block.items.join(" ");
-      return "";
+      if ('text' in block && typeof block.text === 'string') return block.text;
+      if ('items' in block && Array.isArray(block.items))
+        return block.items.join(' ');
+      return '';
     })
-    .join(" ");
+    .join(' ');
   return Math.max(1, Math.ceil(text.split(/\s+/).filter(Boolean).length / 180));
 }

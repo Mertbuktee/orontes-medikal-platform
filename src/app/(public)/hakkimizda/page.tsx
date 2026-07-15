@@ -1,18 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
-import { Breadcrumbs } from "@/components/common/Breadcrumbs";
-import { publicRoutes } from "@/config/site";
-import { createPageMetadata } from "@/lib/seo/metadata";
-import WhyUs from "@/sections/WhyUs/WhyUs";
+import { Breadcrumbs } from '@/components/common/Breadcrumbs';
+import { publicRoutes } from '@/config/site';
+import { createPageMetadata } from '@/lib/seo/metadata';
+import WhyUs from '@/sections/WhyUs/WhyUs';
 
-const route = publicRoutes.find((item) => item.path === "/hakkimizda");
+const route = publicRoutes.find((item) => item.path === '/hakkimizda');
 
 export const metadata: Metadata = createPageMetadata({
-  title: route?.title ?? "Hakkımızda | Orontes Teknoloji",
+  title: route?.title ?? 'Hakkımızda',
   description:
     route?.description ??
-    "Orontes Teknoloji medikal cihaz teknik servis yaklaşımı.",
-  path: "/hakkimizda",
+    'Orontes Teknoloji medikal cihaz teknik servis yaklaşımı.',
+  path: '/hakkimizda',
 });
 
 export default function AboutPage() {
@@ -22,11 +22,11 @@ export default function AboutPage() {
         <div className="mx-auto max-w-7xl">
           <Breadcrumbs
             items={[
-              { name: "Ana Sayfa", path: "/" },
-              { name: "Hakkımızda", path: "/hakkimizda" },
+              { name: 'Ana Sayfa', path: '/' },
+              { name: 'Hakkımızda', path: '/hakkimizda' },
             ]}
           />
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-600">
+          <p className="text-sm font-semibold tracking-[0.18em] text-orange-600 uppercase">
             Orontes yaklaşımı
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">

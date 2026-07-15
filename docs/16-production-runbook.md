@@ -58,6 +58,52 @@ Sınıflandırma:
 - Analytics, Search Console, logo, favicon, default OG image, phone, e-mail, WhatsApp, address, Instagram ve LinkedIn değerleri canlıya çıkmadan admin panelden doğrulanmalıdır.
 - Eksik Site Settings kayıt grupları dashboard/site-readiness denetiminde manuel kontrol maddesi olarak ele alınmalıdır; seed defaultları canlı doğrulamanın yerine geçmez.
 
+### TASK-039E Audit Notes
+
+Removed hardcoded production identity fallbacks:
+
+- `src/config/site.ts` no longer stores company name, legal name, phone, e-mail or address data.
+- Public route metadata bootstrap titles/descriptions no longer include a company identity suffix.
+- Metadata helpers no longer inject a hardcoded Open Graph `siteName`.
+- Organization, LocalBusiness and Article JSON-LD helpers require Site Settings identity input.
+
+Intentional fallbacks retained:
+
+- `defaultSiteSettings` remains the development fallback and bootstrap seed source.
+- `APP_ORIGIN` remains environment-controlled for canonical URL generation.
+- Static legal page body copy may still contain manual legal/company wording and must be reviewed before launch.
+- Admin product labels such as `Orontes Admin` are intentionally static interface labels.
+
+Production-required Site Settings:
+
+- `site.general.companyName`
+- `site.general.legalCompanyName`
+- `site.contact.phonePrimary`
+- `site.contact.emailPrimary`
+- `site.contact.emailSupport`
+- `site.whatsapp.whatsappNumber`
+- `site.address.country`
+- `site.address.city`
+- `site.address.district`
+- `site.address.addressLine`
+- `site.seo.defaultTitle`
+- `site.seo.defaultDescription`
+- `site.footer.copyrightText`
+- `site.footer.footerDescription`
+
+Readiness warnings before launch:
+
+- `site.branding.logoMediaId`
+- `site.branding.faviconMediaId`
+- `site.branding.defaultOgImageMediaId`
+- empty Instagram or LinkedIn settings, because the footer intentionally omits missing social links.
+
+Remaining manual company inputs:
+
+- Legal policy page prose.
+- Seed/default development data.
+- Content seeds and historical content titles/descriptions.
+
 ## Database And Migration Flow
 
 Production'da `db:migrate` kullanılmaz.
@@ -264,6 +310,7 @@ npm run db:deploy
 ## Update Policy
 
 Her yeni admin/public/security modülü tamamlandığında bu dosya güncellenecek. Canlıya çıkmadan önce bu dosya son kez baştan sona okunacak ve işaretlenmemiş production maddeleri kapatılmadan deploy yapılmayacak.
+
 ## TASK-038 Audit And Security Notes
 
 - Audit Log viewer is read-only. Do not add edit/delete audit actions without a retention/legal design.

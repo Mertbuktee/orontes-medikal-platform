@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
-import { publicRoutes } from "@/config/site";
-import { createPageMetadata } from "@/lib/seo/metadata";
+import { publicRoutes } from '@/config/site';
+import { createPageMetadata } from '@/lib/seo/metadata';
 import type {
   BoardRepairContent,
   FinalCtaContent,
@@ -9,32 +9,31 @@ import type {
   ProcessContent,
   PublicHomepageSection,
   WhyUsContent,
-} from "@/lib/homepage/homepage-types";
-import { getPublicHomepageSections } from "@/lib/homepage/public-homepage";
-import BlogPreview from "@/sections/BlogPreview/BlogPreview";
-import BoardRepair from "@/sections/BoardRepair/BoardRepair";
-import CTA from "@/sections/CTA/CTA";
-import Devices from "@/sections/Devices/Devices";
-import Hero from "@/sections/Hero/Hero";
-import Process from "@/sections/Process/Process";
-import Services from "@/sections/Services/Services";
-import WhyUs from "@/sections/WhyUs/WhyUs";
+} from '@/lib/homepage/homepage-types';
+import { getPublicHomepageSections } from '@/lib/homepage/public-homepage';
+import BlogPreview from '@/sections/BlogPreview/BlogPreview';
+import BoardRepair from '@/sections/BoardRepair/BoardRepair';
+import CTA from '@/sections/CTA/CTA';
+import Devices from '@/sections/Devices/Devices';
+import Hero from '@/sections/Hero/Hero';
+import Process from '@/sections/Process/Process';
+import Services from '@/sections/Services/Services';
+import WhyUs from '@/sections/WhyUs/WhyUs';
 
-const route = publicRoutes.find((item) => item.path === "/");
+const route = publicRoutes.find((item) => item.path === '/');
 
 export async function generateMetadata(): Promise<Metadata> {
-  const seo = await import("@/lib/homepage/public-homepage").then((module) =>
-    module.getPublicHomepageSeo()
+  const seo = await import('@/lib/homepage/public-homepage').then((module) =>
+    module.getPublicHomepageSeo(),
   );
 
   return createPageMetadata({
-    title:
-      seo?.title ?? route?.title ?? "Orontes Teknoloji | Medikal Teknik Servis",
+    title: seo?.title ?? route?.title ?? 'Medikal Teknik Servis',
     description:
       seo?.description ??
       route?.description ??
-      "Medikal cihaz teknik servisi ve elektronik kart onarımı.",
-    path: "/",
+      'Medikal cihaz teknik servisi ve elektronik kart onarımı.',
+    path: '/',
   });
 }
 
@@ -56,9 +55,9 @@ function HomepageSectionRenderer({
 }: {
   section: PublicHomepageSection;
 }) {
-  if (section.key === "HERO_SUPPORTING_CONTENT") return null;
+  if (section.key === 'HERO_SUPPORTING_CONTENT') return null;
 
-  if (section.key === "SERVICES_PREVIEW") {
+  if (section.key === 'SERVICES_PREVIEW') {
     const content = section.content as PreviewContent;
     return (
       <Services
@@ -71,7 +70,7 @@ function HomepageSectionRenderer({
     );
   }
 
-  if (section.key === "DEVICES_PREVIEW") {
+  if (section.key === 'DEVICES_PREVIEW') {
     const content = section.content as PreviewContent;
     return (
       <Devices
@@ -84,19 +83,19 @@ function HomepageSectionRenderer({
     );
   }
 
-  if (section.key === "BOARD_REPAIR") {
+  if (section.key === 'BOARD_REPAIR') {
     return <BoardRepair content={section.content as BoardRepairContent} />;
   }
 
-  if (section.key === "WHY_US") {
+  if (section.key === 'WHY_US') {
     return <WhyUs content={section.content as WhyUsContent} />;
   }
 
-  if (section.key === "PROCESS") {
+  if (section.key === 'PROCESS') {
     return <Process content={section.content as ProcessContent} />;
   }
 
-  if (section.key === "BLOG_PREVIEW") {
+  if (section.key === 'BLOG_PREVIEW') {
     const content = section.content as PreviewContent;
     return (
       <BlogPreview
@@ -109,7 +108,7 @@ function HomepageSectionRenderer({
     );
   }
 
-  if (section.key === "FINAL_CTA") {
+  if (section.key === 'FINAL_CTA') {
     const content = section.content as FinalCtaContent;
     return (
       <CTA

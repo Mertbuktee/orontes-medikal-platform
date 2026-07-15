@@ -1,18 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
-import { Breadcrumbs } from "@/components/common/Breadcrumbs";
-import { publicRoutes } from "@/config/site";
-import { createPageMetadata } from "@/lib/seo/metadata";
-import Process from "@/sections/Process/Process";
+import { Breadcrumbs } from '@/components/common/Breadcrumbs';
+import { publicRoutes } from '@/config/site';
+import { createPageMetadata } from '@/lib/seo/metadata';
+import Process from '@/sections/Process/Process';
 
-const route = publicRoutes.find((item) => item.path === "/servis-sureci");
+const route = publicRoutes.find((item) => item.path === '/servis-sureci');
 
 export const metadata: Metadata = createPageMetadata({
-  title: route?.title ?? "Medikal Cihaz Servis Süreci | Orontes Teknoloji",
+  title: route?.title ?? 'Medikal Cihaz Servis Süreci',
   description:
-    route?.description ??
-    "Medikal cihaz servis süreci ve teknik iş akışı.",
-  path: "/servis-sureci",
+    route?.description ?? 'Medikal cihaz servis süreci ve teknik iş akışı.',
+  path: '/servis-sureci',
 });
 
 export default function ServiceProcessPage() {
@@ -22,11 +21,11 @@ export default function ServiceProcessPage() {
         <div className="mx-auto max-w-7xl">
           <Breadcrumbs
             items={[
-              { name: "Ana Sayfa", path: "/" },
-              { name: "Servis Süreci", path: "/servis-sureci" },
+              { name: 'Ana Sayfa', path: '/' },
+              { name: 'Servis Süreci', path: '/servis-sureci' },
             ]}
           />
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-600">
+          <p className="text-sm font-semibold tracking-[0.18em] text-orange-600 uppercase">
             Planlı teknik akış
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">

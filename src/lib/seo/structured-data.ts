@@ -1,8 +1,5 @@
-import { absoluteUrl } from "@/config/site";
-import {
-  defaultSiteSettings,
-  type SiteSettings,
-} from "@/lib/site-settings/site-settings-types";
+import { absoluteUrl } from '@/config/site';
+import type { SiteSettings } from '@/lib/site-settings/site-settings-types';
 
 export type BreadcrumbItem = {
   name: string;
@@ -11,10 +8,10 @@ export type BreadcrumbItem = {
 
 export function createBreadcrumbJsonLd(items: BreadcrumbItem[]) {
   return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
     itemListElement: items.map((item, index) => ({
-      "@type": "ListItem",
+      '@type': 'ListItem',
       position: index + 1,
       name: item.name,
       item: absoluteUrl(item.path),
@@ -22,29 +19,29 @@ export function createBreadcrumbJsonLd(items: BreadcrumbItem[]) {
   };
 }
 
-export function createOrganizationJsonLd(settings: SiteSettings = defaultSiteSettings) {
+export function createOrganizationJsonLd(settings: SiteSettings) {
   return {
-    "@context": "https://schema.org",
-    "@type": "Organization",
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
     name: settings.general.legalCompanyName,
     alternateName: settings.general.companyName,
-    url: absoluteUrl("/"),
+    url: absoluteUrl('/'),
     email: settings.contact.emailPrimary,
     telephone: settings.contact.phonePrimary,
     sameAs: Object.values(settings.social).filter(Boolean),
   };
 }
 
-export function createLocalBusinessJsonLd(settings: SiteSettings = defaultSiteSettings) {
+export function createLocalBusinessJsonLd(settings: SiteSettings) {
   return {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
     name: settings.general.legalCompanyName,
-    url: absoluteUrl("/iletisim"),
+    url: absoluteUrl('/iletisim'),
     email: settings.contact.emailPrimary,
     telephone: settings.contact.phonePrimary,
     address: {
-      "@type": "PostalAddress",
+      '@type': 'PostalAddress',
       streetAddress: settings.address.addressLine,
       addressLocality: settings.address.district,
       addressRegion: settings.address.city,
@@ -54,7 +51,7 @@ export function createLocalBusinessJsonLd(settings: SiteSettings = defaultSiteSe
     geo:
       settings.map.latitude && settings.map.longitude
         ? {
-            "@type": "GeoCoordinates",
+            '@type': 'GeoCoordinates',
             latitude: settings.map.latitude,
             longitude: settings.map.longitude,
           }
@@ -70,13 +67,13 @@ export function createArticleJsonLd(input: {
   datePublished?: Date | null;
   dateModified: Date;
   authorName?: string | null;
-  settings?: SiteSettings;
+  settings: SiteSettings;
 }) {
-  const settings = input.settings ?? defaultSiteSettings;
+  const settings = input.settings;
 
   return {
-    "@context": "https://schema.org",
-    "@type": "Article",
+    '@context': 'https://schema.org',
+    '@type': 'Article',
     headline: input.headline,
     description: input.description,
     image: input.image ? [input.image] : undefined,
@@ -84,14 +81,14 @@ export function createArticleJsonLd(input: {
     dateModified: input.dateModified.toISOString(),
     author: input.authorName
       ? {
-          "@type": "Person",
+          '@type': 'Person',
           name: input.authorName,
         }
       : undefined,
     publisher: {
-      "@type": "Organization",
+      '@type': 'Organization',
       name: settings.general.legalCompanyName || settings.general.companyName,
-      url: absoluteUrl("/"),
+      url: absoluteUrl('/'),
     },
     mainEntityOfPage: absoluteUrl(input.path),
   };

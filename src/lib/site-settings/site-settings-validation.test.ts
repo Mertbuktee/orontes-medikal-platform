@@ -9,6 +9,7 @@ import {
   isSafeCtaUrl,
   parseSiteSettingGroup,
   parseSiteSettings,
+  validateProductionSiteSettings,
 } from '@/lib/site-settings/site-settings-validation';
 
 describe('site settings validation', () => {
@@ -66,5 +67,27 @@ describe('site settings validation', () => {
     expect(createTelHref('05536065703')).toBe('tel:+905536065703');
     expect(createTelHref('5536065703')).toBe('tel:+905536065703');
     expect(createTelHref('+905536065703')).toBe('tel:+905536065703');
+  });
+
+  it('reports missing production-critical business settings', () => {
+    const result = validateProductionSiteSettings({
+      ...defaultSiteSettings,
+      contact: {
+        ...defaultSiteSettings.contact,
+        phonePrimary: '',
+      },
+      branding: {
+        ...defaultSiteSettings.branding,
+        logoMediaId: '',
+        faviconMediaId: '',
+        defaultOgImageMediaId: '',
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.errors).toContain('site.contact.phonePrimary is required.');
+    expect(result.warnings).toContain(
+      'site.branding.logoMediaId should be set to a production Media record.',
+    );
   });
 });

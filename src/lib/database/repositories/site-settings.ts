@@ -1,15 +1,17 @@
-import type { Prisma, PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from '@prisma/client';
 
+import { isProductionDeployment } from '@/config/site';
 import {
   defaultSiteSettings,
+  siteSettingKeys,
   siteSettingGroupToKey,
   type SiteSettingGroup,
   type SiteSettings,
-} from "@/lib/site-settings/site-settings-types";
+} from '@/lib/site-settings/site-settings-types';
 import {
   parseSiteSettingGroup,
   parseSiteSettings,
-} from "@/lib/site-settings/site-settings-validation";
+} from '@/lib/site-settings/site-settings-validation';
 
 export class SiteSettingsRepository {
   private readonly client: PrismaClient;
@@ -29,6 +31,9 @@ export class SiteSettingsRepository {
       [SiteSettingGroup, string]
     >) {
       const row = rows.find((item) => item.key === key);
+      if (!row && isProductionDeployment(process.env)) {
+        throw new Error(`Missing production Site Settings group: ${key}`);
+      }
       raw[group] = row?.value ?? defaultSiteSettings[group];
     }
 
@@ -38,7 +43,7 @@ export class SiteSettingsRepository {
   async updateGroup<K extends SiteSettingGroup>(
     group: K,
     value: SiteSettings[K],
-    updatedById: string
+    updatedById: string,
   ) {
     const parsed = parseSiteSettingGroup(group, value);
 
@@ -59,7 +64,9 @@ export class SiteSettingsRepository {
   }
 
   async seedDefaults() {
-    for (const group of Object.keys(siteSettingGroupToKey) as SiteSettingGroup[]) {
+    for (const group of Object.keys(
+      siteSettingGroupToKey,
+    ) as SiteSettingGroup[]) {
       await this.client.siteSetting.upsert({
         where: { key: siteSettingGroupToKey[group] },
         create: {
@@ -79,5 +86,14 @@ export class SiteSettingsRepository {
     return this.client.siteSetting.count({
       where: { key: { in: Object.values(siteSettingGroupToKey) } },
     });
+  }
+
+  async getMissingGroups() {
+    const rows = await this.client.siteSetting.findMany({
+      where: { key: { in: [...siteSettingKeys] } },
+      select: { key: true },
+    });
+    const existing = new Set(rows.map((row) => row.key));
+    return siteSettingKeys.filter((key) => !existing.has(key));
   }
 }

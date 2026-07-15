@@ -1,70 +1,71 @@
-import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
+import { describe, expect, it } from 'vitest';
 
-import robots from "@/app/robots";
-import sitemap from "@/app/sitemap";
-import { absoluteUrl, publicRoutes, resolveSiteOrigin } from "@/config/site";
+import robots from '@/app/robots';
+import sitemap from '@/app/sitemap';
+import { absoluteUrl, publicRoutes, resolveSiteOrigin } from '@/config/site';
+import { createPageMetadata } from '@/lib/seo/metadata';
 import {
   createArticleJsonLd,
   createBreadcrumbJsonLd,
-} from "@/lib/seo/structured-data";
-import { defaultSiteSettings } from "@/lib/site-settings/site-settings-types";
+} from '@/lib/seo/structured-data';
+import { defaultSiteSettings } from '@/lib/site-settings/site-settings-types';
 
 const workspaceRoot = process.cwd();
 
-describe("public SEO architecture", () => {
-  it("allows a localhost fallback outside production deployments", () => {
-    expect(resolveSiteOrigin({})).toBe("http://localhost:3000");
+describe('public SEO architecture', () => {
+  it('allows a localhost fallback outside production deployments', () => {
+    expect(resolveSiteOrigin({})).toBe('http://localhost:3000');
   });
 
-  it("accepts valid HTTPS APP_ORIGIN in production deployments", () => {
+  it('accepts valid HTTPS APP_ORIGIN in production deployments', () => {
     expect(
       resolveSiteOrigin({
-        APP_ENV: "production",
-        APP_ORIGIN: "https://orontesteknoloji.com",
-      })
-    ).toBe("https://orontesteknoloji.com");
+        APP_ENV: 'production',
+        APP_ORIGIN: 'https://orontesteknoloji.com',
+      }),
+    ).toBe('https://orontesteknoloji.com');
   });
 
-  it("rejects missing APP_ORIGIN in production deployments", () => {
-    expect(() => resolveSiteOrigin({ APP_ENV: "production" })).toThrow(
-      "APP_ORIGIN is required"
+  it('rejects missing APP_ORIGIN in production deployments', () => {
+    expect(() => resolveSiteOrigin({ APP_ENV: 'production' })).toThrow(
+      'APP_ORIGIN is required',
     );
   });
 
-  it("rejects malformed APP_ORIGIN in production deployments", () => {
+  it('rejects malformed APP_ORIGIN in production deployments', () => {
     expect(() =>
-      resolveSiteOrigin({ APP_ENV: "production", APP_ORIGIN: "not-a-url" })
-    ).toThrow("APP_ORIGIN is required");
+      resolveSiteOrigin({ APP_ENV: 'production', APP_ORIGIN: 'not-a-url' }),
+    ).toThrow('APP_ORIGIN is required');
   });
 
-  it("rejects HTTP APP_ORIGIN in production deployments", () => {
+  it('rejects HTTP APP_ORIGIN in production deployments', () => {
     expect(() =>
       resolveSiteOrigin({
-        APP_ENV: "production",
-        APP_ORIGIN: "http://orontesteknoloji.com",
-      })
-    ).toThrow("APP_ORIGIN must use HTTPS");
+        APP_ENV: 'production',
+        APP_ORIGIN: 'http://orontesteknoloji.com',
+      }),
+    ).toThrow('APP_ORIGIN must use HTTPS');
   });
 
-  it("rejects localhost APP_ORIGIN in production deployments", () => {
+  it('rejects localhost APP_ORIGIN in production deployments', () => {
     expect(() =>
       resolveSiteOrigin({
-        APP_ENV: "production",
-        APP_ORIGIN: "https://localhost:3000",
-      })
-    ).toThrow("APP_ORIGIN cannot be localhost");
+        APP_ENV: 'production',
+        APP_ORIGIN: 'https://localhost:3000',
+      }),
+    ).toThrow('APP_ORIGIN cannot be localhost');
 
     expect(() =>
       resolveSiteOrigin({
-        APP_ENV: "production",
-        APP_ORIGIN: "https://127.0.0.1:3000",
-      })
-    ).toThrow("APP_ORIGIN cannot be localhost");
+        APP_ENV: 'production',
+        APP_ORIGIN: 'https://127.0.0.1:3000',
+      }),
+    ).toThrow('APP_ORIGIN cannot be localhost');
   });
 
-  it("keeps public route titles and descriptions unique", () => {
+  it('keeps public route titles and descriptions unique', () => {
     const titles = publicRoutes.map((route) => route.title);
     const descriptions = publicRoutes.map((route) => route.description);
 
@@ -72,29 +73,31 @@ describe("public SEO architecture", () => {
     expect(new Set(descriptions).size).toBe(descriptions.length);
   });
 
-  it("sitemap includes every public route and excludes admin and API routes", async () => {
+  it('sitemap includes every public route and excludes admin and API routes', async () => {
     const urls = (await sitemap()).map((entry) => entry.url);
 
     for (const route of publicRoutes) {
       expect(urls).toContain(absoluteUrl(route.path));
     }
 
-    expect(urls.some((url) => url.includes("/api/"))).toBe(false);
-    expect(urls.some((url) => url.includes("/admin"))).toBe(false);
+    expect(urls.some((url) => url.includes('/api/'))).toBe(false);
+    expect(urls.some((url) => url.includes('/admin'))).toBe(false);
   });
 
-  it("robots points to sitemap and excludes private route families", async () => {
+  it('robots points to sitemap and excludes private route families', async () => {
     const result = await robots();
 
-    expect(result.sitemap).toBe(absoluteUrl("/sitemap.xml"));
-    expect(JSON.stringify(result.rules)).toContain("/api/");
-    expect(JSON.stringify(result.rules)).toContain("/admin/");
+    expect(result.sitemap).toBe(absoluteUrl('/sitemap.xml'));
+    expect(JSON.stringify(result.rules)).toContain('/api/');
+    expect(JSON.stringify(result.rules)).toContain('/admin/');
   });
 
-  it("public app routes have page files", () => {
+  it('public app routes have page files', () => {
     for (const route of publicRoutes) {
-      if (route.path === "/") {
-        expect(existsSync(path.join(workspaceRoot, "src/app/(public)/page.tsx"))).toBe(true);
+      if (route.path === '/') {
+        expect(
+          existsSync(path.join(workspaceRoot, 'src/app/(public)/page.tsx')),
+        ).toBe(true);
         continue;
       }
 
@@ -102,78 +105,105 @@ describe("public SEO architecture", () => {
         existsSync(
           path.join(
             workspaceRoot,
-            "src/app/(public)",
+            'src/app/(public)',
             route.path.slice(1),
-            "page.tsx"
-          )
-        )
+            'page.tsx',
+          ),
+        ),
       ).toBe(true);
     }
   });
 
-  it("public source does not keep legacy hash-only links or placeholder hrefs", () => {
+  it('public source does not keep legacy hash-only links or placeholder hrefs', () => {
     const sourceFiles = [
-      "src/components/layout/Navbar.tsx",
-      "src/components/layout/Footer.tsx",
-      "src/sections/Services/Services.tsx",
-      "src/sections/Devices/Devices.tsx",
-      "src/sections/BlogPreview/BlogPreview.tsx",
-      "src/app/(public)/not-found.tsx",
+      'src/components/layout/Navbar.tsx',
+      'src/components/layout/Footer.tsx',
+      'src/sections/Services/Services.tsx',
+      'src/sections/Devices/Devices.tsx',
+      'src/sections/BlogPreview/BlogPreview.tsx',
+      'src/app/(public)/not-found.tsx',
     ];
 
     for (const file of sourceFiles) {
-      const content = readFileSync(path.join(workspaceRoot, file), "utf8");
+      const content = readFileSync(path.join(workspaceRoot, file), 'utf8');
 
       expect(content).not.toContain('href="#"');
       expect(content).not.toContain('href="/#');
     }
   });
 
-  it("keeps footer social links controlled by site settings", () => {
+  it('keeps footer social links controlled by site settings', () => {
     const footer = readFileSync(
-      path.join(workspaceRoot, "src/components/layout/Footer.tsx"),
-      "utf8"
+      path.join(workspaceRoot, 'src/components/layout/Footer.tsx'),
+      'utf8',
     );
     const navbar = readFileSync(
-      path.join(workspaceRoot, "src/components/layout/NavbarClient.tsx"),
-      "utf8"
+      path.join(workspaceRoot, 'src/components/layout/NavbarClient.tsx'),
+      'utf8',
     );
 
-    expect(footer).toContain("settings.social.instagram");
-    expect(footer).toContain("settings.social.linkedin");
-    expect(footer).not.toContain("linkedin.com/in/mertbukte");
-    expect(footer).not.toContain("Powered by");
-    expect(navbar).toContain("companyName");
-    expect(navbar).not.toContain("Orontes Teknoloji sayfa bağlantıları");
+    expect(footer).toContain('settings.social.instagram');
+    expect(footer).toContain('settings.social.linkedin');
+    expect(footer).not.toContain('linkedin.com/in/mertbukte');
+    expect(footer).not.toContain('Powered by');
+    expect(navbar).toContain('companyName');
+    expect(navbar).not.toContain('Orontes Teknoloji sayfa bağlantıları');
   });
 
-  it("breadcrumb JSON-LD is generated without invented review data", () => {
+  it('breadcrumb JSON-LD is generated without invented review data', () => {
     const jsonLd = createBreadcrumbJsonLd([
-      { name: "Ana Sayfa", path: "/" },
-      { name: "Cihazlar", path: "/cihazlar" },
+      { name: 'Ana Sayfa', path: '/' },
+      { name: 'Cihazlar', path: '/cihazlar' },
     ]);
 
-    expect(jsonLd["@type"]).toBe("BreadcrumbList");
-    expect(JSON.stringify(jsonLd)).not.toContain("AggregateRating");
-    expect(JSON.stringify(jsonLd)).not.toContain("review");
+    expect(jsonLd['@type']).toBe('BreadcrumbList');
+    expect(JSON.stringify(jsonLd)).not.toContain('AggregateRating');
+    expect(JSON.stringify(jsonLd)).not.toContain('review');
   });
 
-  it("article JSON-LD publisher follows site settings identity", () => {
+  it('article JSON-LD publisher follows site settings identity', () => {
     const jsonLd = createArticleJsonLd({
-      path: "/blog/test",
-      headline: "Test",
-      description: "Test description",
-      dateModified: new Date("2026-01-01T00:00:00.000Z"),
+      path: '/blog/test',
+      headline: 'Test',
+      description: 'Test description',
+      dateModified: new Date('2026-01-01T00:00:00.000Z'),
       settings: {
         ...defaultSiteSettings,
         general: {
           ...defaultSiteSettings.general,
-          legalCompanyName: "Ayar Merkezi Ltd.",
-          companyName: "Ayar Merkezi",
+          legalCompanyName: 'Ayar Merkezi Ltd.',
+          companyName: 'Ayar Merkezi',
         },
       },
     });
 
-    expect(jsonLd.publisher.name).toBe("Ayar Merkezi Ltd.");
+    expect(jsonLd.publisher.name).toBe('Ayar Merkezi Ltd.');
+  });
+
+  it('page metadata does not inject a hardcoded company site name', () => {
+    const metadata = createPageMetadata({
+      title: 'Teknik Servis',
+      description: 'Açıklama',
+      path: '/hizmetler',
+    });
+
+    expect(metadata.openGraph).toMatchObject({
+      title: 'Teknik Servis',
+      description: 'Açıklama',
+      url: 'http://localhost:3000/hizmetler',
+    });
+    expect(JSON.stringify(metadata.openGraph)).not.toContain('Orontes');
+  });
+
+  it('keeps canonical config free of business identity fallbacks', () => {
+    const source = readFileSync(
+      path.join(workspaceRoot, 'src/config/site.ts'),
+      'utf8',
+    );
+
+    expect(source).not.toContain('phone:');
+    expect(source).not.toContain('email:');
+    expect(source).not.toContain('legalName:');
+    expect(source).not.toContain('Orontes Teknoloji |');
   });
 });

@@ -1,29 +1,29 @@
-import type { Metadata } from "next";
-import { BadgeCheck, MessageCircle } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import type { Metadata } from 'next';
+import { BadgeCheck, MessageCircle } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
-import { Breadcrumbs } from "@/components/common/Breadcrumbs";
-import { publicRoutes } from "@/config/site";
-import { createPageMetadata } from "@/lib/seo/metadata";
-import { getPublicSiteSettings } from "@/lib/site-settings/public-site-settings";
-import { createWhatsappHref } from "@/lib/site-settings/site-settings-types";
-import ServiceRequestForm from "@/sections/CTA/ServiceRequestForm";
+import { Breadcrumbs } from '@/components/common/Breadcrumbs';
+import { publicRoutes } from '@/config/site';
+import { createPageMetadata } from '@/lib/seo/metadata';
+import { getPublicSiteSettings } from '@/lib/site-settings/public-site-settings';
+import { createWhatsappHref } from '@/lib/site-settings/site-settings-types';
+import ServiceRequestForm from '@/sections/CTA/ServiceRequestForm';
 
-const route = publicRoutes.find((item) => item.path === "/servis-talebi");
+const route = publicRoutes.find((item) => item.path === '/servis-talebi');
 
 export const metadata: Metadata = createPageMetadata({
-  title: route?.title ?? "Servis Talebi Oluştur | Orontes Teknoloji",
+  title: route?.title ?? 'Servis Talebi Oluştur',
   description:
     route?.description ??
-    "Medikal cihaz arızası için güvenli servis talebi formu.",
-  path: "/servis-talebi",
+    'Medikal cihaz arızası için güvenli servis talebi formu.',
+  path: '/servis-talebi',
 });
 
 const supportItems = [
-  "Marka, model ve seri no ile detaylı kayıt",
-  "Görsel veya PDF ekleyerek arızayı açıklama",
-  "Teknik ön değerlendirme için güvenli başvuru",
+  'Marka, model ve seri no ile detaylı kayıt',
+  'Görsel veya PDF ekleyerek arızayı açıklama',
+  'Teknik ön değerlendirme için güvenli başvuru',
 ];
 
 export default async function ServiceRequestPage() {
@@ -39,11 +39,11 @@ export default async function ServiceRequestPage() {
           <div className="flex flex-col justify-center">
             <Breadcrumbs
               items={[
-                { name: "Ana Sayfa", path: "/" },
-                { name: "Servis Talebi", path: "/servis-talebi" },
+                { name: 'Ana Sayfa', path: '/' },
+                { name: 'Servis Talebi', path: '/servis-talebi' },
               ]}
             />
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-300">
+            <p className="text-sm font-semibold tracking-[0.18em] text-orange-300 uppercase">
               Güvenli servis başvurusu
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
@@ -60,7 +60,10 @@ export default async function ServiceRequestPage() {
                   key={item}
                   className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.07] px-4 py-3 text-sm text-slate-100"
                 >
-                  <BadgeCheck className="size-5 shrink-0 text-orange-300" aria-hidden="true" />
+                  <BadgeCheck
+                    className="size-5 shrink-0 text-orange-300"
+                    aria-hidden="true"
+                  />
                   <span>{item}</span>
                 </div>
               ))}
@@ -70,7 +73,7 @@ export default async function ServiceRequestPage() {
               href={createWhatsappHref(settings.whatsapp)}
               target="_blank"
               rel="noreferrer"
-              className="mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-5 text-sm font-semibold text-white transition hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 sm:w-fit"
+              className="mt-8 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-5 text-sm font-semibold text-white transition hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:outline-none sm:w-fit"
             >
               <Image
                 src="/images/icons/wp.png"

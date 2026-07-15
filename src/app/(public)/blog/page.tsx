@@ -1,21 +1,24 @@
-import type { Metadata } from "next";
-import { ArrowUpRight, Search } from "lucide-react";
-import Link from "next/link";
+import type { Metadata } from 'next';
+import { ArrowUpRight, Search } from 'lucide-react';
+import Link from 'next/link';
 
-import { Breadcrumbs } from "@/components/common/Breadcrumbs";
-import { publicRoutes } from "@/config/site";
-import { formatBlogDate } from "@/lib/blog/blog-date";
-import { getPublicBlogCategories, getPublicBlogPosts } from "@/lib/blog/public-blog";
-import { createPageMetadata } from "@/lib/seo/metadata";
+import { Breadcrumbs } from '@/components/common/Breadcrumbs';
+import { publicRoutes } from '@/config/site';
+import { formatBlogDate } from '@/lib/blog/blog-date';
+import {
+  getPublicBlogCategories,
+  getPublicBlogPosts,
+} from '@/lib/blog/public-blog';
+import { createPageMetadata } from '@/lib/seo/metadata';
 
-const route = publicRoutes.find((item) => item.path === "/blog");
+const route = publicRoutes.find((item) => item.path === '/blog');
 
 export const metadata: Metadata = createPageMetadata({
-  title: route?.title ?? "Teknik Bilgi ve Servis Notları | Orontes Teknoloji",
+  title: route?.title ?? 'Teknik Bilgi ve Servis Notları',
   description:
     route?.description ??
-    "Medikal cihaz bakım, onarım ve arıza analizi hakkında teknik servis notları.",
-  path: "/blog",
+    'Medikal cihaz bakım, onarım ve arıza analizi hakkında teknik servis notları.',
+  path: '/blog',
 });
 
 type BlogPageProps = {
@@ -37,12 +40,12 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Breadcrumbs
             items={[
-              { name: "Ana Sayfa", path: "/" },
-              { name: "Blog", path: "/blog" },
+              { name: 'Ana Sayfa', path: '/' },
+              { name: 'Blog', path: '/blog' },
             ]}
           />
           <div className="mx-auto max-w-4xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-600">
+            <p className="text-sm font-semibold tracking-[0.18em] text-orange-600 uppercase">
               Teknik bilgi
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
@@ -55,7 +58,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           </div>
 
           <div className="mt-10 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
-            <form action="/blog" className="grid gap-3 md:grid-cols-[1fr_220px_auto]">
+            <form
+              action="/blog"
+              className="grid gap-3 md:grid-cols-[1fr_220px_auto]"
+            >
               <div className="flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4">
                 <Search className="size-4 text-slate-400" aria-hidden="true" />
                 <input
@@ -67,7 +73,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               </div>
               <select
                 name="kategori"
-                defaultValue={categorySlug ?? ""}
+                defaultValue={categorySlug ?? ''}
                 className="min-h-12 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700"
               >
                 <option value="">Tüm kategoriler</option>
@@ -94,7 +100,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <span className="rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-700">
-                      {post.category?.name ?? "Teknik Not"}
+                      {post.category?.name ?? 'Teknik Not'}
                     </span>
                     {publishedDate ? (
                       <time className="text-xs font-semibold text-slate-400">
@@ -102,20 +108,20 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                       </time>
                     ) : null}
                   </div>
-                <h2 className="mt-6 text-xl font-semibold leading-snug text-slate-950">
-                  {post.title}
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-slate-600">
-                  {post.excerpt}
-                </p>
-                <Link
-                  href={`/blog/${post.slug}`}
-                  className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-sky-700 transition hover:text-orange-600"
-                >
-                  Yazıyı İncele
-                  <ArrowUpRight className="size-4" aria-hidden="true" />
-                </Link>
-              </article>
+                  <h2 className="mt-6 text-xl leading-snug font-semibold text-slate-950">
+                    {post.title}
+                  </h2>
+                  <p className="mt-3 text-sm leading-7 text-slate-600">
+                    {post.excerpt}
+                  </p>
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-sky-700 transition hover:text-orange-600"
+                  >
+                    Yazıyı İncele
+                    <ArrowUpRight className="size-4" aria-hidden="true" />
+                  </Link>
+                </article>
               );
             })}
           </div>
