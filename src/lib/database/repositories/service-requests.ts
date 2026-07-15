@@ -235,6 +235,12 @@ export class PrismaServiceRequestRepository
     });
   }
 
+  findDeviceServiceHistoryByRequestId(serviceRequestId: string) {
+    return this.client.deviceServiceHistory.findUnique({
+      where: { serviceRequestId },
+    });
+  }
+
   findById(id: string) {
     return this.client.serviceRequest.findUnique({
       where: { id },
@@ -271,7 +277,6 @@ export class PrismaServiceRequestRepository
             },
           },
         },
-        deviceHistory: true,
       },
     });
   }
