@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- TASK-040 production hardening: added shared private storage configuration, readiness validation, Docker build-secret flow, worker dependency hardening and a non-destructive storage migration inventory command.
 - TASK-039E Site Settings source-of-truth audit: removed business identity/contact fallbacks from canonical route config, stopped metadata helpers from injecting a hardcoded company site name, made Organization/LocalBusiness/Article JSON-LD require Site Settings identity input, and added production Site Settings readiness validation.
 - Cleaned stale visual QA Turkish text expectations and tightened Site Settings source-of-truth behavior for footer social links, Article JSON-LD publisher identity and notification email branding.
 - Added production-hardening foundations: standalone Docker build, production Compose/Nginx references, runtime environment validation, health/readiness endpoints, backup/restore-check scripts, smoke tests, CI workflow and go-live checklist.

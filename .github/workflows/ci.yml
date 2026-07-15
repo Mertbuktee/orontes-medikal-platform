@@ -43,4 +43,4 @@ jobs:
       - run: npm run test
       - run: npm run lint
       - run: npm run build
-      - run: docker build --target runner -t orontes-medikal-platform:ci .
+      - run: docker build --network=host --secret id=database_url,env=DATABASE_URL --target runner -t orontes-medikal-platform:ci .

@@ -39,6 +39,9 @@ services:
       SMTP_USER: ${SMTP_USER}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
       MFA_ENCRYPTION_KEY: ${MFA_ENCRYPTION_KEY}
+      STORAGE_PROVIDER: ${STORAGE_PROVIDER:-local}
+      PRIVATE_STORAGE_ROOT: /app/storage/private
+      GIT_COMMIT_SHA: ${GIT_COMMIT_SHA}
     volumes:
       - orontes_private_storage:/app/storage/private
     expose:
@@ -75,6 +78,9 @@ services:
       SMTP_SECURE: ${SMTP_SECURE:-false}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
+      STORAGE_PROVIDER: ${STORAGE_PROVIDER:-local}
+      PRIVATE_STORAGE_ROOT: /app/storage/private
+      MAIL_WORKER_BATCH_SIZE: ${MAIL_WORKER_BATCH_SIZE:-25}
     volumes:
       - orontes_private_storage:/app/storage/private
     networks:

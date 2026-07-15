@@ -3,16 +3,24 @@
 FROM node:22.13.1-bookworm-slim AS base
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates openssl \
+  && rm -rf /var/lib/apt/lists/*
 
 FROM base AS deps
 COPY package.json package-lock.json ./
 RUN npm ci
 
+FROM base AS prod-deps
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run db:generate
-RUN npm run build
+RUN --mount=type=secret,id=database_url,required=true \
+  DATABASE_URL="$(cat /run/secrets/database_url)" npm run build
 
 FROM node:22.13.1-bookworm-slim AS runner
 WORKDIR /app
@@ -42,7 +50,7 @@ CMD ["node", "server.js"]
 FROM base AS worker
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=prod-deps /app/node_modules ./node_modules
 COPY package.json package-lock.json tsconfig.json ./
 COPY prisma ./prisma
 COPY scripts ./scripts

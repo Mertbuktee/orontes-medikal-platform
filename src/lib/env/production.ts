@@ -1,4 +1,5 @@
 import { isProductionDeployment, resolveSiteOrigin } from "@/config/site";
+import { validateStorageEnvironment } from "@/lib/storage/storage-config";
 
 export type RuntimeValidationResult = {
   ok: boolean;
@@ -25,6 +26,7 @@ export function validateRuntimeEnvironment(
   if (production) {
     requireValue(env, "DATABASE_URL", errors);
     requireValue(env, "TRUST_PROXY", errors);
+    requireValue(env, "PRIVATE_STORAGE_ROOT", errors);
 
     if (env.TRUST_PROXY !== "true") {
       errors.push("TRUST_PROXY must be true behind a production reverse proxy.");
@@ -40,6 +42,17 @@ export function validateRuntimeEnvironment(
       }
     }
 
+    if (env.MAIL_PROVIDER && env.MAIL_PROVIDER !== "development") {
+      const batchSize = Number(env.MAIL_WORKER_BATCH_SIZE ?? 25);
+      if (!Number.isInteger(batchSize) || batchSize < 1 || batchSize > 100) {
+        errors.push("MAIL_WORKER_BATCH_SIZE must be an integer between 1 and 100.");
+      }
+    }
+
+    if (!env.BACKUP_DIR?.trim()) {
+      warnings.push("BACKUP_DIR is not set; database backup location must be explicit before go-live.");
+    }
+
     if (env.MFA_REQUIRED === "true" || env.MFA_ENFORCEMENT === "true") {
       requireValue(env, "MFA_ENCRYPTION_KEY", errors);
     }
@@ -51,6 +64,14 @@ export function validateRuntimeEnvironment(
 
   if (env.MAIL_PROVIDER === "development" && production) {
     errors.push("MAIL_PROVIDER=development is not allowed in production.");
+  }
+
+  const storage = validateStorageEnvironment(env);
+  errors.push(...storage.errors);
+  warnings.push(...storage.warnings);
+
+  if (production && storage.provider === "s3-compatible") {
+    errors.push("STORAGE_PROVIDER=s3-compatible is not production-ready until an object storage adapter is wired.");
   }
 
   return {

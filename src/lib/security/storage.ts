@@ -1,6 +1,8 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+import { resolvePrivateStoragePath } from "@/lib/storage/storage-config";
+
 import type { StoredUpload } from "./file-upload.ts";
 
 export type StoredFileRecord = {
@@ -19,7 +21,7 @@ export class LocalPrivateStorageAdapter implements FileStorageAdapter {
   private readonly root: string;
 
   constructor(
-    root = path.join(process.cwd(), "storage", "private", "service-requests")
+    root = resolvePrivateStoragePath("service-requests")
   ) {
     this.root = root;
   }

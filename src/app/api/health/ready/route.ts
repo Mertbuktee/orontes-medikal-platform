@@ -6,6 +6,10 @@ import { prisma } from '@/lib/database/prisma';
 import { SiteSettingsRepository } from '@/lib/database/repositories/site-settings';
 import { validateRuntimeEnvironment } from '@/lib/env/production';
 import { validateProductionSiteSettings } from '@/lib/site-settings/site-settings-validation';
+import {
+  getStorageProvider,
+  resolvePrivateStorageRoot,
+} from '@/lib/storage/storage-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,7 +63,11 @@ async function checkDatabase(): Promise<{ status: ComponentState }> {
 }
 
 async function checkStorage(): Promise<{ status: ComponentState }> {
-  const storagePath = path.join(process.cwd(), 'storage', 'private');
+  if (getStorageProvider() !== 'local') {
+    return { status: 'failed' };
+  }
+
+  const storagePath = resolvePrivateStorageRoot();
   const probePath = path.join(
     storagePath,
     `.health-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
