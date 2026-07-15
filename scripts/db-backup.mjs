@@ -24,7 +24,12 @@ async function main() {
   const backupPath = path.join(backupDir, `orontes-${stamp}.dump`);
   const metadataPath = `${backupPath}.json`;
 
-  await run("pg_dump", ["--format=custom", "--compress=9", "--file", backupPath, databaseUrl]);
+  try {
+    await run("pg_dump", ["--format=custom", "--compress=9", "--file", backupPath, databaseUrl]);
+  } catch (error) {
+    if (!isMissingExecutableError(error, "pg_dump")) throw error;
+    await runDockerPgDump({ databaseUrl, backupPath, stamp });
+  }
   const checksum = await sha256File(backupPath);
   const size = (await stat(backupPath)).size;
 
@@ -70,6 +75,51 @@ function run(command, args) {
   });
 }
 
+async function runDockerPgDump({ databaseUrl, backupPath, stamp }) {
+  const container = process.env.BACKUP_DOCKER_CONTAINER || "orontes-medikal-postgres";
+  const parsed = parseDatabaseUrl(databaseUrl);
+  const containerPath = `/tmp/orontes-${stamp}.dump`;
+
+  await run("docker", [
+    "exec",
+    "-e",
+    `PGPASSWORD=${parsed.password}`,
+    container,
+    "pg_dump",
+    "--format=custom",
+    "--compress=9",
+    "--file",
+    containerPath,
+    "-h",
+    "127.0.0.1",
+    "-U",
+    parsed.user,
+    "-d",
+    parsed.database,
+  ]);
+  await run("docker", ["cp", `${container}:${containerPath}`, backupPath]);
+  await run("docker", ["exec", container, "rm", "-f", containerPath]);
+}
+
+function parseDatabaseUrl(databaseUrl) {
+  const url = new URL(databaseUrl);
+  const database = url.pathname.replace(/^\//, "");
+
+  if (!url.username || !database) {
+    throw new Error("DATABASE_URL must include username and database name for Docker backup fallback.");
+  }
+
+  return {
+    user: decodeURIComponent(url.username),
+    password: decodeURIComponent(url.password),
+    database: decodeURIComponent(database),
+  };
+}
+
+function isMissingExecutableError(error, command) {
+  return error instanceof Error && error.message.includes(`${command} failed to start`);
+}
+
 function sha256File(filePath) {
   return new Promise((resolve, reject) => {
     const hash = createHash("sha256");
@@ -83,7 +133,10 @@ function sha256File(filePath) {
 function redact(value) {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) return value;
-  return value.replaceAll(databaseUrl, "[DATABASE_URL]");
+  const password = databaseUrl ? new URL(databaseUrl).password : "";
+  return value
+    .replaceAll(databaseUrl, "[DATABASE_URL]")
+    .replaceAll(password, password ? "[PASSWORD]" : "");
 }
 
 function loadLocalEnv() {
