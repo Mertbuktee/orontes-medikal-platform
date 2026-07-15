@@ -1,19 +1,20 @@
-"use server";
+'use server';
 
-import { ServiceRequestStatus } from "@prisma/client";
-import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
-import { z } from "zod";
+import { ServiceRequestStatus } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
+import { z } from 'zod';
 
-import { canTransitionServiceRequestStatus } from "@/components/admin/service-request-status";
-import { requirePermission } from "@/lib/auth/admin-session";
-import { AdminAuthRepository } from "@/lib/auth/admin-auth-repository";
-import { getAdminRequestContext } from "@/lib/auth/request-context";
-import { prisma } from "@/lib/database/prisma";
-import { PrismaServiceRequestRepository } from "@/lib/database/repositories/service-requests";
-import { noopServiceRequestEventPublisher } from "@/lib/domain/service-request-events";
-import { makeAdminUrl } from "@/lib/notifications/email-templates";
-import { NotificationService } from "@/lib/notifications/notification-service";
+import { canTransitionServiceRequestStatus } from '@/components/admin/service-request-status';
+import { requirePermission } from '@/lib/auth/admin-session';
+import { AdminAuthRepository } from '@/lib/auth/admin-auth-repository';
+import { getAdminRequestContext } from '@/lib/auth/request-context';
+import { prisma } from '@/lib/database/prisma';
+import { PrismaServiceRequestRepository } from '@/lib/database/repositories/service-requests';
+import { noopServiceRequestEventPublisher } from '@/lib/domain/service-request-events';
+import { makeAdminUrl } from '@/lib/notifications/email-templates';
+import { NotificationService } from '@/lib/notifications/notification-service';
+import { assertSameOriginAction } from '@/lib/security/action-origin';
 
 const statusSchema = z.object({
   id: z.string().min(1),
@@ -37,19 +38,20 @@ const archiveSchema = z.object({
 });
 
 export async function updateServiceRequestStatus(formData: FormData) {
-  const session = await requirePermission("serviceRequests.update");
+  const session = await requirePermission('serviceRequests.update');
+  await assertSameOriginAction();
   const parsed = statusSchema.safeParse({
-    id: formData.get("id"),
-    status: formData.get("status"),
-    reason: formData.get("reason") || undefined,
+    id: formData.get('id'),
+    status: formData.get('status'),
+    reason: formData.get('reason') || undefined,
   });
 
   if (!parsed.success) {
     return;
   }
 
-  if (parsed.data.status === "ARCHIVED") {
-    await requirePermission("serviceRequests.archive");
+  if (parsed.data.status === 'ARCHIVED') {
+    await requirePermission('serviceRequests.archive');
   }
 
   const repository = new PrismaServiceRequestRepository(prisma);
@@ -73,8 +75,8 @@ export async function updateServiceRequestStatus(formData: FormData) {
   if (updated) {
     await auditRepository.appendAuditLog({
       actorId: session.userId,
-      action: "STATUS_CHANGE",
-      entityType: "ServiceRequest",
+      action: 'STATUS_CHANGE',
+      entityType: 'ServiceRequest',
       entityId: updated.id,
       metadata: {
         fromStatus: current.status,
@@ -85,7 +87,7 @@ export async function updateServiceRequestStatus(formData: FormData) {
     });
 
     await noopServiceRequestEventPublisher.publish({
-      type: "service_request.status_changed",
+      type: 'service_request.status_changed',
       serviceRequestId: updated.id,
       fromStatus: current.status,
       toStatus: parsed.data.status,
@@ -96,10 +98,11 @@ export async function updateServiceRequestStatus(formData: FormData) {
 }
 
 export async function assignServiceRequest(formData: FormData) {
-  const session = await requirePermission("serviceRequests.assign");
+  const session = await requirePermission('serviceRequests.assign');
+  await assertSameOriginAction();
   const parsed = assignmentSchema.safeParse({
-    id: formData.get("id"),
-    assignedUserId: formData.get("assignedUserId") || undefined,
+    id: formData.get('id'),
+    assignedUserId: formData.get('assignedUserId') || undefined,
   });
 
   if (!parsed.success) {
@@ -122,18 +125,20 @@ export async function assignServiceRequest(formData: FormData) {
     if (assignee) {
       await new NotificationService().notifyUser({
         userId: assignee.id,
-        category: "SERVICE_REQUEST_ASSIGNED",
-        title: "Servis talebi atandi",
+        category: 'SERVICE_REQUEST_ASSIGNED',
+        title: 'Servis talebi atandi',
         message: `Talep ${updated.id.slice(0, 8).toUpperCase()} size atandi.`,
         linkUrl: `/admin/service-requests/${updated.id}`,
         email: {
           to: { email: assignee.email, name: assignee.name },
-          templateKey: "service-request-assigned",
+          templateKey: 'service-request-assigned',
           payload: {
             requestShortId: updated.id.slice(0, 8).toUpperCase(),
             customerLabel: updated.company || updated.fullName,
             hasAttachment: false,
-            adminUrl: await makeAdminUrl(`/admin/service-requests/${updated.id}`),
+            adminUrl: await makeAdminUrl(
+              `/admin/service-requests/${updated.id}`,
+            ),
           },
           idempotencyKey: `service-request-assigned:${updated.id}:${assignee.id}:${Date.now()}`,
         },
@@ -144,8 +149,8 @@ export async function assignServiceRequest(formData: FormData) {
 
   await auditRepository.appendAuditLog({
     actorId: session.userId,
-    action: "UPDATE",
-    entityType: "ServiceRequestAssignment",
+    action: 'UPDATE',
+    entityType: 'ServiceRequestAssignment',
     entityId: updated.id,
     metadata: {
       assignedUserId: parsed.data.assignedUserId ?? null,
@@ -157,10 +162,11 @@ export async function assignServiceRequest(formData: FormData) {
 }
 
 export async function archiveServiceRequest(formData: FormData) {
-  const session = await requirePermission("serviceRequests.archive");
+  const session = await requirePermission('serviceRequests.archive');
+  await assertSameOriginAction();
   const parsed = archiveSchema.safeParse({
-    id: formData.get("id"),
-    reason: formData.get("reason") || undefined,
+    id: formData.get('id'),
+    reason: formData.get('reason') || undefined,
   });
 
   if (!parsed.success) {
@@ -170,7 +176,10 @@ export async function archiveServiceRequest(formData: FormData) {
   const repository = new PrismaServiceRequestRepository(prisma);
   const current = await repository.findById(parsed.data.id);
 
-  if (!current || !canTransitionServiceRequestStatus(current.status, "ARCHIVED")) {
+  if (
+    !current ||
+    !canTransitionServiceRequestStatus(current.status, 'ARCHIVED')
+  ) {
     return;
   }
 
@@ -184,22 +193,22 @@ export async function archiveServiceRequest(formData: FormData) {
   if (updated) {
     await auditRepository.appendAuditLog({
       actorId: session.userId,
-      action: "ARCHIVE",
-      entityType: "ServiceRequest",
+      action: 'ARCHIVE',
+      entityType: 'ServiceRequest',
       entityId: updated.id,
       metadata: {
         fromStatus: current.status,
-        toStatus: "ARCHIVED",
+        toStatus: 'ARCHIVED',
         reason: parsed.data.reason || undefined,
       },
       context: requestContext,
     });
 
     await noopServiceRequestEventPublisher.publish({
-      type: "service_request.status_changed",
+      type: 'service_request.status_changed',
       serviceRequestId: updated.id,
       fromStatus: current.status,
-      toStatus: "ARCHIVED",
+      toStatus: 'ARCHIVED',
     });
   }
 
@@ -207,10 +216,11 @@ export async function archiveServiceRequest(formData: FormData) {
 }
 
 export async function addServiceRequestNote(formData: FormData) {
-  const session = await requirePermission("serviceRequests.notes.create");
+  const session = await requirePermission('serviceRequests.notes.create');
+  await assertSameOriginAction();
   const parsed = noteSchema.safeParse({
-    serviceRequestId: formData.get("serviceRequestId"),
-    content: formData.get("content"),
+    serviceRequestId: formData.get('serviceRequestId'),
+    content: formData.get('content'),
   });
 
   if (!parsed.success) {
@@ -228,8 +238,8 @@ export async function addServiceRequestNote(formData: FormData) {
 
   await auditRepository.appendAuditLog({
     actorId: session.userId,
-    action: "UPDATE",
-    entityType: "ServiceRequestNote",
+    action: 'UPDATE',
+    entityType: 'ServiceRequestNote',
     entityId: note.id,
     metadata: {
       serviceRequestId: parsed.data.serviceRequestId,
@@ -238,7 +248,7 @@ export async function addServiceRequestNote(formData: FormData) {
   });
 
   await noopServiceRequestEventPublisher.publish({
-    type: "service_request.note_added",
+    type: 'service_request.note_added',
     serviceRequestId: parsed.data.serviceRequestId,
     noteId: note.id,
   });
@@ -247,7 +257,7 @@ export async function addServiceRequestNote(formData: FormData) {
 }
 
 function revalidateServiceRequestPaths(id: string) {
-  revalidatePath("/admin/dashboard");
-  revalidatePath("/admin/service-requests");
+  revalidatePath('/admin/dashboard');
+  revalidatePath('/admin/service-requests');
   revalidatePath(`/admin/service-requests/${id}`);
 }

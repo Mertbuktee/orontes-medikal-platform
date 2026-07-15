@@ -60,6 +60,10 @@
     "typescript": "^5",
     "vitest": "^4.1.10"
   },
+  "overrides": {
+    "@hono/node-server": "^1.19.14",
+    "postcss": "^8.5.16"
+  },
   "allowScripts": {
     "@prisma/engines@7.8.0": true,
     "argon2@0.44.0": true,

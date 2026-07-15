@@ -1,32 +1,34 @@
-import { stat } from "node:fs/promises";
-import path from "node:path";
+import { constants } from 'node:fs';
+import { access, stat, unlink, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 
-import { prisma } from "@/lib/database/prisma";
-import { validateRuntimeEnvironment } from "@/lib/env/production";
+import { prisma } from '@/lib/database/prisma';
+import { validateRuntimeEnvironment } from '@/lib/env/production';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
-type ComponentState = "ok" | "degraded" | "failed";
+type ComponentState = 'ok' | 'degraded' | 'failed';
 
 export async function GET() {
   const started = Date.now();
-  const [database, storage] = await Promise.all([checkDatabase(), checkStorage()]);
+  const [database, storage] = await Promise.all([
+    checkDatabase(),
+    checkStorage(),
+  ]);
   const environment = validateRuntimeEnvironment();
   const components = { database, storage };
   const ok =
-    database.status === "ok" &&
-    storage.status === "ok" &&
-    environment.ok;
+    database.status === 'ok' && storage.status === 'ok' && environment.ok;
 
   return Response.json(
     {
-      status: ok ? "ready" : "not-ready",
+      status: ok ? 'ready' : 'not-ready',
       timestamp: new Date().toISOString(),
       durationMs: Date.now() - started,
       components,
       environment: {
         mode: environment.mode,
-        status: environment.ok ? "ok" : "failed",
+        status: environment.ok ? 'ok' : 'failed',
         errors: environment.errors,
         warnings: environment.warnings,
       },
@@ -34,35 +36,51 @@ export async function GET() {
     {
       status: ok ? 200 : 503,
       headers: {
-        "Cache-Control": "no-store",
-        "X-Content-Type-Options": "nosniff",
+        'Cache-Control': 'no-store',
+        'X-Content-Type-Options': 'nosniff',
       },
-    }
+    },
   );
 }
 
 async function checkDatabase(): Promise<{ status: ComponentState }> {
   try {
     await withTimeout(prisma.$queryRaw`SELECT 1`, 2500);
-    return { status: "ok" };
+    return { status: 'ok' };
   } catch {
-    return { status: "failed" };
+    return { status: 'failed' };
   }
 }
 
 async function checkStorage(): Promise<{ status: ComponentState }> {
+  const storagePath = path.join(process.cwd(), 'storage', 'private');
+  const probePath = path.join(
+    storagePath,
+    `.health-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  );
+
   try {
-    await withTimeout(stat(path.join(process.cwd(), "storage", "private")), 1500);
-    return { status: "ok" };
+    await withTimeout(stat(storagePath), 1500);
+    await withTimeout(
+      access(storagePath, constants.R_OK | constants.W_OK),
+      1500,
+    );
+    await withTimeout(writeFile(probePath, 'ok', { flag: 'wx' }), 1500);
+    return { status: 'ok' };
   } catch {
-    return { status: "failed" };
+    return { status: 'failed' };
+  } finally {
+    await unlink(probePath).catch(() => undefined);
   }
 }
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
   let timeout: NodeJS.Timeout | undefined;
   const timeoutPromise = new Promise<never>((_, reject) => {
-    timeout = setTimeout(() => reject(new Error("HEALTH_CHECK_TIMEOUT")), timeoutMs);
+    timeout = setTimeout(
+      () => reject(new Error('HEALTH_CHECK_TIMEOUT')),
+      timeoutMs,
+    );
   });
 
   try {

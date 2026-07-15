@@ -1,21 +1,22 @@
-"use server";
+'use server';
 
-import { MediaCategory, MediaUsageType, type Prisma } from "@prisma/client";
-import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
-import { z } from "zod";
+import { MediaCategory, MediaUsageType, type Prisma } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
+import { z } from 'zod';
 
-import { requirePermission } from "@/lib/auth/admin-session";
-import { AdminAuthRepository } from "@/lib/auth/admin-auth-repository";
-import { getAdminRequestContext } from "@/lib/auth/request-context";
-import { prisma } from "@/lib/database/prisma";
-import { PrismaMediaRepository } from "@/lib/database/repositories/media";
+import { requirePermission } from '@/lib/auth/admin-session';
+import { AdminAuthRepository } from '@/lib/auth/admin-auth-repository';
+import { getAdminRequestContext } from '@/lib/auth/request-context';
+import { prisma } from '@/lib/database/prisma';
+import { PrismaMediaRepository } from '@/lib/database/repositories/media';
 import {
   createMediaFileName,
   MediaValidationError,
   processAdminMediaUpload,
-} from "@/lib/media/media-processing";
-import { LocalMediaStorageAdapter } from "@/lib/media/media-storage";
+} from '@/lib/media/media-processing';
+import { LocalMediaStorageAdapter } from '@/lib/media/media-storage';
+import { assertSameOriginAction } from '@/lib/security/action-origin';
 
 const metadataSchema = z.object({
   title: z.string().trim().min(1).max(150),
@@ -30,18 +31,19 @@ const mediaIdSchema = z.object({
 });
 
 export async function uploadMedia(formData: FormData) {
-  const session = await requirePermission("media.upload");
+  const session = await requirePermission('media.upload');
+  await assertSameOriginAction();
   const parsed = metadataSchema.safeParse({
-    title: formData.get("title"),
-    altText: formData.get("altText"),
-    description: formData.get("description") || undefined,
-    category: formData.get("category"),
-    usageType: formData.get("usageType"),
+    title: formData.get('title'),
+    altText: formData.get('altText'),
+    description: formData.get('description') || undefined,
+    category: formData.get('category'),
+    usageType: formData.get('usageType'),
   });
-  const file = formData.get("file");
+  const file = formData.get('file');
 
   if (!parsed.success || !(file instanceof File) || file.size === 0) {
-    return { success: false, message: "Medya bilgileri geçersiz." };
+    return { success: false, message: 'Medya bilgileri geçersiz.' };
   }
 
   const repository = new PrismaMediaRepository(prisma);
@@ -57,7 +59,7 @@ export async function uploadMedia(formData: FormData) {
         success: true,
         duplicate: true,
         mediaId: duplicate.id,
-        message: "Bu medya daha önce yüklenmiş.",
+        message: 'Bu medya daha önce yüklenmiş.',
       };
     }
 
@@ -93,8 +95,8 @@ export async function uploadMedia(formData: FormData) {
 
     await auditRepository.appendAuditLog({
       actorId: session.userId,
-      action: "CREATE",
-      entityType: "Media",
+      action: 'CREATE',
+      entityType: 'Media',
       entityId: media.id,
       metadata: {
         mediaId: media.id,
@@ -112,7 +114,7 @@ export async function uploadMedia(formData: FormData) {
     return {
       success: true,
       mediaId: media.id,
-      message: "Medya dosyası yüklendi.",
+      message: 'Medya dosyası yüklendi.',
     };
   } catch (error) {
     await Promise.allSettled(storedKeys.map((key) => storage.remove(key)));
@@ -120,7 +122,7 @@ export async function uploadMedia(formData: FormData) {
     if (error instanceof MediaValidationError) {
       return {
         success: false,
-        message: "Bu dosya desteklenmiyor. Lütfen geçerli bir görsel yükleyin.",
+        message: 'Bu dosya desteklenmiyor. Lütfen geçerli bir görsel yükleyin.',
       };
     }
 
@@ -129,14 +131,15 @@ export async function uploadMedia(formData: FormData) {
 }
 
 export async function updateMediaMetadata(formData: FormData) {
-  const session = await requirePermission("media.update");
-  const id = String(formData.get("id") ?? "");
+  const session = await requirePermission('media.update');
+  await assertSameOriginAction();
+  const id = String(formData.get('id') ?? '');
   const parsed = metadataSchema.safeParse({
-    title: formData.get("title"),
-    altText: formData.get("altText"),
-    description: formData.get("description") || undefined,
-    category: formData.get("category"),
-    usageType: formData.get("usageType"),
+    title: formData.get('title'),
+    altText: formData.get('altText'),
+    description: formData.get('description') || undefined,
+    category: formData.get('category'),
+    usageType: formData.get('usageType'),
   });
 
   if (!id || !parsed.success) {
@@ -153,7 +156,7 @@ export async function updateMediaMetadata(formData: FormData) {
     usageType: parsed.data.usageType,
   });
 
-  await appendMediaAudit(session.userId, "UPDATE", media.id, {
+  await appendMediaAudit(session.userId, 'UPDATE', media.id, {
     mediaId: media.id,
     category: media.category,
     mimeType: media.mimeType,
@@ -162,15 +165,16 @@ export async function updateMediaMetadata(formData: FormData) {
 }
 
 export async function archiveMedia(formData: FormData) {
-  const session = await requirePermission("media.update");
-  const parsed = mediaIdSchema.safeParse({ id: formData.get("id") });
+  const session = await requirePermission('media.update');
+  await assertSameOriginAction();
+  const parsed = mediaIdSchema.safeParse({ id: formData.get('id') });
 
   if (!parsed.success) return;
 
   const repository = new PrismaMediaRepository(prisma);
   const media = await repository.archive(parsed.data.id);
 
-  await appendMediaAudit(session.userId, "ARCHIVE", media.id, {
+  await appendMediaAudit(session.userId, 'ARCHIVE', media.id, {
     mediaId: media.id,
     category: media.category,
   });
@@ -178,15 +182,16 @@ export async function archiveMedia(formData: FormData) {
 }
 
 export async function restoreMedia(formData: FormData) {
-  const session = await requirePermission("media.update");
-  const parsed = mediaIdSchema.safeParse({ id: formData.get("id") });
+  const session = await requirePermission('media.update');
+  await assertSameOriginAction();
+  const parsed = mediaIdSchema.safeParse({ id: formData.get('id') });
 
   if (!parsed.success) return;
 
   const repository = new PrismaMediaRepository(prisma);
   const media = await repository.restore(parsed.data.id);
 
-  await appendMediaAudit(session.userId, "UPDATE", media.id, {
+  await appendMediaAudit(session.userId, 'UPDATE', media.id, {
     mediaId: media.id,
     restored: true,
   });
@@ -194,8 +199,9 @@ export async function restoreMedia(formData: FormData) {
 }
 
 export async function deleteUnusedMedia(formData: FormData) {
-  const session = await requirePermission("media.delete");
-  const parsed = mediaIdSchema.safeParse({ id: formData.get("id") });
+  const session = await requirePermission('media.delete');
+  await assertSameOriginAction();
+  const parsed = mediaIdSchema.safeParse({ id: formData.get('id') });
 
   if (!parsed.success) return;
 
@@ -206,27 +212,27 @@ export async function deleteUnusedMedia(formData: FormData) {
   if (!media) return;
 
   await Promise.allSettled(
-    media.variants.map((variant) => storage.remove(variant.storageKey))
+    media.variants.map((variant) => storage.remove(variant.storageKey)),
   );
-  await appendMediaAudit(session.userId, "DELETE", media.id, {
+  await appendMediaAudit(session.userId, 'DELETE', media.id, {
     mediaId: media.id,
     variantCount: media.variants.length,
   });
-  revalidatePath("/admin/media");
+  revalidatePath('/admin/media');
 }
 
 async function appendMediaAudit(
   actorId: string,
-  action: "CREATE" | "UPDATE" | "ARCHIVE" | "DELETE",
+  action: 'CREATE' | 'UPDATE' | 'ARCHIVE' | 'DELETE',
   mediaId: string,
-  metadata: Prisma.InputJsonValue
+  metadata: Prisma.InputJsonValue,
 ) {
   const auditRepository = new AdminAuthRepository(prisma);
 
   await auditRepository.appendAuditLog({
     actorId,
     action,
-    entityType: "Media",
+    entityType: 'Media',
     entityId: mediaId,
     metadata,
     context: getAdminRequestContext(await headers()),
@@ -234,7 +240,7 @@ async function appendMediaAudit(
 }
 
 function revalidateMediaPaths(id: string) {
-  revalidatePath("/admin/dashboard");
-  revalidatePath("/admin/media");
+  revalidatePath('/admin/dashboard');
+  revalidatePath('/admin/media');
   revalidatePath(`/admin/media/${id}`);
 }

@@ -1,18 +1,18 @@
 export const siteSettingKeys = [
-  "site.general",
-  "site.contact",
-  "site.whatsapp",
-  "site.address",
-  "site.map",
-  "site.branding",
-  "site.seo",
-  "site.social",
-  "site.search",
-  "site.analytics",
-  "site.legal",
-  "site.footer",
-  "site.defaultCta",
-  "site.system",
+  'site.general',
+  'site.contact',
+  'site.whatsapp',
+  'site.address',
+  'site.map',
+  'site.branding',
+  'site.seo',
+  'site.social',
+  'site.search',
+  'site.analytics',
+  'site.legal',
+  'site.footer',
+  'site.defaultCta',
+  'site.system',
 ] as const;
 
 export type SiteSettingKey = (typeof siteSettingKeys)[number];
@@ -132,90 +132,91 @@ export type SiteSettings = {
 export type SiteSettingGroup = keyof SiteSettings;
 
 export const siteSettingGroupToKey: Record<SiteSettingGroup, SiteSettingKey> = {
-  general: "site.general",
-  contact: "site.contact",
-  whatsapp: "site.whatsapp",
-  address: "site.address",
-  map: "site.map",
-  branding: "site.branding",
-  seo: "site.seo",
-  social: "site.social",
-  search: "site.search",
-  analytics: "site.analytics",
-  legal: "site.legal",
-  footer: "site.footer",
-  defaultCta: "site.defaultCta",
-  system: "site.system",
+  general: 'site.general',
+  contact: 'site.contact',
+  whatsapp: 'site.whatsapp',
+  address: 'site.address',
+  map: 'site.map',
+  branding: 'site.branding',
+  seo: 'site.seo',
+  social: 'site.social',
+  search: 'site.search',
+  analytics: 'site.analytics',
+  legal: 'site.legal',
+  footer: 'site.footer',
+  defaultCta: 'site.defaultCta',
+  system: 'site.system',
 };
 
 export const defaultSiteSettings: SiteSettings = {
   general: {
-    companyName: "Orontes Teknoloji",
+    companyName: 'Orontes Teknoloji',
     legalCompanyName:
-      "Orontes İnovasyon Endüstriyel Ürünler Sanayi Ticaret Ltd. Şti.",
-    shortCompanyName: "Orontes",
+      'Orontes İnovasyon Endüstriyel Ürünler Sanayi Ticaret Ltd. Şti.',
+    shortCompanyName: 'Orontes',
     companyDescription:
-      "Medikal cihaz bakım, onarım, elektronik kart tamiri ve teknik servis çözümleri.",
-    companySlogan: "Medikal cihazlarınız için güvenilir teknik servis çözümleri.",
+      'Medikal cihaz bakım, onarım, elektronik kart tamiri ve teknik servis çözümleri.',
+    companySlogan:
+      'Medikal cihazlarınız için güvenilir teknik servis çözümleri.',
   },
   contact: {
-    phonePrimary: "+905536065703",
-    phoneSecondary: "",
-    emailPrimary: "info@orontesteknoloji.com",
-    emailSupport: "info@orontesteknoloji.com",
+    phonePrimary: '+905536065703',
+    phoneSecondary: '',
+    emailPrimary: 'info@orontesteknoloji.com',
+    emailSupport: 'info@orontesteknoloji.com',
   },
   whatsapp: {
-    whatsappNumber: "905536065703",
-    whatsappMessageDefault: "Merhabalar Website Üzerinden İletişime Geçiyorum",
+    whatsappNumber: '905536065703',
+    whatsappMessageDefault: 'Merhabalar Website Üzerinden İletişime Geçiyorum',
   },
   address: {
-    country: "TR",
-    city: "İstanbul",
-    district: "Bahçelievler",
-    postalCode: "",
-    addressLine: "Kocasinan Merkez Mh. Görgülü Sk. No:20/B",
+    country: 'TR',
+    city: 'İstanbul',
+    district: 'Bahçelievler',
+    postalCode: '',
+    addressLine: 'Kocasinan Merkez Mh. Görgülü Sk. No:20/B',
   },
   map: {
     googleMapsEmbed:
-      "https://www.google.com/maps?q=Kocasinan%20Merkez%20Mh.%20G%C3%B6rg%C3%BCl%C3%BC%20Sk.%20No%3A20%2FB%20Bah%C3%A7elievler%20%C4%B0stanbul&output=embed",
-    googleMapsPlaceId: "https://maps.app.goo.gl/6RGW6dy3kK4RAax8A",
-    latitude: "",
-    longitude: "",
+      'https://www.google.com/maps?q=Kocasinan%20Merkez%20Mh.%20G%C3%B6rg%C3%BCl%C3%BC%20Sk.%20No%3A20%2FB%20Bah%C3%A7elievler%20%C4%B0stanbul&output=embed',
+    googleMapsPlaceId: 'https://maps.app.goo.gl/6RGW6dy3kK4RAax8A',
+    latitude: '',
+    longitude: '',
   },
   branding: {
-    logoMediaId: "",
-    logoDarkMediaId: "",
-    faviconMediaId: "",
-    appleTouchIconMediaId: "",
-    defaultOgImageMediaId: "",
-    logoFallbackPath: "/images/logo/orontes-logo.png",
+    logoMediaId: '',
+    logoDarkMediaId: '',
+    faviconMediaId: '',
+    appleTouchIconMediaId: '',
+    defaultOgImageMediaId: '',
+    logoFallbackPath: '/images/logo/orontes-logo.png',
   },
   seo: {
-    defaultTitle: "Orontes Teknoloji | Medikal Teknik Servis",
-    titleSuffix: "Orontes Teknoloji",
+    defaultTitle: 'Orontes Teknoloji | Medikal Teknik Servis',
+    titleSuffix: 'Orontes Teknoloji',
     defaultDescription:
-      "Medikal cihaz teknik servisi, elektronik kart onarımı, mekanik bakım ve periyodik bakım hizmetleri.",
+      'Medikal cihaz teknik servisi, elektronik kart onarımı, mekanik bakım ve periyodik bakım hizmetleri.',
     defaultKeywords:
-      "medikal cihaz teknik servis, elektronik kart tamiri, medikal cihaz bakımı",
-    canonicalOrigin: "",
+      'medikal cihaz teknik servis, elektronik kart tamiri, medikal cihaz bakımı',
+    canonicalOrigin: '',
   },
   social: {
-    instagram: "https://instagram.com/orontesteknoloji",
-    facebook: "",
+    instagram: 'https://instagram.com/orontesteknoloji',
+    facebook: '',
     linkedin:
-      "https://www.linkedin.com/company/orontes-i%CC%87novasyon-ve-end%C3%BCstriyel-%C3%BCr%C3%BCnler-san-tic-ltd-%C5%9Fti/",
-    youtube: "",
-    x: "",
-    threads: "",
+      'https://www.linkedin.com/company/orontes-i%CC%87novasyon-ve-end%C3%BCstriyel-%C3%BCr%C3%BCnler-san-tic-ltd-%C5%9Fti/',
+    youtube: '',
+    x: '',
+    threads: '',
   },
   search: {
-    googleSiteVerification: "",
-    bingSiteVerification: "",
+    googleSiteVerification: '',
+    bingSiteVerification: '',
   },
   analytics: {
-    googleAnalyticsId: "",
-    googleTagManagerId: "",
-    metaPixelId: "",
+    googleAnalyticsId: '',
+    googleTagManagerId: '',
+    metaPixelId: '',
   },
   legal: {
     privacyPolicyEnabled: true,
@@ -224,44 +225,53 @@ export const defaultSiteSettings: SiteSettings = {
   },
   footer: {
     copyrightText:
-      "Orontes İnovasyon Endüstriyel Ürünler Sanayi Ticaret Ltd. Şti. Tüm hakları saklıdır.",
+      'Orontes İnovasyon Endüstriyel Ürünler Sanayi Ticaret Ltd. Şti. Tüm hakları saklıdır.',
     footerDescription:
-      "Medikal cihaz bakım, onarım, elektronik kart tamiri ve teknik servis çözümleri.",
+      'Medikal cihaz bakım, onarım, elektronik kart tamiri ve teknik servis çözümleri.',
   },
   defaultCta: {
-    primaryButtonLabel: "Servis Talebi Oluştur",
-    primaryButtonHref: "/servis-talebi",
-    secondaryButtonLabel: "WhatsApp",
+    primaryButtonLabel: 'Servis Talebi Oluştur',
+    primaryButtonHref: '/servis-talebi',
+    secondaryButtonLabel: 'WhatsApp',
     secondaryButtonHref:
-      "https://wa.me/905536065703?text=Merhabalar%20Website%20%C3%9Czerinden%20%C4%B0leti%C5%9Fime%20Ge%C3%A7iyorum",
+      'https://wa.me/905536065703?text=Merhabalar%20Website%20%C3%9Czerinden%20%C4%B0leti%C5%9Fime%20Ge%C3%A7iyorum',
   },
   system: {
     maintenanceMode: false,
     maintenanceMessage:
-      "Web sitemiz kısa süreli bakım modundadır. Lütfen daha sonra tekrar deneyin.",
+      'Web sitemiz kısa süreli bakım modundadır. Lütfen daha sonra tekrar deneyin.',
   },
 };
 
 export function formatDisplayPhone(phone: string) {
-  const digits = phone.replace(/\D/g, "");
-  const local = digits.startsWith("90") ? digits.slice(2) : digits;
+  const digits = phone.replace(/\D/g, '');
+  const local = digits.startsWith('90')
+    ? digits.slice(2)
+    : digits.startsWith('0')
+      ? digits.slice(1)
+      : digits;
   if (local.length !== 10) return phone;
-  return `${local.slice(0, 4)} ${local.slice(4, 7)} ${local.slice(7, 9)} ${local.slice(9)}`;
+  return `0${local.slice(0, 3)} ${local.slice(3, 6)} ${local.slice(6, 8)} ${local.slice(8)}`;
 }
 
 export function createTelHref(phone: string) {
-  const digits = phone.replace(/\D/g, "");
-  const normalized = digits.startsWith("90") ? `+${digits}` : `+90${digits}`;
+  const digits = phone.replace(/\D/g, '');
+  const local = digits.startsWith('90')
+    ? digits.slice(2)
+    : digits.startsWith('0')
+      ? digits.slice(1)
+      : digits;
+  const normalized = local.length === 10 ? `+90${local}` : `+${digits}`;
   return `tel:${normalized}`;
 }
 
 export function createWhatsappHref(input: WhatsAppSettings) {
-  const digits = input.whatsappNumber.replace(/\D/g, "");
+  const digits = input.whatsappNumber.replace(/\D/g, '');
   const text = encodeURIComponent(input.whatsappMessageDefault);
   return `https://wa.me/${digits}?text=${text}`;
 }
 
-export function formatFullAddress(settings: Pick<SiteSettings, "address">) {
+export function formatFullAddress(settings: Pick<SiteSettings, 'address'>) {
   const { addressLine, district, city, postalCode } = settings.address;
-  return [addressLine, postalCode, district, city].filter(Boolean).join(" / ");
+  return [addressLine, postalCode, district, city].filter(Boolean).join(' / ');
 }

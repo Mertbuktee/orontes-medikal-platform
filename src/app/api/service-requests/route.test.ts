@@ -1,55 +1,59 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 
 import {
   createServiceRequestHandler,
   maxRequestSizeBytes,
-} from "@/app/api/service-requests/route";
-import type { StoredFileRecord } from "@/lib/security/storage";
+} from '@/app/api/service-requests/route';
+import type { StoredFileRecord } from '@/lib/security/storage';
 
 function validFormData() {
   const formData = new FormData();
-  formData.set("fullName", "Test User");
-  formData.set("company", "Test Hospital");
-  formData.set("phone", "0553 606 57 03");
-  formData.set("email", "test@example.com");
-  formData.set("deviceBrand", "Mindray");
-  formData.set("deviceModel", "BeneView T5");
-  formData.set("deviceSerialNumber", "SN-12345");
-  formData.set("message", "Cihaz arızası hakkında servis talebi oluşturmak istiyorum.");
-  formData.set("formStartedAt", String(Date.now() - 3000));
+  formData.set('fullName', 'Test User');
+  formData.set('company', 'Test Hospital');
+  formData.set('phone', '0553 606 57 03');
+  formData.set('email', 'test@example.com');
+  formData.set('deviceBrand', 'Mindray');
+  formData.set('deviceModel', 'BeneView T5');
+  formData.set('deviceSerialNumber', 'SN-12345');
+  formData.set(
+    'message',
+    'Cihaz arızası hakkında servis talebi oluşturmak istiyorum.',
+  );
+  formData.set('formStartedAt', String(Date.now() - 3000));
   return formData;
 }
 
 function pdfFile() {
   return new File(
-    [Buffer.from("%PDF-1.7\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF")],
-    "report.pdf",
-    { type: "application/pdf" }
+    [Buffer.from('%PDF-1.7\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF')],
+    'report.pdf',
+    { type: 'application/pdf' },
   );
 }
 
-describe("service request route", () => {
-  it("returns 413 for oversized Content-Length before parsing form data", async () => {
+describe('service request route', () => {
+  it('returns 413 for oversized Content-Length before parsing form data', async () => {
     const handler = createServiceRequestHandler({
       storage: {
         save: async () => {
-          throw new Error("should not save");
+          throw new Error('should not save');
         },
         remove: async () => undefined,
       },
       repository: {
         save: async () => {
-          throw new Error("should not persist");
+          throw new Error('should not persist');
         },
       },
     });
-    const request = new Request("https://example.com/api/service-requests", {
-      method: "POST",
+    const request = new Request('https://example.com/api/service-requests', {
+      method: 'POST',
       headers: {
-        "content-length": String(maxRequestSizeBytes + 1),
-        "content-type": "multipart/form-data; boundary=test",
+        'content-length': String(maxRequestSizeBytes + 1),
+        'content-type': 'multipart/form-data; boundary=test',
+        origin: 'https://example.com',
       },
-      body: "",
+      body: '',
     });
 
     const response = await handler(request);
@@ -59,11 +63,11 @@ describe("service request route", () => {
     expect(body.success).toBe(false);
   });
 
-  it("removes a stored file when repository persistence fails", async () => {
-    let removedStorageKey = "";
+  it('removes a stored file when repository persistence fails', async () => {
+    let removedStorageKey = '';
     const storedFile: StoredFileRecord = {
-      storageKey: "stored.pdf",
-      mimeType: "application/pdf",
+      storageKey: 'stored.pdf',
+      mimeType: 'application/pdf',
       size: 10,
     };
     const handler = createServiceRequestHandler({
@@ -75,17 +79,18 @@ describe("service request route", () => {
       },
       repository: {
         save: async () => {
-          throw new Error("database unavailable");
+          throw new Error('database unavailable');
         },
       },
     });
     const formData = validFormData();
-    formData.set("attachment", pdfFile());
+    formData.set('attachment', pdfFile());
     const response = await handler(
-      new Request("https://example.com/api/service-requests", {
-        method: "POST",
+      new Request('https://example.com/api/service-requests', {
+        method: 'POST',
+        headers: { origin: 'https://example.com' },
         body: formData,
-      })
+      }),
     );
 
     expect(response.status).toBe(500);

@@ -1,8 +1,8 @@
 export function isSameOriginRequest(request: Request) {
-  const origin = request.headers.get("origin");
+  const origin = request.headers.get('origin');
 
   if (!origin) {
-    return true;
+    return isTrustedFetchSite(request.headers);
   }
 
   const normalizedOrigin = normalizeOrigin(origin);
@@ -15,15 +15,30 @@ export function isSameOriginRequest(request: Request) {
 }
 
 export function getAllowedOrigins(request: Request) {
-  const configuredOrigins = (process.env.APP_ORIGIN ?? "")
-    .split(",")
+  const configuredOrigins = (process.env.APP_ORIGIN ?? '')
+    .split(',')
     .map(normalizeOrigin)
     .filter((value): value is string => Boolean(value));
   const fallbackOrigin = normalizeOrigin(new URL(request.url).origin);
   const developmentOrigin =
-    process.env.NODE_ENV === "development" ? "http://localhost:3000" : undefined;
+    process.env.NODE_ENV === 'development'
+      ? 'http://localhost:3000'
+      : undefined;
 
-  return [...new Set([...configuredOrigins, fallbackOrigin, developmentOrigin].filter(Boolean))];
+  return [
+    ...new Set(
+      [...configuredOrigins, fallbackOrigin, developmentOrigin].filter(Boolean),
+    ),
+  ];
+}
+
+function isTrustedFetchSite(headers: Headers) {
+  const fetchSite = headers.get('sec-fetch-site');
+  return (
+    fetchSite === 'same-origin' ||
+    fetchSite === 'same-site' ||
+    fetchSite === 'none'
+  );
 }
 
 function normalizeOrigin(origin: string) {

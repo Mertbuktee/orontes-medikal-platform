@@ -10,30 +10,30 @@ import {
   Save,
   UserRoundCheck,
   type LucideIcon,
-} from "lucide-react";
-import Link from "next/link";
-import { notFound } from "next/navigation";
+} from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { ServiceRequestAttachmentViewer } from "@/components/admin/service-requests/ServiceRequestAttachmentViewer";
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { ServiceRequestAttachmentViewer } from '@/components/admin/service-requests/ServiceRequestAttachmentViewer';
 import {
   formatFileSize,
   getAllowedNextStatuses,
   getServiceRequestStatusClassName,
   getServiceRequestStatusMeta,
-} from "@/components/admin/service-request-status";
-import { requirePermission } from "@/lib/auth/admin-session";
-import { AdminAuthRepository } from "@/lib/auth/admin-auth-repository";
-import { prisma } from "@/lib/database/prisma";
-import { PrismaServiceRequestRepository } from "@/lib/database/repositories/service-requests";
-import { hasPermission } from "@/lib/rbac/permissions";
+} from '@/components/admin/service-request-status';
+import { requirePermission } from '@/lib/auth/admin-session';
+import { AdminAuthRepository } from '@/lib/auth/admin-auth-repository';
+import { prisma } from '@/lib/database/prisma';
+import { PrismaServiceRequestRepository } from '@/lib/database/repositories/service-requests';
+import { hasPermission } from '@/lib/rbac/permissions';
 
 import {
   addServiceRequestNote,
   archiveServiceRequest,
   assignServiceRequest,
   updateServiceRequestStatus,
-} from "../actions";
+} from '../actions';
 
 type ServiceRequestDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -42,7 +42,7 @@ type ServiceRequestDetailPageProps = {
 export default async function ServiceRequestDetailPage({
   params,
 }: ServiceRequestDetailPageProps) {
-  const session = await requirePermission("serviceRequests.view");
+  const session = await requirePermission('serviceRequests.view');
   const { id } = await params;
   const repository = new PrismaServiceRequestRepository(prisma);
   const auditRepository = new AdminAuthRepository(prisma);
@@ -55,14 +55,17 @@ export default async function ServiceRequestDetailPage({
     notFound();
   }
 
-  const canUpdate = hasPermission(session.role, "serviceRequests.update");
-  const canAssign = hasPermission(session.role, "serviceRequests.assign");
-  const canArchive = hasPermission(session.role, "serviceRequests.archive");
-  const canAddNote = hasPermission(session.role, "serviceRequests.notes.create");
-  const canViewAudit = hasPermission(session.role, "audit.view");
+  const canUpdate = hasPermission(session.role, 'serviceRequests.update');
+  const canAssign = hasPermission(session.role, 'serviceRequests.assign');
+  const canArchive = hasPermission(session.role, 'serviceRequests.archive');
+  const canAddNote = hasPermission(
+    session.role,
+    'serviceRequests.notes.create',
+  );
+  const canViewAudit = hasPermission(session.role, 'audit.view');
   const canViewAttachment = hasPermission(
     session.role,
-    "serviceRequests.attachments.view"
+    'serviceRequests.attachments.view',
   );
   const statusMeta = getServiceRequestStatusMeta(request.status);
   const allowedNextStatuses = getAllowedNextStatuses(request.status);
@@ -72,14 +75,15 @@ export default async function ServiceRequestDetailPage({
   const imageAttachments = canViewAttachment
     ? request.attachments
         .filter((attachment) =>
-          ["image/jpeg", "image/png", "image/webp"].includes(attachment.mimeType)
+          ['image/jpeg', 'image/png', 'image/webp'].includes(
+            attachment.mimeType,
+          ),
         )
         .map((attachment) => ({
           id: attachment.id,
           mimeType: attachment.mimeType,
           sizeLabel: formatFileSize(attachment.size),
           previewUrl: `/admin/service-requests/${request.id}/attachments/${attachment.id}?preview=1`,
-          downloadUrl: `/admin/service-requests/${request.id}/attachments/${attachment.id}`,
         }))
     : [];
 
@@ -87,7 +91,7 @@ export default async function ServiceRequestDetailPage({
     <div className="space-y-6">
       <Link
         href="/admin/service-requests"
-        className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+        className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
         Servis taleplerine dön
@@ -96,7 +100,7 @@ export default async function ServiceRequestDetailPage({
       <AdminPageHeader
         eyebrow={`Talep ${shortId(request.id)}`}
         title={request.fullName}
-        description={`${request.company || "Firma bilgisi yok"} tarafından iletilen servis başvurusu. Talep detayları, durum geçmişi ve ekip içi notlar bu ekranda takip edilir.`}
+        description={`${request.company || 'Firma bilgisi yok'} tarafından iletilen servis başvurusu. Talep detayları, durum geçmişi ve ekip içi notlar bu ekranda takip edilir.`}
       />
 
       <div className="grid gap-6 xl:grid-cols-[1fr_390px]">
@@ -122,13 +126,13 @@ export default async function ServiceRequestDetailPage({
               <InfoItem
                 icon={Building2}
                 label="Firma/Hastane"
-                value={request.company || "Belirtilmedi"}
+                value={request.company || 'Belirtilmedi'}
               />
               <InfoItem
                 icon={Phone}
                 label="Telefon"
                 value={request.phone}
-                href={`tel:${request.phone.replace(/\s+/g, "")}`}
+                href={`tel:${request.phone.replace(/\s+/g, '')}`}
               />
               <InfoItem
                 icon={Mail}
@@ -149,28 +153,28 @@ export default async function ServiceRequestDetailPage({
               <InfoItem
                 icon={UserRoundCheck}
                 label="Atanan Personel"
-                value={request.assignedUser?.name ?? "Atanmadı"}
+                value={request.assignedUser?.name ?? 'Atanmadı'}
               />
               <InfoItem
                 icon={FileText}
                 label="Cihaz Markası"
-                value={request.deviceBrand || "Belirtilmedi"}
+                value={request.deviceBrand || 'Belirtilmedi'}
               />
               <InfoItem
                 icon={FileText}
                 label="Cihaz Modeli"
-                value={request.deviceModel || "Belirtilmedi"}
+                value={request.deviceModel || 'Belirtilmedi'}
               />
               <InfoItem
                 icon={FileText}
                 label="Seri No"
-                value={request.deviceSerialNumber || "Belirtilmedi"}
+                value={request.deviceSerialNumber || 'Belirtilmedi'}
               />
             </dl>
 
             <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
               <h3 className="text-sm font-semibold text-slate-950">Mesaj</h3>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-700">
+              <p className="mt-3 text-sm leading-7 whitespace-pre-wrap text-slate-700">
                 {request.message}
               </p>
             </div>
@@ -182,7 +186,11 @@ export default async function ServiceRequestDetailPage({
             </h2>
             {canAddNote ? (
               <form action={addServiceRequestNote} className="mt-5 space-y-3">
-                <input type="hidden" name="serviceRequestId" value={request.id} />
+                <input
+                  type="hidden"
+                  name="serviceRequestId"
+                  value={request.id}
+                />
                 <label className="sr-only" htmlFor="service-request-note">
                   Not ekle
                 </label>
@@ -197,7 +205,7 @@ export default async function ServiceRequestDetailPage({
                 />
                 <button
                   type="submit"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:bg-orange-600 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   Not Ekle
                   <Save className="size-4" aria-hidden="true" />
@@ -220,7 +228,7 @@ export default async function ServiceRequestDetailPage({
                         {formatDate(note.createdAt)}
                       </time>
                     </div>
-                    <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                    <p className="mt-3 text-sm leading-6 whitespace-pre-wrap text-slate-700">
                       {note.content}
                     </p>
                   </article>
@@ -244,7 +252,10 @@ export default async function ServiceRequestDetailPage({
             </p>
 
             {canUpdate && allowedNextStatuses.length ? (
-              <form action={updateServiceRequestStatus} className="mt-5 space-y-3">
+              <form
+                action={updateServiceRequestStatus}
+                className="mt-5 space-y-3"
+              >
                 <input type="hidden" name="id" value={request.id} />
                 <label className="sr-only" htmlFor="service-request-status">
                   Talep durumu
@@ -261,7 +272,10 @@ export default async function ServiceRequestDetailPage({
                     </option>
                   ))}
                 </select>
-                <label className="sr-only" htmlFor="service-request-status-reason">
+                <label
+                  className="sr-only"
+                  htmlFor="service-request-status-reason"
+                >
                   Durum değişikliği gerekçesi
                 </label>
                 <textarea
@@ -273,7 +287,7 @@ export default async function ServiceRequestDetailPage({
                 />
                 <button
                   type="submit"
-                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   Durumu Güncelle
                   <Save className="size-4" aria-hidden="true" />
@@ -281,11 +295,12 @@ export default async function ServiceRequestDetailPage({
               </form>
             ) : (
               <p className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
-                Bu talep için uygun durum geçişi veya güncelleme yetkisi bulunmuyor.
+                Bu talep için uygun durum geçişi veya güncelleme yetkisi
+                bulunmuyor.
               </p>
             )}
 
-            {canArchive && allowedNextStatuses.includes("ARCHIVED") ? (
+            {canArchive && allowedNextStatuses.includes('ARCHIVED') ? (
               <form action={archiveServiceRequest} className="mt-3 space-y-3">
                 <input type="hidden" name="id" value={request.id} />
                 <label className="sr-only" htmlFor="archive-reason">
@@ -300,7 +315,7 @@ export default async function ServiceRequestDetailPage({
                 />
                 <button
                   type="submit"
-                  className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-5 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
+                  className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-5 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   Talebi Arşivle
                 </button>
@@ -319,7 +334,7 @@ export default async function ServiceRequestDetailPage({
                 <select
                   id="assigned-user"
                   name="assignedUserId"
-                  defaultValue={request.assignedUserId ?? ""}
+                  defaultValue={request.assignedUserId ?? ''}
                   className="min-h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-800 outline-none focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
                 >
                   <option value="">Atamayı kaldır</option>
@@ -331,7 +346,7 @@ export default async function ServiceRequestDetailPage({
                 </select>
                 <button
                   type="submit"
-                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 text-sm font-semibold text-white transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 text-sm font-semibold text-white transition hover:bg-orange-600 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   Atamayı Kaydet
                   <Save className="size-4" aria-hidden="true" />
@@ -357,7 +372,10 @@ export default async function ServiceRequestDetailPage({
                     className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
                   >
                     <p className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-                      <Paperclip className="size-4 text-orange-500" aria-hidden="true" />
+                      <Paperclip
+                        className="size-4 text-orange-500"
+                        aria-hidden="true"
+                      />
                       {attachment.mimeType}
                     </p>
                     <p className="mt-2 text-sm text-slate-500">
@@ -366,10 +384,13 @@ export default async function ServiceRequestDetailPage({
                     {canViewAttachment ? (
                       <Link
                         href={`/admin/service-requests/${request.id}/attachments/${attachment.id}`}
-                        className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                        className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none"
                       >
                         Dosyayı İndir
-                        <ArrowDownToLine className="size-4" aria-hidden="true" />
+                        <ArrowDownToLine
+                          className="size-4"
+                          aria-hidden="true"
+                        />
                       </Link>
                     ) : null}
                   </div>
@@ -396,7 +417,7 @@ export default async function ServiceRequestDetailPage({
                     <p className="text-sm font-semibold text-slate-950">
                       {history.fromStatus
                         ? `${getServiceRequestStatusMeta(history.fromStatus).label} -> `
-                        : ""}
+                        : ''}
                       {getServiceRequestStatusMeta(history.toStatus).label}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
@@ -428,7 +449,7 @@ export default async function ServiceRequestDetailPage({
                         {event.action} - {event.entityType}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
-                        {event.actor?.name ?? "Sistem"} -{" "}
+                        {event.actor?.name ?? 'Sistem'} -{' '}
                         {formatDate(event.createdAt)}
                       </p>
                     </div>
@@ -460,11 +481,11 @@ function InfoItem({
 }) {
   const content = (
     <>
-      <dt className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+      <dt className="flex items-center gap-2 text-xs font-semibold tracking-[0.14em] text-slate-500 uppercase">
         <Icon className="size-4 text-sky-600" aria-hidden="true" />
         {label}
       </dt>
-      <dd className="mt-2 break-words text-sm font-semibold text-slate-950">
+      <dd className="mt-2 text-sm font-semibold break-words text-slate-950">
         {value}
       </dd>
     </>
@@ -474,7 +495,7 @@ function InfoItem({
     return (
       <a
         href={href}
-        className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-orange-200 hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+        className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-orange-200 hover:bg-orange-50 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none"
       >
         {content}
       </a>
@@ -493,11 +514,11 @@ function shortId(id: string) {
 }
 
 function formatDate(date: Date) {
-  return new Intl.DateTimeFormat("tr-TR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  return new Intl.DateTimeFormat('tr-TR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   }).format(date);
 }

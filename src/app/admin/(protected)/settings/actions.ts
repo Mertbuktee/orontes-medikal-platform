@@ -1,41 +1,43 @@
-"use server";
+'use server';
 
-import type { Prisma } from "@prisma/client";
-import { revalidatePath, revalidateTag } from "next/cache";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import type { Prisma } from '@prisma/client';
+import { revalidatePath, revalidateTag } from 'next/cache';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-import { AdminAuthRepository } from "@/lib/auth/admin-auth-repository";
-import { requirePermission } from "@/lib/auth/admin-session";
-import { getAdminRequestContext } from "@/lib/auth/request-context";
-import { prisma } from "@/lib/database/prisma";
-import { SiteSettingsRepository } from "@/lib/database/repositories/site-settings";
+import { AdminAuthRepository } from '@/lib/auth/admin-auth-repository';
+import { requirePermission } from '@/lib/auth/admin-session';
+import { getAdminRequestContext } from '@/lib/auth/request-context';
+import { prisma } from '@/lib/database/prisma';
+import { SiteSettingsRepository } from '@/lib/database/repositories/site-settings';
 import {
   BRANDING_CACHE_TAG,
   GLOBAL_SEO_CACHE_TAG,
   SITE_SETTINGS_CACHE_TAG,
-} from "@/lib/site-settings/public-site-settings";
+} from '@/lib/site-settings/public-site-settings';
 import {
   siteSettingGroupToKey,
   type BrandingSettings,
   type SiteSettingGroup,
-} from "@/lib/site-settings/site-settings-types";
-import { parseSiteSettingGroup } from "@/lib/site-settings/site-settings-validation";
+} from '@/lib/site-settings/site-settings-types';
+import { parseSiteSettingGroup } from '@/lib/site-settings/site-settings-validation';
+import { assertSameOriginAction } from '@/lib/security/action-origin';
 
 export async function updateSiteSettingGroup(formData: FormData) {
-  const group = String(formData.get("group") ?? "") as SiteSettingGroup;
+  const group = String(formData.get('group') ?? '') as SiteSettingGroup;
   const permission =
-    group === "seo" || group === "search" || group === "analytics"
-      ? "settings.seo.manage"
-      : "settings.update";
+    group === 'seo' || group === 'search' || group === 'analytics'
+      ? 'settings.seo.manage'
+      : 'settings.update';
   const session = await requirePermission(permission);
+  await assertSameOriginAction();
 
   if (!(group in siteSettingGroupToKey)) {
-    throw new Error("Invalid settings group.");
+    throw new Error('Invalid settings group.');
   }
 
   const value = parseSiteSettingGroup(group, getGroupPayload(group, formData));
-  if (group === "branding") {
+  if (group === 'branding') {
     const branding = value as BrandingSettings;
     await assertActiveImageMedia([
       branding.logoMediaId,
@@ -49,7 +51,7 @@ export async function updateSiteSettingGroup(formData: FormData) {
   const record = await new SiteSettingsRepository(prisma).updateGroup(
     group,
     value,
-    session.userId
+    session.userId,
   );
 
   await appendSettingsAudit(session.userId, record.id, {
@@ -63,24 +65,26 @@ export async function updateSiteSettingGroup(formData: FormData) {
 }
 
 function getGroupPayload(group: SiteSettingGroup, formData: FormData) {
-  if (group === "legal" || group === "system") {
+  if (group === 'legal' || group === 'system') {
     const payload: Record<string, FormDataEntryValue | boolean> = {};
     for (const [key, value] of formData.entries()) {
-      if (key !== "group") payload[key] = value;
+      if (key !== 'group') payload[key] = value;
     }
-    if (group === "legal") {
-      payload.privacyPolicyEnabled = formData.get("privacyPolicyEnabled") === "true";
-      payload.cookiePolicyEnabled = formData.get("cookiePolicyEnabled") === "true";
-      payload.kvkkEnabled = formData.get("kvkkEnabled") === "true";
+    if (group === 'legal') {
+      payload.privacyPolicyEnabled =
+        formData.get('privacyPolicyEnabled') === 'true';
+      payload.cookiePolicyEnabled =
+        formData.get('cookiePolicyEnabled') === 'true';
+      payload.kvkkEnabled = formData.get('kvkkEnabled') === 'true';
     }
-    if (group === "system") {
-      payload.maintenanceMode = formData.get("maintenanceMode") === "true";
+    if (group === 'system') {
+      payload.maintenanceMode = formData.get('maintenanceMode') === 'true';
     }
     return payload;
   }
 
   return Object.fromEntries(
-    Array.from(formData.entries()).filter(([key]) => key !== "group")
+    Array.from(formData.entries()).filter(([key]) => key !== 'group'),
   );
 }
 
@@ -92,25 +96,25 @@ async function assertActiveImageMedia(mediaIds: string[]) {
     where: {
       id: { in: ids },
       archivedAt: null,
-      usageType: { in: ["IMAGE", "LOGO", "FAVICON", "OPEN_GRAPH"] },
-      mimeType: { startsWith: "image/" },
+      usageType: { in: ['IMAGE', 'LOGO', 'FAVICON', 'OPEN_GRAPH'] },
+      mimeType: { startsWith: 'image/' },
     },
   });
 
   if (count !== new Set(ids).size) {
-    throw new Error("Selected branding media must be active image media.");
+    throw new Error('Selected branding media must be active image media.');
   }
 }
 
 async function appendSettingsAudit(
   actorId: string,
   entityId: string,
-  metadata: Prisma.InputJsonValue
+  metadata: Prisma.InputJsonValue,
 ) {
   await new AdminAuthRepository(prisma).appendAuditLog({
     actorId,
-    action: "UPDATE",
-    entityType: "SiteSetting",
+    action: 'UPDATE',
+    entityType: 'SiteSetting',
     entityId,
     metadata,
     context: getAdminRequestContext(await headers()),
@@ -118,11 +122,11 @@ async function appendSettingsAudit(
 }
 
 function revalidateSiteSettings() {
-  revalidateTag(SITE_SETTINGS_CACHE_TAG, "max");
-  revalidateTag(GLOBAL_SEO_CACHE_TAG, "max");
-  revalidateTag(BRANDING_CACHE_TAG, "max");
-  revalidatePath("/");
-  revalidatePath("/admin/settings");
-  revalidatePath("/sitemap.xml");
-  revalidatePath("/robots.txt");
+  revalidateTag(SITE_SETTINGS_CACHE_TAG, 'max');
+  revalidateTag(GLOBAL_SEO_CACHE_TAG, 'max');
+  revalidateTag(BRANDING_CACHE_TAG, 'max');
+  revalidatePath('/');
+  revalidatePath('/admin/settings');
+  revalidatePath('/sitemap.xml');
+  revalidatePath('/robots.txt');
 }
