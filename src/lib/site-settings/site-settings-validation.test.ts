@@ -87,7 +87,31 @@ describe('site settings validation', () => {
     expect(result.ok).toBe(false);
     expect(result.errors).toContain('site.contact.phonePrimary is required.');
     expect(result.warnings).toContain(
-      'site.branding.logoMediaId should be set to a production Media record.',
+      'site.branding.logoMediaId must reference an active production Media record.',
+    );
+  });
+
+  it('can require production brand media as readiness blockers', () => {
+    const result = validateProductionSiteSettings(
+      {
+        ...defaultSiteSettings,
+        branding: {
+          ...defaultSiteSettings.branding,
+          logoMediaId: '',
+          faviconMediaId: '',
+          appleTouchIconMediaId: '',
+          defaultOgImageMediaId: '',
+        },
+      },
+      { requireBrandMedia: true },
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.errors).toContain(
+      'site.branding.logoMediaId must reference an active production Media record.',
+    );
+    expect(result.errors).toContain(
+      'site.branding.appleTouchIconMediaId must reference an active production Media record.',
     );
   });
 });

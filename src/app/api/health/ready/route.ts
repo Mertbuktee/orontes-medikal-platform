@@ -2,6 +2,7 @@ import { constants } from 'node:fs';
 import { access, stat, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { isProductionDeployment } from '@/config/site';
 import { prisma } from '@/lib/database/prisma';
 import { SiteSettingsRepository } from '@/lib/database/repositories/site-settings';
 import { validateRuntimeEnvironment } from '@/lib/env/production';
@@ -100,7 +101,9 @@ async function checkSiteSettings(): Promise<{
       2500,
     );
     const settings = await withTimeout(repository.getSettings(), 2500);
-    const validation = validateProductionSiteSettings(settings);
+    const validation = validateProductionSiteSettings(settings, {
+      requireBrandMedia: isProductionDeployment(process.env),
+    });
     const errors = [
       ...missingGroups.map((key) => `Missing Site Settings group: ${key}`),
       ...validation.errors,

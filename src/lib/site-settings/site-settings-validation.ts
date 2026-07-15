@@ -202,7 +202,10 @@ export function parseSiteSettings(
   } satisfies SiteSettings;
 }
 
-export function validateProductionSiteSettings(settings: SiteSettings) {
+export function validateProductionSiteSettings(
+  settings: SiteSettings,
+  options: { requireBrandMedia?: boolean } = {},
+) {
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -261,19 +264,27 @@ export function validateProductionSiteSettings(settings: SiteSettings) {
     errors,
   );
 
-  if (!settings.branding.logoMediaId) {
-    warnings.push(
-      'site.branding.logoMediaId should be set to a production Media record.',
-    );
-  }
-  if (!settings.branding.faviconMediaId) {
-    warnings.push('site.branding.faviconMediaId should be set before launch.');
-  }
-  if (!settings.branding.defaultOgImageMediaId) {
-    warnings.push(
-      'site.branding.defaultOgImageMediaId should be set before launch.',
-    );
-  }
+  const brandTarget = options.requireBrandMedia ? errors : warnings;
+  requireBrandMedia(
+    settings.branding.logoMediaId,
+    'site.branding.logoMediaId',
+    brandTarget,
+  );
+  requireBrandMedia(
+    settings.branding.faviconMediaId,
+    'site.branding.faviconMediaId',
+    brandTarget,
+  );
+  requireBrandMedia(
+    settings.branding.appleTouchIconMediaId,
+    'site.branding.appleTouchIconMediaId',
+    brandTarget,
+  );
+  requireBrandMedia(
+    settings.branding.defaultOgImageMediaId,
+    'site.branding.defaultOgImageMediaId',
+    brandTarget,
+  );
   if (!settings.social.instagram) {
     warnings.push(
       'site.social.instagram is empty; footer will omit Instagram.',
@@ -289,6 +300,12 @@ export function validateProductionSiteSettings(settings: SiteSettings) {
 function requireSetting(value: string, key: string, errors: string[]) {
   if (!value.trim()) {
     errors.push(`${key} is required.`);
+  }
+}
+
+function requireBrandMedia(value: string, key: string, target: string[]) {
+  if (!value.trim()) {
+    target.push(`${key} must reference an active production Media record.`);
   }
 }
 

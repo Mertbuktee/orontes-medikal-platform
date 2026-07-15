@@ -269,3 +269,50 @@ Fixed during TASK-041:
 - Database restore tooling is verified for listing, not for destructive restore.
 - Real production rollback must identify the previous image tag, database backup
   artifact and communication owner before deployment.
+
+## TASK-041B Follow-up
+
+Repo-level P1 closure work added after this audit:
+
+- README starter text replaced with a project-specific operations guide.
+- Node policy pinned with `.nvmrc`, `.node-version` and `package.json` engines.
+- `npm run env:check` added for local/CI/runtime policy checks.
+- `npm run production:check` added for safe production readiness diagnostics.
+- `npm run mail:verify` and guarded `npm run mail:test` added.
+- `npm run blog:publish-due` added for scheduled blog publishing.
+- Production Compose now includes an explicit `blog-publisher` worker example.
+- Site Settings production readiness now treats logo, favicon, apple-touch icon
+  and default OG image Media records as production blockers.
+- Targeted E2E scripts added for service-request workflow and admin RBAC route
+  boundaries.
+- Provider/business checklist added at `docs/18-production-values-checklist.md`.
+
+Remaining P1 items are provider or business dependent:
+
+- real production brand media must be uploaded and selected in Site Settings
+- SMTP provider, SPF, DKIM, DMARC and MAIL FROM alignment must be verified
+- monitoring/alerting provider must be configured
+- off-host database backup destination must be configured and tested
+- local private storage backup must be configured for the single-instance profile
+- business/legal owner must approve live legal and company content
+
+TASK-041B verification run:
+
+- `npm run env:check` passed with local Node 24 warning; CI/production standard
+  remains Node 22.13.1.
+- `npm test` passed: 37 files, 219 tests.
+- `npm run lint` passed.
+- `npm run build` passed.
+- `npm run test:e2e:service-requests` passed.
+- `npm run test:e2e:rbac` passed.
+- `npm run qa:visual` passed.
+- `npm run mail:verify` passed in development mode as `manual-not-required`.
+- `npm run production:check` correctly failed locally with provider/business
+  blockers rather than claiming production readiness.
+
+Runtime observations:
+
+- The local Playwright/visual QA server still prints the Next standalone warning
+  because it uses the programmatic production server helper for local QA.
+- A `pg` deprecation warning appears during browser QA; it did not fail the
+  checks, but should be watched during future Prisma/adapter upgrades.

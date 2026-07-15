@@ -41,6 +41,15 @@ services:
       MFA_ENCRYPTION_KEY: ${MFA_ENCRYPTION_KEY}
       STORAGE_PROVIDER: ${STORAGE_PROVIDER:-local}
       PRIVATE_STORAGE_ROOT: /app/storage/private
+      PRIVATE_STORAGE_BACKUP_ENABLED: ${PRIVATE_STORAGE_BACKUP_ENABLED:-false}
+      PRODUCTION_PROFILE: ${PRODUCTION_PROFILE:-single-instance}
+      MAIL_WORKER_ENABLED: ${MAIL_WORKER_ENABLED:-false}
+      BLOG_SCHEDULER_ENABLED: ${BLOG_SCHEDULER_ENABLED:-false}
+      BACKUP_REMOTE_URL: ${BACKUP_REMOTE_URL}
+      BACKUP_S3_BUCKET: ${BACKUP_S3_BUCKET}
+      MONITORING_PROVIDER: ${MONITORING_PROVIDER}
+      ERROR_MONITORING_DSN: ${ERROR_MONITORING_DSN}
+      LEGAL_APPROVAL_CONFIRMED: ${LEGAL_APPROVAL_CONFIRMED:-false}
       GIT_COMMIT_SHA: ${GIT_COMMIT_SHA}
     volumes:
       - orontes_private_storage:/app/storage/private
@@ -83,6 +92,29 @@ services:
       MAIL_WORKER_BATCH_SIZE: ${MAIL_WORKER_BATCH_SIZE:-25}
     volumes:
       - orontes_private_storage:/app/storage/private
+    networks:
+      - internal
+    depends_on:
+      postgres:
+        condition: service_healthy
+    logging: *default-logging
+
+  blog-publisher:
+    build:
+      context: .
+      target: worker
+    restart: unless-stopped
+    command:
+      - /bin/sh
+      - -lc
+      - while true; do npm run blog:publish-due; sleep $${BLOG_PUBLISH_INTERVAL_SECONDS:-300}; done
+    environment:
+      APP_ENV: production
+      APP_ORIGIN: ${APP_ORIGIN:?APP_ORIGIN is required}
+      TRUST_PROXY: "true"
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      BLOG_PUBLISH_BATCH_SIZE: ${BLOG_PUBLISH_BATCH_SIZE:-25}
+      BLOG_PUBLISH_INTERVAL_SECONDS: ${BLOG_PUBLISH_INTERVAL_SECONDS:-300}
     networks:
       - internal
     depends_on:
