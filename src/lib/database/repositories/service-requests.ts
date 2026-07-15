@@ -236,6 +236,10 @@ export class PrismaServiceRequestRepository
   }
 
   findDeviceServiceHistoryByRequestId(serviceRequestId: string) {
+    if (!("deviceServiceHistory" in this.client)) {
+      return Promise.resolve(null);
+    }
+
     return this.client.deviceServiceHistory.findUnique({
       where: { serviceRequestId },
     });
