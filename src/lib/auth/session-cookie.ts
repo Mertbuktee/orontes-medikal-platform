@@ -5,7 +5,7 @@ export const DEFAULT_ADMIN_REMEMBER_SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 export type AdminSessionCookieOptions = {
   httpOnly: true;
   sameSite: "lax";
-  path: "/admin";
+  path: "/";
   secure: boolean;
   maxAge: number;
   expires?: Date;
@@ -75,7 +75,7 @@ export function getAdminSessionCookieOptions(
   return {
     httpOnly: true,
     sameSite: "lax",
-    path: "/admin",
+    path: "/",
     secure: env.APP_ENV === "production" || env.VERCEL_ENV === "production",
     maxAge: getAdminSessionMaxAgeForPolicy(remembered, env),
   };

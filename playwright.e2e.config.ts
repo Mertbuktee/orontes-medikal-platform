@@ -19,7 +19,7 @@ export default defineConfig({
   webServer: {
     command: `cmd /c "set PORT=${port}&& set APP_ORIGIN=http://127.0.0.1:${port}&& node scripts/visual-qa-server.mjs"`,
     url: `http://127.0.0.1:${port}/api/health/live`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120_000,
   },
   projects: [

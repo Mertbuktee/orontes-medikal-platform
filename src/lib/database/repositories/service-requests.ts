@@ -138,6 +138,86 @@ export class PrismaServiceRequestRepository
     return { statusCounts, latest };
   }
 
+  async getTechnicalDashboardSummary() {
+    const [statusCounts, recentlyUpdated, latest] = await Promise.all([
+      this.getStatusCounts("active"),
+      this.client.serviceRequest.count({
+        where: {
+          archivedAt: null,
+          updatedAt: {
+            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+          },
+        },
+      }),
+      this.client.serviceRequest.findMany({
+        where: { archivedAt: null },
+        orderBy: { updatedAt: "desc" },
+        take: 5,
+        include: {
+          attachments: true,
+          assignedUser: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return { statusCounts, recentlyUpdated, latest };
+  }
+
+  async listTechnicalCustomers(limit = 100) {
+    return this.client.serviceRequest.groupBy({
+      by: ["email", "phone", "fullName", "company"],
+      where: { archivedAt: null },
+      _count: { id: true },
+      _max: { updatedAt: true, createdAt: true },
+      orderBy: [{ _max: { updatedAt: "desc" } }],
+      take: limit,
+    });
+  }
+
+  async listTechnicalDevices(limit = 100) {
+    return this.client.serviceRequest.groupBy({
+      by: ["deviceBrand", "deviceModel", "deviceSerialNumber", "company"],
+      where: {
+        archivedAt: null,
+        OR: [
+          { deviceBrand: { not: null } },
+          { deviceModel: { not: null } },
+          { deviceSerialNumber: { not: null } },
+        ],
+      },
+      _count: { id: true },
+      _max: { updatedAt: true, createdAt: true },
+      orderBy: [{ _max: { updatedAt: "desc" } }],
+      take: limit,
+    });
+  }
+
+  listCompletedServiceHistory(limit = 100) {
+    return this.client.serviceRequest.findMany({
+      where: {
+        status: { in: ["COMPLETED", "ARCHIVED"] },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: limit,
+      include: {
+        attachments: true,
+        assignedUser: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+  }
+
   findById(id: string) {
     return this.client.serviceRequest.findUnique({
       where: { id },

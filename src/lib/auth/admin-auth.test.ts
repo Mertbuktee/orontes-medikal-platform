@@ -82,7 +82,7 @@ describe("secure admin authentication foundation", () => {
 
     expect(options.httpOnly).toBe(true);
     expect(options.sameSite).toBe("lax");
-    expect(options.path).toBe("/admin");
+    expect(options.path).toBe("/");
     expect(options.secure).toBe(false);
   });
 

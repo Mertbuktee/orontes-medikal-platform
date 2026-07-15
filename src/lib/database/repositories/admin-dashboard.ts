@@ -120,25 +120,25 @@ export class AdminDashboardRepository {
       {
         key: "new",
         label: "Yeni Talepler",
-        href: "/admin/service-requests?status=NEW",
+        href: "/technical/service-requests?status=NEW",
         trend: createTrend(newCurrent, newPrevious),
       },
       {
         key: "reviewing",
         label: "İncelenen Talepler",
-        href: "/admin/service-requests?status=REVIEWING",
+        href: "/technical/service-requests?status=REVIEWING",
         trend: createTrend(reviewingCurrent, reviewingPrevious),
       },
       {
         key: "repair",
         label: "Onarımda",
-        href: "/admin/service-requests?status=IN_REPAIR",
+        href: "/technical/service-requests?status=IN_REPAIR",
         trend: createTrend(repairCurrent, repairPrevious),
       },
       {
         key: "completed",
         label: "Tamamlanan",
-        href: "/admin/service-requests?status=COMPLETED",
+        href: "/technical/service-requests?status=COMPLETED",
         trend: createTrend(completedCurrent, completedPrevious),
       },
     ];
@@ -767,7 +767,7 @@ function getAuditLabel(action: AuditAction, entityType: string) {
 
 function getAuditHref(entityType: string, entityId: string | null) {
   if (!entityId) return null;
-  if (entityType === "ServiceRequest") return `/admin/service-requests/${entityId}`;
+  if (entityType === "ServiceRequest") return `/technical/service-requests/${entityId}`;
   if (entityType === "Media") return `/admin/media/${entityId}`;
   if (entityType === "HeroSlide") return `/admin/hero-slides/${entityId}`;
   if (entityType === "BlogPost") return `/admin/blog/${entityId}`;

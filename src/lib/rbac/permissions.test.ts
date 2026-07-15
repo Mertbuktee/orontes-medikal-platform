@@ -94,5 +94,10 @@ describe("admin RBAC contracts", () => {
     expect(canAccessAdminRoute("VIEWER", "/admin/hero-slides")).toBe(false);
     expect(canAccessAdminRoute("EDITOR", "/admin/hero-slides")).toBe(true);
     expect(canAccessAdminRoute("SUPER_ADMIN", "/admin/audit-log")).toBe(true);
+    expect(canAccessAdminRoute("ADMIN", "/technical/dashboard")).toBe(true);
+    expect(canAccessAdminRoute("SERVICE_STAFF", "/technical/service-requests")).toBe(true);
+    expect(canAccessAdminRoute("VIEWER", "/technical/customers")).toBe(true);
+    expect(canAccessAdminRoute("EDITOR", "/technical/dashboard")).toBe(false);
+    expect(canAccessAdminRoute("EDITOR", "/technical/service-requests")).toBe(false);
   });
 });

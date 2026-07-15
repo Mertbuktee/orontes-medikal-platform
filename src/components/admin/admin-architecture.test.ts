@@ -37,7 +37,7 @@ describe("admin architecture foundation", () => {
 
     expect(catchAllExists).toBe(true);
     for (const item of adminNavItems) {
-      expect(item.href).toMatch(/^\/admin\//);
+      expect(item.href).toMatch(/^\/(admin|technical)\//);
       expect(item.title).toBeTruthy();
       expect(item.requiredPermission).toBeTruthy();
     }

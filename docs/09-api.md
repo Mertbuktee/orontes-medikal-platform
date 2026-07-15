@@ -240,13 +240,13 @@ Sitemap ve robots:
 
 Servis talebi admin akisi su an App Router server component ve server action yapisi ile calisir.
 
-- `/admin/service-requests`: server-side pagination, arama, durum, atanan personel, attachment, tarih, arşiv ve sıralama filtresi.
-- `/admin/service-requests/[id]`: detay, attachment metadata, notlar ve durum gecmisi.
+- `/technical/service-requests`: server-side pagination, arama, durum, atanan personel, attachment, tarih, arşiv ve sıralama filtresi.
+- `/technical/service-requests/[id]`: detay, attachment metadata, notlar ve durum gecmisi.
 - `updateServiceRequestStatus(formData)`: server action, `serviceRequests.update` izni gerektirir.
 - `assignServiceRequest(formData)`: server action, `serviceRequests.assign` izni gerektirir.
 - `addServiceRequestNote(formData)`: server action, `serviceRequests.notes.create` izni gerektirir.
 - `archiveServiceRequest(formData)`: server action, `serviceRequests.archive` izni gerektirir.
-- `GET /admin/service-requests/:id/attachments/:attachmentId`: authenticated private download endpoint, `serviceRequests.attachments.view` izni ve ownership kontrolü gerektirir.
+- `GET /technical/service-requests/:id/attachments/:attachmentId`: authenticated private download endpoint, `serviceRequests.attachments.view` izni ve ownership kontrolü gerektirir.
 
 Bu islemler Prisma repository katmanini kullanir; UI component icinde dogrudan Prisma sorgusu dagitilmaz.
 

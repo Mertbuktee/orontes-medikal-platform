@@ -269,7 +269,16 @@ const adminRoutePermissions: Array<{
   { prefix: "/admin/notifications/email-deliveries", permission: "notifications.emailDeliveries.view" },
   { prefix: "/admin/notifications", permission: "notifications.view" },
   { prefix: "/admin/account/notifications", permission: "notifications.preferences.manage.own" },
+  { prefix: "/technical/dashboard", permission: "dashboard.view" },
+  { prefix: "/technical/service-requests", permission: "serviceRequests.view" },
+  { prefix: "/technical/customers", permission: "serviceRequests.view" },
+  { prefix: "/technical/devices", permission: "serviceRequests.view" },
+  { prefix: "/technical/history", permission: "serviceRequests.view" },
 ];
+
+export function canAccessTechnicalPanel(role: Role) {
+  return role === "SUPER_ADMIN" || role === "ADMIN" || role === "SERVICE_STAFF" || role === "VIEWER";
+}
 
 export function hasPermission(role: Role, permission: Permission) {
   return rolePermissions[role].includes(permission);
@@ -282,8 +291,16 @@ export function canAccessAdminRoute(role: Role, pathname: string) {
     return true;
   }
 
+  if (normalizedPath === "/technical" || normalizedPath.startsWith("/technical/")) {
+    if (!canAccessTechnicalPanel(role)) return false;
+  }
+
   if (normalizedPath === "/admin") {
     return hasPermission(role, "dashboard.view");
+  }
+
+  if (normalizedPath === "/technical") {
+    return canAccessTechnicalPanel(role);
   }
 
   const routePermission = adminRoutePermissions.find(

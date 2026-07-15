@@ -129,7 +129,7 @@ export class NotificationService {
       take: 50,
     });
     const adminUrl = await import("@/lib/notifications/email-templates").then((mod) =>
-      mod.makeAdminUrl(`/admin/service-requests/${input.serviceRequestId}`)
+      mod.makeAdminUrl(`/technical/service-requests/${input.serviceRequestId}`)
     );
 
     await Promise.all(
@@ -139,7 +139,7 @@ export class NotificationService {
           category: "SERVICE_REQUEST_NEW",
           title: "Yeni servis talebi",
           message: `Talep ${input.requestShortId} admin paneline dustu.`,
-          linkUrl: `/admin/service-requests/${input.serviceRequestId}`,
+          linkUrl: `/technical/service-requests/${input.serviceRequestId}`,
           email: {
             to: { email: user.email, name: user.name },
             templateKey: "new-service-request-internal",

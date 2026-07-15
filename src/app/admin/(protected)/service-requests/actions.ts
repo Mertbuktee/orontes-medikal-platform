@@ -128,7 +128,7 @@ export async function assignServiceRequest(formData: FormData) {
         category: 'SERVICE_REQUEST_ASSIGNED',
         title: 'Servis talebi atandi',
         message: `Talep ${updated.id.slice(0, 8).toUpperCase()} size atandi.`,
-        linkUrl: `/admin/service-requests/${updated.id}`,
+        linkUrl: `/technical/service-requests/${updated.id}`,
         email: {
           to: { email: assignee.email, name: assignee.name },
           templateKey: 'service-request-assigned',
@@ -137,7 +137,7 @@ export async function assignServiceRequest(formData: FormData) {
             customerLabel: updated.company || updated.fullName,
             hasAttachment: false,
             adminUrl: await makeAdminUrl(
-              `/admin/service-requests/${updated.id}`,
+              `/technical/service-requests/${updated.id}`,
             ),
           },
           idempotencyKey: `service-request-assigned:${updated.id}:${assignee.id}:${Date.now()}`,
@@ -260,4 +260,7 @@ function revalidateServiceRequestPaths(id: string) {
   revalidatePath('/admin/dashboard');
   revalidatePath('/admin/service-requests');
   revalidatePath(`/admin/service-requests/${id}`);
+  revalidatePath('/technical/dashboard');
+  revalidatePath('/technical/service-requests');
+  revalidatePath(`/technical/service-requests/${id}`);
 }

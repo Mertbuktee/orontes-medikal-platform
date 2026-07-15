@@ -31,7 +31,7 @@ export type AdminNavItem = {
 
 export const adminNavItems: AdminNavItem[] = [
   nav("Dashboard", "/admin/dashboard", LayoutDashboard, "dashboard.view"),
-  nav("Servis Talepleri", "/admin/service-requests", ClipboardList, "serviceRequests.view"),
+  nav("Servis Talepleri", "/technical/service-requests", ClipboardList, "serviceRequests.view"),
   nav("Cihaz Grupları", "/admin/devices", MonitorCog, "devices.view"),
   nav("Hizmetler", "/admin/services", Boxes, "services.view"),
   {
@@ -72,7 +72,7 @@ export const adminNavItems: AdminNavItem[] = [
 ];
 
 export const adminQuickActionItems = [
-  nav("Servis Taleplerini Görüntüle", "/admin/service-requests", ClipboardList, "serviceRequests.view"),
+  nav("Servis Taleplerini Görüntüle", "/technical/service-requests", ClipboardList, "serviceRequests.view"),
   nav("Yeni Blog Yazısı", "/admin/blog/new", BookOpenText, "blog.create"),
   nav("Yeni Cihaz Grubu", "/admin/devices/new", MonitorCog, "devices.create"),
   nav("Yeni Hizmet", "/admin/services/new", Boxes, "services.create"),

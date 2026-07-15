@@ -125,7 +125,7 @@ export default async function AdminDashboardPage({
           title="Son Servis Talepleri"
           description="Telefon, e-posta, mesaj ve dosya adı gösterilmez."
           icon={ClipboardList}
-          action={{ href: "/admin/service-requests", label: "Tümünü Gör" }}
+          action={{ href: "/technical/service-requests", label: "Tümünü Gör" }}
         >
           <div className="grid gap-3 lg:grid-cols-2">
             {recentRequests.length ? (
@@ -206,7 +206,7 @@ export default async function AdminDashboardPage({
             title="Son Servis Talepleri"
             description="Telefon, e-posta, mesaj ve dosya adı gösterilmez."
             icon={ClipboardList}
-            action={{ href: "/admin/service-requests", label: "Tümünü Gör" }}
+            action={{ href: "/technical/service-requests", label: "Tümünü Gör" }}
           >
             <div className="space-y-3">
               {recentRequests.length ? (
@@ -613,7 +613,7 @@ function RequestListItem({
 }) {
   return (
     <Link
-      href={`/admin/service-requests/${id}`}
+      href={`/technical/service-requests/${id}`}
       className="block rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-orange-200 hover:bg-orange-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">

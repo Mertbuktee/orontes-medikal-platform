@@ -14,11 +14,11 @@ test.describe('service request workflow', () => {
       await adminPage.goto('/');
       await loginAs(adminContext, fixture.users.admin.email);
 
-      await adminPage.goto(`/admin/service-requests/${fixture.serviceRequest.id}`, {
+      await adminPage.goto(`/technical/service-requests/${fixture.serviceRequest.id}`, {
         waitUntil: 'domcontentloaded',
       });
-      await expect(adminPage.getByText(fixture.serviceRequest.company, { exact: true })).toBeVisible();
-      const attachmentPath = `/admin/service-requests/${fixture.serviceRequest.id}/attachments/${fixture.attachment.id}`;
+      await expect(adminPage.locator('dd').getByText(fixture.serviceRequest.company, { exact: true })).toBeVisible();
+      const attachmentPath = `/technical/service-requests/${fixture.serviceRequest.id}/attachments/${fixture.attachment.id}`;
       await expect(adminPage.locator(`a[href="${attachmentPath}"]`)).toBeVisible();
 
       await adminPage.locator('#service-request-note').fill('E2E teknik notu eklendi.');
@@ -44,7 +44,7 @@ test.describe('service request workflow', () => {
       const viewerPage = await viewerContext.newPage();
       await viewerPage.goto('/');
       await loginAs(viewerContext, fixture.users.viewer.email);
-      await viewerPage.goto(`/admin/service-requests/${fixture.serviceRequest.id}`, {
+      await viewerPage.goto(`/technical/service-requests/${fixture.serviceRequest.id}`, {
         waitUntil: 'domcontentloaded',
       });
       await expect(viewerPage.locator(`a[href="${attachmentPath}"]`)).toHaveCount(0);

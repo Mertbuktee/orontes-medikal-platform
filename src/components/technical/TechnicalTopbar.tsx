@@ -1,55 +1,55 @@
 import { Bell, LogOut, UserCog } from "lucide-react";
 import Link from "next/link";
 
-import { AdminBreadcrumbs } from "@/components/admin/AdminBreadcrumbs";
-import { AdminMobileNav } from "@/components/admin/AdminMobileNav";
-import { PanelSwitcher } from "@/components/technical/PanelSwitcher";
 import type { AdminSessionMode } from "@/lib/auth/admin-session";
+import { PanelSwitcher } from "@/components/technical/PanelSwitcher";
+import { TechnicalBreadcrumbs } from "@/components/technical/TechnicalBreadcrumbs";
+import { TechnicalMobileNav } from "@/components/technical/TechnicalMobileNav";
 
-type AdminTopbarProps = {
+type TechnicalTopbarProps = {
   currentPath: string;
   sessionMode: AdminSessionMode;
   unreadNotificationCount?: number;
 };
 
-export function AdminTopbar({
+export function TechnicalTopbar({
   currentPath,
   sessionMode,
   unreadNotificationCount = 0,
-}: AdminTopbarProps) {
+}: TechnicalTopbarProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
       <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
-          <AdminMobileNav currentPath={currentPath} />
+          <TechnicalMobileNav currentPath={currentPath} />
           <div className="min-w-0">
-            <AdminBreadcrumbs currentPath={currentPath} />
+            <TechnicalBreadcrumbs currentPath={currentPath} />
             <p className="mt-0.5 text-xs font-medium uppercase tracking-[0.16em] text-slate-400 lg:hidden">
-              Orontes Admin
+              Orontes Teknik
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <PanelSwitcher active="admin" />
+          <PanelSwitcher active="technical" />
           <div className="hidden text-right sm:block">
             <p className="text-sm font-semibold text-slate-900">
-              Admin oturumu
+              Teknik oturum
             </p>
             <p className="text-xs text-slate-500">
               {sessionMode === "authenticated"
-                ? "Guvenli oturum aktif"
+                ? "Güvenli oturum aktif"
                 : "Oturum durumu bilinmiyor"}
             </p>
           </div>
           <Link
             href="/admin/notifications"
             aria-label="Bildirimler"
-            className="relative inline-flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+            className="relative inline-flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
           >
             <Bell className="size-4" aria-hidden="true" />
             {unreadNotificationCount > 0 ? (
-              <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-orange-500 px-1.5 text-center text-[11px] font-bold text-white">
+              <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-cyan-500 px-1.5 text-center text-[11px] font-bold text-slate-950">
                 {Math.min(unreadNotificationCount, 99)}
               </span>
             ) : null}
@@ -57,15 +57,15 @@ export function AdminTopbar({
           <Link
             href="/admin/account/security"
             aria-label="Hesap güvenliği"
-            className="inline-flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+            className="inline-flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
           >
             <UserCog className="size-4" aria-hidden="true" />
           </Link>
           <form action="/admin/auth/logout" method="post">
             <button
               type="submit"
-              aria-label="Admin oturumundan cikis yap"
-              className="inline-flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+              aria-label="Teknik oturumdan çıkış yap"
+              className="inline-flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
             >
               <LogOut className="size-4" aria-hidden="true" />
             </button>

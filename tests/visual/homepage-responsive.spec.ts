@@ -556,7 +556,7 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     note: "Hero slide create form renders with Media Library selection.",
   });
 
-  await page.goto("/admin/service-requests", { waitUntil: "domcontentloaded" });
+  await page.goto("/technical/service-requests", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("heading", { name: "Servis Talepleri", exact: true })
   ).toBeVisible();
@@ -572,7 +572,7 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
     note: "Service request list renders with synthetic visual QA data.",
   });
 
-  await page.goto("/admin/service-requests/visual-qa-service-request", {
+  await page.goto("/technical/service-requests/visual-qa-service-request", {
     waitUntil: "domcontentloaded",
   });
   await expect(
@@ -819,7 +819,7 @@ async function captureAdminScreenshots(page: Page): Promise<AdminVisualResult[]>
   });
 
   await page.setViewportSize({ width: 375, height: 667 });
-  await page.goto("/admin/service-requests", { waitUntil: "domcontentloaded" });
+  await page.goto("/technical/service-requests", { waitUntil: "domcontentloaded" });
   await expect(
     page.getByRole("heading", { name: "Servis Talepleri", exact: true })
   ).toBeVisible();

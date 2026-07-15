@@ -10,23 +10,23 @@ test.describe('admin RBAC route boundaries', () => {
       const scenarios = [
         {
           email: fixture.users.admin.email,
-          allow: ['/admin/service-requests', '/admin/users', '/admin/settings'],
+          allow: ['/technical/service-requests', '/admin/users', '/admin/settings'],
           deny: [] as string[],
         },
         {
           email: fixture.users.serviceStaff.email,
-          allow: ['/admin/service-requests', '/admin/devices'],
+          allow: ['/technical/service-requests', '/technical/customers', '/admin/devices'],
           deny: ['/admin/users', '/admin/settings'],
         },
         {
           email: fixture.users.viewer.email,
-          allow: ['/admin/service-requests'],
+          allow: ['/technical/service-requests', '/technical/devices'],
           deny: ['/admin/users', '/admin/media'],
         },
         {
           email: fixture.users.editor.email,
           allow: ['/admin/blog', '/admin/media'],
-          deny: ['/admin/service-requests', '/admin/users'],
+          deny: ['/technical/service-requests', '/technical/dashboard', '/admin/users'],
         },
       ];
 
