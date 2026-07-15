@@ -10,13 +10,11 @@ import { TechnicalTopbar } from "@/components/technical/TechnicalTopbar";
 type TechnicalShellProps = {
   children: ReactNode;
   sessionMode: AdminSessionMode;
-  unreadNotificationCount?: number;
 };
 
 export function TechnicalShell({
   children,
   sessionMode,
-  unreadNotificationCount = 0,
 }: TechnicalShellProps) {
   const pathname = usePathname();
 
@@ -28,7 +26,6 @@ export function TechnicalShell({
           <TechnicalTopbar
             currentPath={pathname}
             sessionMode={sessionMode}
-            unreadNotificationCount={unreadNotificationCount}
           />
           <main className="px-4 py-6 sm:px-6 lg:px-8">{children}</main>
         </div>

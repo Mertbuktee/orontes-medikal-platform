@@ -33,27 +33,44 @@ export default async function TechnicalHistoryPage() {
         </div>
         <div className="divide-y divide-slate-100">
           {history.length ? (
-            history.map((request) => {
-              const status = getServiceRequestStatusMeta(request.status);
-              const deviceLabel = [request.deviceBrand, request.deviceModel].filter(Boolean).join(" ");
+            history.map((item) => {
+              const status = getServiceRequestStatusMeta(item.serviceRequest.status);
+              const deviceLabel = [item.deviceBrand, item.deviceModel].filter(Boolean).join(" ");
               return (
-                <Link key={request.id} href={`/technical/service-requests/${request.id}`} className="grid gap-4 px-5 py-5 transition hover:bg-slate-50 md:grid-cols-[1fr_180px_170px]">
+                <article key={item.id} className="grid gap-4 px-5 py-5 transition hover:bg-slate-50 md:grid-cols-[1fr_180px_170px_170px]">
                   <div className="min-w-0">
                     <p className="flex items-center gap-2 font-semibold text-slate-950">
                       <CheckCircle2 className="size-4 text-cyan-600" aria-hidden="true" />
-                      {request.fullName}
+                      {item.fullName}
                     </p>
-                    <p className="mt-1 text-sm text-slate-600">{request.company || "Firma bilgisi yok"}</p>
+                    <p className="mt-1 text-sm text-slate-600">{item.company || "Firma bilgisi yok"}</p>
                     <p className="mt-2 inline-flex items-center gap-2 text-sm text-slate-500">
                       <FileText className="size-4" aria-hidden="true" />
                       {deviceLabel || "Cihaz bilgisi yok"}
                     </p>
+                    <p className="mt-2 text-sm text-slate-500">
+                      Seri No: {item.deviceSerialNumber || "Belirtilmedi"}
+                    </p>
                   </div>
-                  <span className={`inline-flex h-fit w-fit rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getServiceRequestStatusClassName(request.status)}`}>
+                  <span className={`inline-flex h-fit w-fit rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getServiceRequestStatusClassName(item.serviceRequest.status)}`}>
                     {status.label}
                   </span>
-                  <p className="text-sm font-semibold text-slate-700 md:text-right">{formatDate(request.updatedAt)}</p>
-                </Link>
+                  <p className="text-sm font-semibold text-slate-700 md:text-right">{formatDate(item.completedAt)}</p>
+                  <div className="flex flex-wrap items-start gap-2 md:justify-end">
+                    <Link
+                      href={`/technical/service-requests/${item.serviceRequestId}`}
+                      className="inline-flex min-h-10 items-center rounded-xl border border-slate-200 px-3 text-sm font-semibold text-slate-700 transition hover:border-cyan-200 hover:bg-cyan-50"
+                    >
+                      Detay
+                    </Link>
+                    <Link
+                      href={`/technical/service-requests/new?historyId=${item.id}`}
+                      className="inline-flex min-h-10 items-center rounded-xl bg-cyan-500 px-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+                    >
+                      Yeni Servis Oluştur
+                    </Link>
+                  </div>
+                </article>
               );
             })
           ) : (

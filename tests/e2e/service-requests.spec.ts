@@ -29,10 +29,19 @@ test.describe('service request workflow', () => {
       await adminPage.getByRole('button', { name: /atamay/i }).click();
       await expect(adminPage.locator('dd').getByText(fixture.users.serviceStaff.name, { exact: true })).toBeVisible();
 
-      await adminPage.locator('#service-request-status').selectOption('REVIEWING');
-      await adminPage.locator('#service-request-status-reason').fill('E2E durum gecisi.');
+      await adminPage.locator('#service-request-status').selectOption('COMPLETED');
+      await adminPage.locator('#service-request-status-reason').fill('E2E tamamlanan servis gecisi.');
       await adminPage.getByRole('button', { name: /durumu/i }).click();
-      await expect(adminPage.getByText(/nceleniyor/i).first()).toBeVisible();
+      await expect(adminPage.getByText(/Tamamland/i).first()).toBeVisible();
+      await expect(adminPage.getByText(/cihaz geçmişi otomatik/i)).toBeVisible();
+
+      await adminPage.goto('/technical/history', { waitUntil: 'domcontentloaded' });
+      await expect(adminPage.getByText(fixture.serviceRequest.company, { exact: true })).toBeVisible();
+      await adminPage.getByRole('link', { name: /Yeni Servis Olu/i }).first().click();
+      await expect(adminPage.locator('input[name="deviceSerialNumber"]')).toHaveValue(
+        fixture.serviceRequest.deviceSerialNumber ?? '',
+      );
+      await expect(adminPage.locator('input[name="company"]')).toHaveValue(fixture.serviceRequest.company);
 
       const download = await adminContext.request.get(
         attachmentPath,

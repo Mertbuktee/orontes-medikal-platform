@@ -15,18 +15,18 @@ test.describe('admin RBAC route boundaries', () => {
         },
         {
           email: fixture.users.serviceStaff.email,
-          allow: ['/technical/service-requests', '/technical/customers', '/admin/devices'],
-          deny: ['/admin/users', '/admin/settings'],
+          allow: ['/technical/service-requests', '/technical/customers'],
+          deny: ['/admin/users', '/admin/settings', '/admin/devices'],
         },
         {
           email: fixture.users.viewer.email,
-          allow: ['/technical/service-requests', '/technical/devices'],
-          deny: ['/admin/users', '/admin/media'],
+          allow: [] as string[],
+          deny: ['/technical/service-requests', '/technical/devices', '/admin/users', '/admin/media'],
         },
         {
           email: fixture.users.editor.email,
-          allow: ['/admin/blog', '/admin/media'],
-          deny: ['/technical/service-requests', '/technical/dashboard', '/admin/users'],
+          allow: [] as string[],
+          deny: ['/technical/service-requests', '/technical/dashboard', '/admin/blog', '/admin/media', '/admin/users'],
         },
       ];
 

@@ -399,8 +399,12 @@ Remove-Item Env:ADMIN_ROTATE_PASSWORD
 Ilk gercek admin modulu servis talepleridir.
 
 - Public `/api/service-requests` endpoint'i artik `PrismaServiceRequestRepository` ile PostgreSQL'e yazar.
+- `/admin`: yalnizca `SUPER_ADMIN` icin sistem yonetim alanidir.
+- `/technical`: `SUPER_ADMIN` ve `SERVICE_STAFF` icin ayri teknik servis panelidir.
 - `/technical/service-requests`: aktif servis taleplerini listeler, durum ve arama filtresi sunar. `/admin/service-requests` bu operasyon ekranina yonlenir.
 - `/technical/service-requests/[id]`: talep detayi, musteri bilgileri, cihaz bilgileri, attachment metadata, internal notlar ve durum gecmisini gosterir. `/admin/service-requests/[id]` bu detay ekranina yonlenir.
+- `/technical/history`: `COMPLETED` durumuna gecen servis taleplerinden otomatik olusan cihaz servis gecmisini gosterir.
+- `/technical/service-requests/new`: servis gecmisinden kopyalanan musteri/cihaz bilgileriyle yeni servis talebi acar.
 - Durum guncelleme ve internal not ekleme server action olarak calisir.
 - Her mutation kendi icinde `serviceRequests.update` permission kontrolu yapar.
 - Durum degisiklikleri `ServiceRequestStatusHistory` ve `AuditLog` kaydi olusturur.
@@ -419,6 +423,10 @@ Private dosya storage key veya filesystem path client response'a donulmez.
 Durum geçişleri `src/components/admin/service-request-status.ts` içinde typed policy olarak tutulur ve server action içinde tekrar doğrulanır. UI seçenekleri güvenlik sınırı değildir.
 
 Private attachment erişimi `/technical/service-requests/[id]/attachments/[attachmentId]` route handler'ı ile yapılır. Endpoint geçerli admin session, `serviceRequests.attachments.view` izni ve attachment-request ownership kontrolü olmadan dosya döndürmez. Response `nosniff` ve `private, no-store` header'ları ile gelir; raw filesystem path veya storage root sızdırılmaz.
+
+Device service history elle girilmez. Bir servis talebi `COMPLETED` durumuna
+gectiginde `DeviceServiceHistory` kaydi otomatik olusur ve tamamlanma anindaki
+musteri, marka, model, seri no ve servis ozetini snapshot olarak saklar.
 
 Eski local JSON servis talepleri için `npm run service-requests:import` komutu dry-run modunda rapor üretir. Gerçek import için `npm run service-requests:import -- --apply` açıkça kullanılmalıdır.
 

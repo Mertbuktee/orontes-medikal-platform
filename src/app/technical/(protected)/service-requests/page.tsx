@@ -18,6 +18,7 @@ import {
   serviceRequestPageSizes,
   type AdminServiceRequestSort,
 } from "@/lib/database/repositories/service-requests";
+import { hasPermission } from "@/lib/rbac/permissions";
 
 type TechnicalServiceRequestsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -28,7 +29,8 @@ export const dynamic = "force-dynamic";
 export default async function TechnicalServiceRequestsPage({
   searchParams,
 }: TechnicalServiceRequestsPageProps) {
-  await requirePermission("serviceRequests.view");
+  const session = await requirePermission("serviceRequests.view");
+  const canCreate = hasPermission(session.role, "serviceRequests.create");
 
   const filters = parseFilters(await searchParams);
   const repository = new PrismaServiceRequestRepository(prisma);
@@ -46,6 +48,17 @@ export default async function TechnicalServiceRequestsPage({
         title="Servis Talepleri"
         description="Gelen teknik servis başvurularını tek operasyon ekranından inceleyin."
       />
+
+      {canCreate ? (
+        <div className="flex justify-end">
+          <Link
+            href="/technical/service-requests/new"
+            className="inline-flex min-h-11 items-center rounded-2xl bg-cyan-500 px-4 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-400"
+          >
+            Yeni Servis Oluştur
+          </Link>
+        </div>
+      ) : null}
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <SummaryCard label="Listelenen Kayıt" value={result.total} active />

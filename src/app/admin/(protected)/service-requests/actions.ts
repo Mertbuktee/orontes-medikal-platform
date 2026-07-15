@@ -263,4 +263,5 @@ function revalidateServiceRequestPaths(id: string) {
   revalidatePath('/technical/dashboard');
   revalidatePath('/technical/service-requests');
   revalidatePath(`/technical/service-requests/${id}`);
+  revalidatePath('/technical/history');
 }

@@ -139,6 +139,7 @@ model User {
   assignedRequests      ServiceRequest[]              @relation("AssignedServiceRequests")
   authoredNotes         ServiceRequestNote[]          @relation("ServiceRequestNoteAuthor")
   statusChanges         ServiceRequestStatusHistory[] @relation("ServiceRequestStatusChanger")
+  completedDeviceHistories DeviceServiceHistory[]      @relation("DeviceServiceHistoryCompletedBy")
   uploadedMedia         Media[]                       @relation("MediaUploader")
   heroSlidesCreated     HeroSlide[]                   @relation("HeroSlideCreator")
   heroSlidesUpdated     HeroSlide[]                   @relation("HeroSlideUpdater")
@@ -250,6 +251,7 @@ model ServiceRequest {
   attachments        Attachment[]
   internalNotes      ServiceRequestNote[]
   statusHistory      ServiceRequestStatusHistory[]
+  deviceHistory      DeviceServiceHistory?
   createdAt          DateTime                      @default(now())
   updatedAt          DateTime                      @updatedAt
   archivedAt         DateTime?
@@ -302,6 +304,32 @@ model ServiceRequestStatusHistory {
   @@index([serviceRequestId])
   @@index([changedById])
   @@index([createdAt])
+}
+
+model DeviceServiceHistory {
+  id                 String         @id @default(cuid())
+  serviceRequestId   String         @unique
+  serviceRequest     ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  completedById      String?
+  completedBy        User?          @relation("DeviceServiceHistoryCompletedBy", fields: [completedById], references: [id], onDelete: SetNull)
+  fullName           String         @db.VarChar(100)
+  company            String         @db.VarChar(150)
+  phone              String         @db.VarChar(30)
+  email              String         @db.VarChar(254)
+  deviceBrand        String?        @db.VarChar(120)
+  deviceModel        String?        @db.VarChar(120)
+  deviceSerialNumber String?        @db.VarChar(120)
+  serviceSummary     String
+  completedAt        DateTime       @default(now())
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  @@index([completedAt])
+  @@index([completedById])
+  @@index([email])
+  @@index([phone])
+  @@index([deviceSerialNumber])
+  @@index([deviceBrand, deviceModel])
 }
 
 model DeviceGroup {

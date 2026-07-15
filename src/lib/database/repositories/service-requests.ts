@@ -199,19 +199,36 @@ export class PrismaServiceRequestRepository
   }
 
   listCompletedServiceHistory(limit = 100) {
-    return this.client.serviceRequest.findMany({
-      where: {
-        status: { in: ["COMPLETED", "ARCHIVED"] },
-      },
-      orderBy: { updatedAt: "desc" },
+    return this.client.deviceServiceHistory.findMany({
+      orderBy: { completedAt: "desc" },
       take: limit,
       include: {
-        attachments: true,
-        assignedUser: {
+        completedBy: {
           select: {
             id: true,
             name: true,
             email: true,
+          },
+        },
+        serviceRequest: {
+          select: {
+            id: true,
+            status: true,
+            attachments: { select: { id: true } },
+          },
+        },
+      },
+    });
+  }
+
+  findDeviceServiceHistoryById(id: string) {
+    return this.client.deviceServiceHistory.findUnique({
+      where: { id },
+      include: {
+        serviceRequest: {
+          select: {
+            id: true,
+            status: true,
           },
         },
       },
@@ -254,6 +271,7 @@ export class PrismaServiceRequestRepository
             },
           },
         },
+        deviceHistory: true,
       },
     });
   }
@@ -290,6 +308,55 @@ export class PrismaServiceRequestRepository
             changedById: input.changedById,
           },
         });
+      }
+
+      if (current.status !== input.status && input.status === "COMPLETED") {
+        const completedRequest = await tx.serviceRequest.findUnique({
+          where: { id: input.id },
+          select: {
+            id: true,
+            fullName: true,
+            company: true,
+            phone: true,
+            email: true,
+            deviceBrand: true,
+            deviceModel: true,
+            deviceSerialNumber: true,
+            message: true,
+            updatedAt: true,
+          },
+        });
+
+        if (completedRequest) {
+          await tx.deviceServiceHistory.upsert({
+            where: { serviceRequestId: completedRequest.id },
+            create: {
+              serviceRequestId: completedRequest.id,
+              completedById: input.changedById,
+              fullName: completedRequest.fullName,
+              company: completedRequest.company,
+              phone: completedRequest.phone,
+              email: completedRequest.email,
+              deviceBrand: completedRequest.deviceBrand,
+              deviceModel: completedRequest.deviceModel,
+              deviceSerialNumber: completedRequest.deviceSerialNumber,
+              serviceSummary: completedRequest.message,
+              completedAt: completedRequest.updatedAt,
+            },
+            update: {
+              completedById: input.changedById,
+              fullName: completedRequest.fullName,
+              company: completedRequest.company,
+              phone: completedRequest.phone,
+              email: completedRequest.email,
+              deviceBrand: completedRequest.deviceBrand,
+              deviceModel: completedRequest.deviceModel,
+              deviceSerialNumber: completedRequest.deviceSerialNumber,
+              serviceSummary: completedRequest.message,
+              completedAt: completedRequest.updatedAt,
+            },
+          });
+        }
       }
 
       return updated;

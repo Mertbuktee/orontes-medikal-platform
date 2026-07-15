@@ -1,5 +1,4 @@
-import { Bell, LogOut, UserCog } from "lucide-react";
-import Link from "next/link";
+import { LogOut } from "lucide-react";
 
 import type { AdminSessionMode } from "@/lib/auth/admin-session";
 import { PanelSwitcher } from "@/components/technical/PanelSwitcher";
@@ -9,13 +8,11 @@ import { TechnicalMobileNav } from "@/components/technical/TechnicalMobileNav";
 type TechnicalTopbarProps = {
   currentPath: string;
   sessionMode: AdminSessionMode;
-  unreadNotificationCount?: number;
 };
 
 export function TechnicalTopbar({
   currentPath,
   sessionMode,
-  unreadNotificationCount = 0,
 }: TechnicalTopbarProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
@@ -42,25 +39,6 @@ export function TechnicalTopbar({
                 : "Oturum durumu bilinmiyor"}
             </p>
           </div>
-          <Link
-            href="/admin/notifications"
-            aria-label="Bildirimler"
-            className="relative inline-flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
-          >
-            <Bell className="size-4" aria-hidden="true" />
-            {unreadNotificationCount > 0 ? (
-              <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-cyan-500 px-1.5 text-center text-[11px] font-bold text-slate-950">
-                {Math.min(unreadNotificationCount, 99)}
-              </span>
-            ) : null}
-          </Link>
-          <Link
-            href="/admin/account/security"
-            aria-label="Hesap güvenliği"
-            className="inline-flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
-          >
-            <UserCog className="size-4" aria-hidden="true" />
-          </Link>
           <form action="/admin/auth/logout" method="post">
             <button
               type="submit"

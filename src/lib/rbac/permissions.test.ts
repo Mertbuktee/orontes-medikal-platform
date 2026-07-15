@@ -12,6 +12,7 @@ describe("admin RBAC contracts", () => {
     expect(rolePermissions.SUPER_ADMIN).toContain("users.manage");
     expect(rolePermissions.ADMIN).toContain("settings.manage");
     expect(rolePermissions.EDITOR).toContain("blog.manage");
+    expect(rolePermissions.SERVICE_STAFF).toContain("serviceRequests.create");
     expect(rolePermissions.SERVICE_STAFF).toContain("serviceRequests.view");
     expect(rolePermissions.VIEWER).toEqual([
       "dashboard.view",
@@ -80,23 +81,23 @@ describe("admin RBAC contracts", () => {
   });
 
   it("canAccessAdminRoute evaluates protected admin paths", () => {
-    expect(canAccessAdminRoute("VIEWER", "/admin/dashboard")).toBe(true);
-    expect(canAccessAdminRoute("VIEWER", "/admin/service-requests")).toBe(true);
-    expect(canAccessAdminRoute("VIEWER", "/admin/account/security")).toBe(true);
-    expect(canAccessAdminRoute("VIEWER", "/admin/notifications")).toBe(true);
-    expect(canAccessAdminRoute("VIEWER", "/admin/account/notifications")).toBe(true);
+    expect(canAccessAdminRoute("VIEWER", "/admin/dashboard")).toBe(false);
+    expect(canAccessAdminRoute("VIEWER", "/admin/service-requests")).toBe(false);
+    expect(canAccessAdminRoute("VIEWER", "/admin/account/security")).toBe(false);
+    expect(canAccessAdminRoute("VIEWER", "/admin/notifications")).toBe(false);
+    expect(canAccessAdminRoute("VIEWER", "/admin/account/notifications")).toBe(false);
     expect(canAccessAdminRoute("VIEWER", "/admin/notifications/email-deliveries")).toBe(false);
     expect(canAccessAdminRoute("VIEWER", "/admin/blog")).toBe(false);
-    expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/service-requests")).toBe(true);
-    expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/devices")).toBe(true);
+    expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/service-requests")).toBe(false);
+    expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/devices")).toBe(false);
     expect(canAccessAdminRoute("SERVICE_STAFF", "/admin/media")).toBe(false);
-    expect(canAccessAdminRoute("EDITOR", "/admin/media")).toBe(true);
+    expect(canAccessAdminRoute("EDITOR", "/admin/media")).toBe(false);
     expect(canAccessAdminRoute("VIEWER", "/admin/hero-slides")).toBe(false);
-    expect(canAccessAdminRoute("EDITOR", "/admin/hero-slides")).toBe(true);
+    expect(canAccessAdminRoute("EDITOR", "/admin/hero-slides")).toBe(false);
     expect(canAccessAdminRoute("SUPER_ADMIN", "/admin/audit-log")).toBe(true);
-    expect(canAccessAdminRoute("ADMIN", "/technical/dashboard")).toBe(true);
+    expect(canAccessAdminRoute("ADMIN", "/technical/dashboard")).toBe(false);
     expect(canAccessAdminRoute("SERVICE_STAFF", "/technical/service-requests")).toBe(true);
-    expect(canAccessAdminRoute("VIEWER", "/technical/customers")).toBe(true);
+    expect(canAccessAdminRoute("VIEWER", "/technical/customers")).toBe(false);
     expect(canAccessAdminRoute("EDITOR", "/technical/dashboard")).toBe(false);
     expect(canAccessAdminRoute("EDITOR", "/technical/service-requests")).toBe(false);
   });

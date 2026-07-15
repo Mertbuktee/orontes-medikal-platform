@@ -32,9 +32,9 @@ export async function createE2EFixture() {
   const suffix = Date.now().toString(36);
   const users = {
     admin: await createUser(prisma, {
-      name: 'E2E Admin',
+      name: 'E2E Owner',
       email: `admin-${suffix}@${fixtureDomain}`,
-      role: 'ADMIN',
+      role: 'SUPER_ADMIN',
       passwordHash,
     }),
     serviceStaff: await createUser(prisma, {
@@ -72,6 +72,7 @@ export async function createE2EFixture() {
       deviceModel: 'E2E-100',
       deviceSerialNumber: `SN-${suffix}`,
       message: 'E2E servis talebi, yetki ve ek dosya akisi icin olusturuldu.',
+      status: 'IN_REPAIR',
       attachments: {
         create: {
           storageKey,
@@ -116,7 +117,9 @@ export async function expectAdminRoute(page: Page, pathName: string, allowed: bo
     return;
   }
 
-  await expect(page).toHaveURL(/\/admin\/forbidden|\/admin\/login/);
+  await expect(page).toHaveURL(
+    /\/admin\/forbidden|\/admin\/login|\/technical\/forbidden|\/technical\/dashboard/,
+  );
 }
 
 async function createUser(
@@ -124,7 +127,7 @@ async function createUser(
   input: {
     name: string;
     email: string;
-    role: 'ADMIN' | 'SERVICE_STAFF' | 'VIEWER' | 'EDITOR';
+    role: 'SUPER_ADMIN' | 'ADMIN' | 'SERVICE_STAFF' | 'VIEWER' | 'EDITOR';
     passwordHash: string;
   },
 ) {

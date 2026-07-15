@@ -213,6 +213,21 @@ export default async function TechnicalServiceRequestDetailPage({
               )}
             </div>
           </section>
+
+          {request.deviceHistory ? (
+            <section className="rounded-3xl border border-cyan-200 bg-cyan-50 p-6 shadow-sm shadow-cyan-100/70">
+              <h2 className="text-lg font-semibold text-cyan-950">Cihaz Servis Geçmişi</h2>
+              <p className="mt-2 text-sm leading-6 text-cyan-900">
+                Bu talep tamamlandığında cihaz geçmişi otomatik oluşturuldu.
+              </p>
+              <Link
+                href={`/technical/service-requests/new?historyId=${request.deviceHistory.id}`}
+                className="mt-4 inline-flex min-h-10 items-center rounded-xl bg-cyan-500 px-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+              >
+                Kopyala ve Yeni Servis Oluştur
+              </Link>
+            </section>
+          ) : null}
         </aside>
       </div>
     </div>

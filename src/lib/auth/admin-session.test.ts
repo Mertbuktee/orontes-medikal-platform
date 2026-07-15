@@ -49,14 +49,17 @@ describe("admin auth boundary", () => {
     });
   });
 
-  it("allows authenticated users to access routes permitted by their role", () => {
-    const decision = getAdminAccessDecision(session, "/admin/dashboard");
+  it("allows SUPER_ADMIN to access admin routes", () => {
+    const decision = getAdminAccessDecision(
+      { ...session, role: "SUPER_ADMIN", name: "Owner" },
+      "/admin/dashboard"
+    );
 
     expect(decision.status).toBe("allow");
   });
 
-  it("returns forbidden for authenticated users without route permission", () => {
-    const decision = getAdminAccessDecision(session, "/admin/users");
+  it("returns forbidden for authenticated users outside the panel role", () => {
+    const decision = getAdminAccessDecision(session, "/admin/dashboard");
 
     expect(decision).toEqual({ status: "forbidden" });
   });

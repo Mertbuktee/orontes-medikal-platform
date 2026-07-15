@@ -242,11 +242,14 @@ Servis talebi admin akisi su an App Router server component ve server action yap
 
 - `/technical/service-requests`: server-side pagination, arama, durum, atanan personel, attachment, tarih, arşiv ve sıralama filtresi.
 - `/technical/service-requests/[id]`: detay, attachment metadata, notlar ve durum gecmisi.
+- `/technical/history`: tamamlanan servis taleplerinden otomatik uretilen cihaz servis gecmisi.
+- `/technical/service-requests/new?historyId=...`: servis gecmisinden kopyalanan cihaz/musteri bilgileriyle yeni servis talebi formu.
 - `updateServiceRequestStatus(formData)`: server action, `serviceRequests.update` izni gerektirir.
 - `assignServiceRequest(formData)`: server action, `serviceRequests.assign` izni gerektirir.
 - `addServiceRequestNote(formData)`: server action, `serviceRequests.notes.create` izni gerektirir.
 - `archiveServiceRequest(formData)`: server action, `serviceRequests.archive` izni gerektirir.
 - `GET /technical/service-requests/:id/attachments/:attachmentId`: authenticated private download endpoint, `serviceRequests.attachments.view` izni ve ownership kontrolü gerektirir.
+- `DeviceServiceHistory`: `ServiceRequest.status` `COMPLETED` oldugunda server action/repository katmaninda otomatik upsert edilir.
 
 Bu islemler Prisma repository katmanini kullanir; UI component icinde dogrudan Prisma sorgusu dagitilmaz.
 

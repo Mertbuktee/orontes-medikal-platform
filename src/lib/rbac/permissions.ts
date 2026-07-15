@@ -10,6 +10,7 @@ export type Role = (typeof roles)[number];
 
 export const permissions = [
   "dashboard.view",
+  "serviceRequests.create",
   "serviceRequests.view",
   "serviceRequests.update",
   "serviceRequests.assign",
@@ -99,6 +100,7 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
   SUPER_ADMIN: permissions,
   ADMIN: [
     "dashboard.view",
+    "serviceRequests.create",
     "serviceRequests.view",
     "serviceRequests.update",
     "serviceRequests.assign",
@@ -222,6 +224,7 @@ export const rolePermissions: Record<Role, readonly Permission[]> = {
   ],
   SERVICE_STAFF: [
     "dashboard.view",
+    "serviceRequests.create",
     "serviceRequests.view",
     "serviceRequests.update",
     "serviceRequests.notes.create",
@@ -277,7 +280,11 @@ const adminRoutePermissions: Array<{
 ];
 
 export function canAccessTechnicalPanel(role: Role) {
-  return role === "SUPER_ADMIN" || role === "ADMIN" || role === "SERVICE_STAFF" || role === "VIEWER";
+  return role === "SUPER_ADMIN" || role === "SERVICE_STAFF";
+}
+
+export function canAccessAdminPanel(role: Role) {
+  return role === "SUPER_ADMIN";
 }
 
 export function hasPermission(role: Role, permission: Permission) {
@@ -289,6 +296,10 @@ export function canAccessAdminRoute(role: Role, pathname: string) {
 
   if (normalizedPath === "/admin/login") {
     return true;
+  }
+
+  if (normalizedPath === "/admin" || normalizedPath.startsWith("/admin/")) {
+    if (!canAccessAdminPanel(role)) return false;
   }
 
   if (normalizedPath === "/technical" || normalizedPath.startsWith("/technical/")) {
