@@ -31,6 +31,7 @@ export type AdminNavItem = {
 
 export const adminNavItems: AdminNavItem[] = [
   nav("Dashboard", "/admin/dashboard", LayoutDashboard, "dashboard.view"),
+  nav("Genel Arama", "/admin/search", Search, "dashboard.view"),
   nav("Servis Talepleri", "/admin/service-requests", ClipboardList, "serviceRequests.view"),
   nav("Cihaz Grupları", "/admin/devices", MonitorCog, "devices.view"),
   nav("Hizmetler", "/admin/services", Boxes, "services.view"),

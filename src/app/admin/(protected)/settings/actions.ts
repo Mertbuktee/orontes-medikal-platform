@@ -36,7 +36,14 @@ export async function updateSiteSettingGroup(formData: FormData) {
     throw new Error('Invalid settings group.');
   }
 
-  const value = parseSiteSettingGroup(group, getGroupPayload(group, formData));
+  const repository = new SiteSettingsRepository(prisma);
+  const payload = getGroupPayload(group, formData);
+  const value = parseSiteSettingGroup(
+    group,
+    group === 'footer'
+      ? { ...(await repository.getSettings()).footer, ...payload }
+      : payload,
+  );
   if (group === 'branding') {
     const branding = value as BrandingSettings;
     await assertActiveImageMedia([
@@ -48,7 +55,7 @@ export async function updateSiteSettingGroup(formData: FormData) {
     ]);
   }
 
-  const record = await new SiteSettingsRepository(prisma).updateGroup(
+  const record = await repository.updateGroup(
     group,
     value,
     session.userId,
@@ -65,7 +72,7 @@ export async function updateSiteSettingGroup(formData: FormData) {
 }
 
 function getGroupPayload(group: SiteSettingGroup, formData: FormData) {
-  if (group === 'legal' || group === 'system') {
+  if (group === 'legal' || group === 'system' || group === 'footer') {
     const payload: Record<string, FormDataEntryValue | boolean> = {};
     for (const [key, value] of formData.entries()) {
       if (key !== 'group') payload[key] = value;
@@ -79,6 +86,12 @@ function getGroupPayload(group: SiteSettingGroup, formData: FormData) {
     }
     if (group === 'system') {
       payload.maintenanceMode = formData.get('maintenanceMode') === 'true';
+    }
+    if (group === 'footer') {
+      if (formData.get('footerAdvanced') === 'true') {
+        payload.poweredByEnabled = formData.get('poweredByEnabled') === 'true';
+        payload.showMapEmbed = formData.get('showMapEmbed') === 'true';
+      }
     }
     return payload;
   }

@@ -3,6 +3,7 @@ import {
   History,
   LayoutDashboard,
   MonitorCog,
+  Search,
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
@@ -21,6 +22,12 @@ export const technicalNavItems: TechnicalNavItem[] = [
     title: "Dashboard",
     href: "/technical/dashboard",
     icon: LayoutDashboard,
+    requiredPermission: "dashboard.view",
+  },
+  {
+    title: "Genel Arama",
+    href: "/technical/search",
+    icon: Search,
     requiredPermission: "dashboard.view",
   },
   {

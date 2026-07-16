@@ -146,6 +146,25 @@ export default async function Footer() {
     if (link.href === "/kvkk") return settings.legal.kvkkEnabled;
     return true;
   });
+  const shouldShowMap = settings.footer.showMapEmbed && settings.map.googleMapsEmbed;
+  const poweredByContent =
+    settings.footer.poweredByEnabled && settings.footer.poweredByLabel ? (
+      settings.footer.poweredByHref ? (
+        <Link
+          href={settings.footer.poweredByHref}
+          target={settings.footer.poweredByHref.startsWith("http") ? "_blank" : undefined}
+          rel={settings.footer.poweredByHref.startsWith("http") ? "noreferrer" : undefined}
+          className="font-semibold transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071526]"
+          style={{ color: settings.footer.poweredByColor }}
+        >
+          {settings.footer.poweredByLabel}
+        </Link>
+      ) : (
+        <span className="font-semibold" style={{ color: settings.footer.poweredByColor }}>
+          {settings.footer.poweredByLabel}
+        </span>
+      )
+    ) : null;
 
   return (
     <footer className="border-t border-white/10 bg-[#061423] text-white">
@@ -215,8 +234,31 @@ export default async function Footer() {
             </section>
           </div>
 
+          {shouldShowMap ? (
+            <section className="mt-10" aria-labelledby="footer-map">
+              <FooterHeading>{settings.footer.mapTitle || "Konum"}</FooterHeading>
+              <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
+                <iframe
+                  title={settings.footer.mapTitle || "Konum"}
+                  src={settings.map.googleMapsEmbed}
+                  className="h-64 w-full"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            </section>
+          ) : null}
+
           <div className="mt-12 flex flex-col gap-5 border-t border-white/10 pt-6 text-sm text-slate-400 lg:flex-row lg:items-center lg:justify-between">
-            <p>© {currentYear} {settings.footer.copyrightText}</p>
+            <div className="space-y-1">
+              <p>© {currentYear} {settings.footer.copyrightText}</p>
+              {poweredByContent ? (
+                <p>
+                  {settings.footer.poweredByPrefix} {poweredByContent}
+                </p>
+              ) : null}
+              {settings.footer.footerNote ? <p>{settings.footer.footerNote}</p> : null}
+            </div>
             <nav aria-label="Yasal bağlantılar">
               <ul className="flex flex-wrap gap-x-5 gap-y-2">
                 {visiblePolicyLinks.map((link) => (

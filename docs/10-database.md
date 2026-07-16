@@ -456,6 +456,8 @@ Binary image data is not stored in PostgreSQL. `Media.storageKey` points to the 
 
 `SiteSetting` is used as typed key/value storage for global website identity. Current groups include `site.general`, `site.contact`, `site.whatsapp`, `site.address`, `site.map`, `site.branding`, `site.seo`, `site.social`, `site.search`, `site.analytics`, `site.legal`, `site.footer`, `site.defaultCta` and `site.system`.
 
+`site.footer` stores copyright, description, powered-by text/link/color, footer note and map visibility controls. Older footer JSON records remain compatible through schema defaults.
+
 Values are JSON but not arbitrary: application-level Zod schemas validate each group before persistence. Secrets must not be stored here; analytics/search IDs are public integration identifiers only. Branding settings store Media IDs, not storage keys.
 ## Hero Slider Models
 

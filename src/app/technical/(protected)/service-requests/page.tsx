@@ -305,11 +305,14 @@ type ParsedFilters = {
 };
 
 function parseFilters(params: Record<string, string | string[] | undefined>): ParsedFilters {
+  const status = parseStatus(getParam(params.status));
+  const archived = parseArchive(getParam(params.archived));
+
   return {
-    status: parseStatus(getParam(params.status)),
+    status,
     assignedUserId: getParam(params.assignedUserId),
     hasAttachment: parseBoolean(getParam(params.hasAttachment)),
-    archived: parseArchive(getParam(params.archived)),
+    archived: status === "ARCHIVED" && archived === "active" ? "archived" : archived,
     query: getParam(params.q)?.slice(0, 120),
     page: normalizePage(Number(getParam(params.page))),
     pageSize: normalizePageSize(Number(getParam(params.pageSize))),
@@ -319,11 +322,16 @@ function parseFilters(params: Record<string, string | string[] | undefined>): Pa
 
 function buildListHref(filters: ParsedFilters) {
   const params = new URLSearchParams();
+  const archived =
+    filters.status === "ARCHIVED" && filters.archived === "active"
+      ? "archived"
+      : filters.archived;
+
   if (filters.query) params.set("q", filters.query);
   if (filters.status) params.set("status", filters.status);
   if (filters.assignedUserId) params.set("assignedUserId", filters.assignedUserId);
   if (typeof filters.hasAttachment === "boolean") params.set("hasAttachment", String(filters.hasAttachment));
-  if (filters.archived !== "active") params.set("archived", filters.archived);
+  if (archived !== "active") params.set("archived", archived);
   if (filters.sort !== "newest") params.set("sort", filters.sort);
   if (filters.pageSize !== 20) params.set("pageSize", String(filters.pageSize));
   if (filters.page > 1) params.set("page", String(filters.page));

@@ -1,4 +1,4 @@
-import { Bell, LogOut, UserCog } from "lucide-react";
+import { Bell, LogOut, Search, UserCog } from "lucide-react";
 import Link from "next/link";
 
 import { AdminBreadcrumbs } from "@/components/admin/AdminBreadcrumbs";
@@ -30,6 +30,22 @@ export function AdminTopbar({
         </div>
 
         <div className="flex items-center gap-3">
+          <form
+            action="/admin/search"
+            className="hidden min-h-11 w-[min(34vw,360px)] items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 lg:flex"
+          >
+            <Search className="size-4 text-slate-400" aria-hidden="true" />
+            <label className="sr-only" htmlFor="admin-global-search">
+              Admin panelinde ara
+            </label>
+            <input
+              id="admin-global-search"
+              name="q"
+              maxLength={120}
+              placeholder="Panelde ara"
+              className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+            />
+          </form>
           <div className="hidden text-right sm:block">
             <p className="text-sm font-semibold text-slate-900">
               Admin oturumu

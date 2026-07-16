@@ -493,12 +493,14 @@ function parseFilters(
 ): ParsedServiceRequestFilters {
   const dateFromInput = parseDateInput(getParam(params.dateFrom));
   const dateToInput = parseDateInput(getParam(params.dateTo));
+  const status = parseStatus(getParam(params.status));
+  const archived = parseArchive(getParam(params.archived));
 
   return {
-    status: parseStatus(getParam(params.status)),
+    status,
     assignedUserId: getParam(params.assignedUserId),
     hasAttachment: parseBoolean(getParam(params.hasAttachment)),
-    archived: parseArchive(getParam(params.archived)),
+    archived: status === "ARCHIVED" && archived === "active" ? "archived" : archived,
     query: getParam(params.q)?.slice(0, 120),
     dateFromInput,
     dateToInput,
@@ -512,6 +514,10 @@ function parseFilters(
 
 function buildListHref(filters: ParsedServiceRequestFilters) {
   const params = new URLSearchParams();
+  const archived =
+    filters.status === "ARCHIVED" && filters.archived === "active"
+      ? "archived"
+      : filters.archived;
 
   if (filters.query) params.set("q", filters.query);
   if (filters.status) params.set("status", filters.status);
@@ -519,7 +525,7 @@ function buildListHref(filters: ParsedServiceRequestFilters) {
   if (typeof filters.hasAttachment === "boolean") {
     params.set("hasAttachment", String(filters.hasAttachment));
   }
-  if (filters.archived !== "active") params.set("archived", filters.archived);
+  if (archived !== "active") params.set("archived", archived);
   if (filters.dateFromInput) params.set("dateFrom", filters.dateFromInput);
   if (filters.dateToInput) params.set("dateTo", filters.dateToInput);
   if (filters.sort !== "newest") params.set("sort", filters.sort);

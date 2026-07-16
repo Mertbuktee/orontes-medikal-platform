@@ -1,4 +1,4 @@
-import { LogOut } from "lucide-react";
+import { LogOut, Search } from "lucide-react";
 
 import type { AdminSessionMode } from "@/lib/auth/admin-session";
 import { TechnicalBreadcrumbs } from "@/components/technical/TechnicalBreadcrumbs";
@@ -27,6 +27,22 @@ export function TechnicalTopbar({
         </div>
 
         <div className="flex items-center gap-3">
+          <form
+            action="/technical/search"
+            className="hidden min-h-11 w-[min(34vw,360px)] items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 lg:flex"
+          >
+            <Search className="size-4 text-slate-400" aria-hidden="true" />
+            <label className="sr-only" htmlFor="technical-global-search">
+              Teknik panelde ara
+            </label>
+            <input
+              id="technical-global-search"
+              name="q"
+              maxLength={120}
+              placeholder="Teknik panelde ara"
+              className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+            />
+          </form>
           <div className="hidden text-right sm:block">
             <p className="text-sm font-semibold text-slate-900">
               Teknik oturum

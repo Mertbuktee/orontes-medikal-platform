@@ -279,6 +279,7 @@ const adminRoutePermissions: Array<{
   permission: Permission;
 }> = [
   { prefix: "/admin/dashboard", permission: "dashboard.view" },
+  { prefix: "/admin/search", permission: "dashboard.view" },
   { prefix: "/admin/service-requests", permission: "serviceRequests.view" },
   { prefix: "/admin/devices", permission: "devices.view" },
   { prefix: "/admin/services", permission: "services.view" },
@@ -299,6 +300,7 @@ const adminRoutePermissions: Array<{
   { prefix: "/admin/notifications", permission: "notifications.view" },
   { prefix: "/admin/account/notifications", permission: "notifications.preferences.manage.own" },
   { prefix: "/technical/dashboard", permission: "dashboard.view" },
+  { prefix: "/technical/search", permission: "dashboard.view" },
   { prefix: "/technical/service-requests", permission: "serviceRequests.view" },
   { prefix: "/technical/customers", permission: "technicalCustomers.view" },
   { prefix: "/technical/devices", permission: "technicalDevices.view" },

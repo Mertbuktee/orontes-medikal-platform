@@ -45,6 +45,12 @@ const coordinateSchema = z
   )
   .default('');
 
+const hexColorSchema = z
+  .string()
+  .trim()
+  .regex(/^#[0-9a-fA-F]{6}$/, 'Geçerli bir hex renk girin.')
+  .default('#fb923c');
+
 export const siteSettingSchemas = {
   general: z.object({
     companyName: requiredText(2, 160),
@@ -123,6 +129,14 @@ export const siteSettingSchemas = {
   footer: z.object({
     copyrightText: requiredText(10, 260),
     footerDescription: requiredText(10, 400),
+    poweredByEnabled: z.boolean().default(true),
+    poweredByPrefix: z.string().trim().max(80).default('Powered by'),
+    poweredByLabel: z.string().trim().max(120).default('Mert Bükte'),
+    poweredByHref: optionalCtaUrlSchema,
+    poweredByColor: hexColorSchema,
+    showMapEmbed: z.boolean().default(false),
+    mapTitle: z.string().trim().max(120).default('Konum'),
+    footerNote: optionalText(260),
   }),
   defaultCta: z.object({
     primaryButtonLabel: requiredText(2, 80),

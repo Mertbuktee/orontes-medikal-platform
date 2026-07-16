@@ -124,6 +124,12 @@ Hero Slider coverage includes:
 
 Database-backed Hero slide repository behavior should use isolated database integration tests before destructive reorder/delete scenarios are expanded.
 
+Panel search and footer settings coverage:
+
+- site settings tests verify backwards-compatible footer advanced defaults
+- source-of-truth tests guard against hardcoded footer social/powered-by identity
+- visual QA covers homepage/footer rendering after settings changes
+
 ## Device Group Tests
 
 Device group coverage includes:

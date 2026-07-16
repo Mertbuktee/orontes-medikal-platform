@@ -98,6 +98,14 @@ export type LegalSettings = {
 export type FooterSettings = {
   copyrightText: string;
   footerDescription: string;
+  poweredByEnabled: boolean;
+  poweredByPrefix: string;
+  poweredByLabel: string;
+  poweredByHref: string;
+  poweredByColor: string;
+  showMapEmbed: boolean;
+  mapTitle: string;
+  footerNote: string;
 };
 
 export type DefaultCtaSettings = {
@@ -228,6 +236,14 @@ export const defaultSiteSettings: SiteSettings = {
       'Orontes İnovasyon Endüstriyel Ürünler Sanayi Ticaret Ltd. Şti. Tüm hakları saklıdır.',
     footerDescription:
       'Medikal cihaz bakım, onarım, elektronik kart tamiri ve teknik servis çözümleri.',
+    poweredByEnabled: true,
+    poweredByPrefix: 'Powered by',
+    poweredByLabel: 'Mert Bükte',
+    poweredByHref: '',
+    poweredByColor: '#fb923c',
+    showMapEmbed: false,
+    mapTitle: 'Konum',
+    footerNote: '',
   },
   defaultCta: {
     primaryButtonLabel: 'Servis Talebi Oluştur',

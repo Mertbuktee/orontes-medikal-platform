@@ -571,7 +571,16 @@ Site ayarlari `/admin/settings` altinda yonetilir. Modul sirket kimligi, iletisi
 - `settings.update`: marka, iletisim, footer, legal ve sistem ayarlarini gunceller.
 - `settings.seo.manage`: global SEO, search verification ve analytics ayarlarini gunceller.
 
-Logo, favicon ve default OG image yalniz Media Library icindeki aktif image kayitlarindan secilir; raw storage key girisi yoktur. Public Navbar, Footer, Contact, structured data, sitemap ve robots ayarlari bu modulu tek kaynak olarak kullanir. Maintenance mode public layout seviyesinde bakim ekrani gosterir; admin panel bu akisin disindadir.
+Logo, favicon ve default OG image yalniz Media Library icindeki aktif image kayitlarindan secilir; raw storage key girisi yoktur. Public Navbar, Footer, Contact, structured data, sitemap ve robots ayarlari bu modulu tek kaynak olarak kullanir. Footer advanced alanlari powered-by metni, linki, rengi, footer notu ve Google Maps embed gorunurlugunu raw HTML acmadan yonetir. Maintenance mode public layout seviyesinde bakim ekrani gosterir; admin panel bu akisin disindadir.
+
+## Panel Search
+
+Admin panelde `/admin/search`, teknik panelde `/technical/search` genel arama sonuc sayfalaridir. Topbar arama kutulari ilgili panele gore bu sayfalara gider.
+
+- Admin aramasi yetkiye gore servis talepleri, teknik musteri/cihaz/gecmis kayitlari, cihaz gruplari, hizmetler, blog, medya, hero slider, kullanicilar ve site ayarlari uzerinde arama yapar.
+- Teknik arama yalniz teknik operasyon kapsamini tarar: servis talepleri, musteriler, cihazlar ve servis gecmisi.
+- Arama terimi 120 karakterle sinirlanir; bos arama veritabani sorgusu calistirmaz.
+- Teknik musteri, cihaz ve servis gecmisi sonuclari dogru `/technical` detay ekranlarina linklenir.
 
 ## Operations Dashboard
 

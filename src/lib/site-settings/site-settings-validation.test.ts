@@ -59,6 +59,19 @@ describe('site settings validation', () => {
     expect(parsed.maintenanceMode).toBe(true);
   });
 
+  it('defaults new footer controls for older footer settings', () => {
+    const parsed = parseSiteSettingGroup('footer', {
+      copyrightText: defaultSiteSettings.footer.copyrightText,
+      footerDescription: defaultSiteSettings.footer.footerDescription,
+    });
+
+    expect(parsed.poweredByEnabled).toBe(true);
+    expect(parsed.poweredByPrefix).toBe('Powered by');
+    expect(parsed.poweredByLabel).toBe('Mert Bükte');
+    expect(parsed.showMapEmbed).toBe(false);
+    expect(parsed.poweredByColor).toBe('#fb923c');
+  });
+
   it('normalizes Turkish phone numbers for display and tel links', () => {
     expect(formatDisplayPhone('05536065703')).toBe('0553 606 57 03');
     expect(formatDisplayPhone('5536065703')).toBe('0553 606 57 03');

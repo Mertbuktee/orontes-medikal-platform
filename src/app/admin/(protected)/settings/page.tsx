@@ -214,6 +214,8 @@ export default async function AdminSettingsPage() {
             values={settings.footer}
           />
 
+          <FooterAdvancedSection values={settings.footer} />
+
           <SettingsSection
             id="defaultCta"
             title="Default CTA"
@@ -296,7 +298,7 @@ function SettingsSection({
   description: string;
   group: string;
   fields: Field[];
-  values: Record<string, string>;
+  values: Record<string, string | boolean>;
 }) {
   return (
     <section id={id} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -309,7 +311,7 @@ function SettingsSection({
             <input
               name={field.name}
               type={field.type ?? "text"}
-              defaultValue={values[field.name] ?? ""}
+              defaultValue={String(values[field.name] ?? "")}
               className="min-h-11 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
             />
             {field.help ? <span className="text-xs text-slate-500">{field.help}</span> : null}
@@ -377,6 +379,99 @@ function BrandingSection({
             className="min-h-11 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
           />
         </label>
+        <SaveButton />
+      </form>
+    </section>
+  );
+}
+
+function FooterAdvancedSection({
+  values,
+}: {
+  values: Record<string, string | boolean>;
+}) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <SectionHeader
+        title="Footer Advanced"
+        description="Powered-by, link, renk, harita ve footer alt notunu güvenli alanlarla yönetin."
+      />
+      <form action={updateSiteSettingGroup} className="mt-5 grid gap-4 md:grid-cols-2">
+        <input type="hidden" name="group" value="footer" />
+        <input type="hidden" name="footerAdvanced" value="true" />
+        <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">
+          <input
+            type="checkbox"
+            name="poweredByEnabled"
+            value="true"
+            defaultChecked={Boolean(values.poweredByEnabled)}
+            className="size-4 accent-orange-500"
+          />
+          Powered-by göster
+        </label>
+        <label className="flex min-h-12 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">
+          <input
+            type="checkbox"
+            name="showMapEmbed"
+            value="true"
+            defaultChecked={Boolean(values.showMapEmbed)}
+            className="size-4 accent-orange-500"
+          />
+          Footer haritasını göster
+        </label>
+        <label className="grid gap-2 text-sm font-semibold text-slate-700">
+          Powered-by Ön Yazı
+          <input
+            name="poweredByPrefix"
+            defaultValue={String(values.poweredByPrefix ?? "")}
+            className="min-h-11 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-semibold text-slate-700">
+          Powered-by Yazısı
+          <input
+            name="poweredByLabel"
+            defaultValue={String(values.poweredByLabel ?? "")}
+            className="min-h-11 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-semibold text-slate-700">
+          Powered-by Linki
+          <input
+            name="poweredByHref"
+            defaultValue={String(values.poweredByHref ?? "")}
+            placeholder="https://..."
+            className="min-h-11 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-semibold text-slate-700">
+          Powered-by Rengi
+          <input
+            name="poweredByColor"
+            type="color"
+            defaultValue={String(values.poweredByColor ?? "#fb923c")}
+            className="min-h-11 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2"
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-semibold text-slate-700">
+          Harita Başlığı
+          <input
+            name="mapTitle"
+            defaultValue={String(values.mapTitle ?? "")}
+            className="min-h-11 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+          Footer Alt Notu
+          <input
+            name="footerNote"
+            defaultValue={String(values.footerNote ?? "")}
+            className="min-h-11 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-950 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+          />
+        </label>
+        <p className="text-xs leading-5 text-slate-500 md:col-span-2">
+          Harita kaynağı üstteki Map bölümündeki Google Maps Embed URL alanından gelir.
+        </p>
         <SaveButton />
       </form>
     </section>
