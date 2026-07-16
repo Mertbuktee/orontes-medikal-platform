@@ -14,6 +14,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { ServiceRequestLiveWatcher } from "@/components/admin/service-requests/ServiceRequestLiveWatcher";
 import {
   getServiceRequestStatusClassName,
   getServiceRequestStatusMeta,
@@ -41,10 +42,11 @@ export default async function AdminServiceRequestsPage({
   const params = await searchParams;
   const filters = parseFilters(params);
   const repository = new PrismaServiceRequestRepository(prisma);
-  const [result, statusCounts, assignableUsers] = await Promise.all([
+  const [result, statusCounts, assignableUsers, liveSnapshot] = await Promise.all([
     repository.listAdminRequests(filters),
     repository.getStatusCounts(filters.archived),
     repository.listAssignableUsers(),
+    repository.getLiveSnapshot(),
   ]);
   const totalActive = statusCounts.reduce(
     (total, item) => total + item._count.status,
@@ -57,6 +59,10 @@ export default async function AdminServiceRequestsPage({
         eyebrow="Servis Operasyonu"
         title="Servis Talepleri"
         description="Web sitesi üzerinden iletilen teknik servis başvurularını inceleyin ve yönetin."
+      />
+
+      <ServiceRequestLiveWatcher
+        initialSnapshot={serializeLiveSnapshot(liveSnapshot)}
       />
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -564,4 +570,27 @@ function formatDate(date: Date) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
+}
+
+function serializeLiveSnapshot(
+  snapshot: Awaited<
+    ReturnType<PrismaServiceRequestRepository["getLiveSnapshot"]>
+  >
+) {
+  return {
+    totalActive: snapshot.totalActive,
+    latestCreated: snapshot.latestCreated
+      ? {
+          ...snapshot.latestCreated,
+          createdAt: snapshot.latestCreated.createdAt.toISOString(),
+          updatedAt: snapshot.latestCreated.updatedAt.toISOString(),
+        }
+      : null,
+    latestUpdated: snapshot.latestUpdated
+      ? {
+          ...snapshot.latestUpdated,
+          updatedAt: snapshot.latestUpdated.updatedAt.toISOString(),
+        }
+      : null,
+  };
 }

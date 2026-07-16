@@ -185,6 +185,39 @@ export class PrismaServiceRequestRepository
     return { statusCounts, recentlyUpdated, latest };
   }
 
+  async getLiveSnapshot() {
+    const where: Prisma.ServiceRequestWhereInput = { archivedAt: null };
+    const [totalActive, latestCreated, latestUpdated] = await Promise.all([
+      this.client.serviceRequest.count({ where }),
+      this.client.serviceRequest.findFirst({
+        where,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          fullName: true,
+          company: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+      this.client.serviceRequest.findFirst({
+        where,
+        orderBy: { updatedAt: "desc" },
+        select: {
+          id: true,
+          updatedAt: true,
+        },
+      }),
+    ]);
+
+    return {
+      totalActive,
+      latestCreated,
+      latestUpdated,
+    };
+  }
+
   async listTechnicalCustomers(limit = 100) {
     return this.client.serviceRequest.groupBy({
       by: ["email", "phone", "fullName", "company"],
