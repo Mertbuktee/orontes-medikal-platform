@@ -79,6 +79,21 @@ enum EmailDeliveryStatus {
   CANCELLED
 }
 
+enum CustomerDeviceStatus {
+  ACTIVE
+  UNDER_SERVICE
+  OUT_OF_SERVICE
+  RETIRED
+  ARCHIVED
+}
+
+enum CustomerDeviceCriticality {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
 enum MediaCategory {
   GENERAL
   HERO
@@ -254,6 +269,8 @@ model ServiceRequest {
   customerLocation   CustomerLocation?             @relation(fields: [customerLocationId], references: [id], onDelete: SetNull)
   customerContactId  String?
   customerContact    CustomerContact?              @relation(fields: [customerContactId], references: [id], onDelete: SetNull)
+  customerDeviceId   String?
+  customerDevice     CustomerDevice?               @relation(fields: [customerDeviceId], references: [id], onDelete: SetNull)
   attachments        Attachment[]
   internalNotes      ServiceRequestNote[]
   statusHistory      ServiceRequestStatusHistory[]
@@ -267,6 +284,7 @@ model ServiceRequest {
   @@index([customerCompanyId])
   @@index([customerLocationId])
   @@index([customerContactId])
+  @@index([customerDeviceId])
   @@index([createdAt])
   @@index([archivedAt])
 }
@@ -286,6 +304,7 @@ model CustomerCompany {
   updatedAt       DateTime           @updatedAt
   locations       CustomerLocation[]
   contacts        CustomerContact[]
+  devices         CustomerDevice[]
   serviceRequests ServiceRequest[]
 
   @@index([legalName])
@@ -316,6 +335,7 @@ model CustomerLocation {
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   contacts          CustomerContact[]
+  devices           CustomerDevice[]
   serviceRequests   ServiceRequest[]
 
   @@index([customerCompanyId])
@@ -352,6 +372,89 @@ model CustomerContact {
   @@index([isPrimary])
   @@index([isActive])
   @@index([archivedAt])
+}
+
+model Manufacturer {
+  id              String           @id @default(cuid())
+  name            String           @db.VarChar(160)
+  slug            String           @unique @db.VarChar(180)
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deviceModels    DeviceModel[]
+  customerDevices CustomerDevice[]
+
+  @@index([name])
+  @@index([isActive])
+}
+
+model DeviceModel {
+  id              String           @id @default(cuid())
+  manufacturerId  String
+  manufacturer    Manufacturer     @relation(fields: [manufacturerId], references: [id], onDelete: Cascade)
+  name            String           @db.VarChar(160)
+  deviceGroupId   String?
+  deviceGroup     DeviceGroup?     @relation("DeviceModelDeviceGroup", fields: [deviceGroupId], references: [id], onDelete: SetNull)
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  customerDevices CustomerDevice[]
+
+  @@index([manufacturerId])
+  @@index([deviceGroupId])
+  @@index([name])
+  @@index([isActive])
+  @@unique([manufacturerId, name])
+}
+
+model CustomerDevice {
+  id                      String                    @id @default(cuid())
+  publicCode              String                    @unique @db.VarChar(32)
+  customerCompanyId       String
+  customerCompany         CustomerCompany           @relation(fields: [customerCompanyId], references: [id], onDelete: Cascade)
+  customerLocationId      String
+  customerLocation        CustomerLocation          @relation(fields: [customerLocationId], references: [id], onDelete: Restrict)
+  deviceGroupId           String?
+  deviceGroup             DeviceGroup?              @relation("CustomerDeviceDeviceGroup", fields: [deviceGroupId], references: [id], onDelete: SetNull)
+  manufacturerId          String?
+  manufacturer            Manufacturer?             @relation(fields: [manufacturerId], references: [id], onDelete: SetNull)
+  deviceModelId           String?
+  deviceModel             DeviceModel?              @relation(fields: [deviceModelId], references: [id], onDelete: SetNull)
+  customManufacturer      String?                   @db.VarChar(160)
+  customModel             String?                   @db.VarChar(160)
+  serialNumber            String                    @db.VarChar(160)
+  assetTag                String?                   @db.VarChar(120)
+  hospitalInventoryNumber String?                   @db.VarChar(120)
+  department              String?                   @db.VarChar(120)
+  room                    String?                   @db.VarChar(120)
+  installationDate        DateTime?
+  purchaseDate            DateTime?
+  warrantyEndDate         DateTime?
+  status                  CustomerDeviceStatus      @default(ACTIVE)
+  criticality             CustomerDeviceCriticality @default(MEDIUM)
+  notes                   String?
+  lastServiceAt           DateTime?
+  isActive                Boolean                   @default(true)
+  archivedAt              DateTime?
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  serviceRequests         ServiceRequest[]
+
+  @@index([publicCode])
+  @@index([customerCompanyId])
+  @@index([customerLocationId])
+  @@index([deviceGroupId])
+  @@index([manufacturerId])
+  @@index([deviceModelId])
+  @@index([serialNumber])
+  @@index([assetTag])
+  @@index([hospitalInventoryNumber])
+  @@index([status])
+  @@index([criticality])
+  @@index([lastServiceAt])
+  @@index([isActive])
+  @@index([archivedAt])
+  @@index([manufacturerId, serialNumber])
 }
 
 model Attachment {
@@ -448,6 +551,8 @@ model DeviceGroup {
   archivedAt       DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+  deviceModels     DeviceModel[]    @relation("DeviceModelDeviceGroup")
+  customerDevices  CustomerDevice[] @relation("CustomerDeviceDeviceGroup")
 
   @@index([title])
   @@index([imageId])

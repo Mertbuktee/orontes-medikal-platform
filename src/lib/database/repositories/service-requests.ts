@@ -260,6 +260,34 @@ export class PrismaServiceRequestRepository
         customerCompany: true,
         customerLocation: true,
         customerContact: true,
+        customerDevice: {
+          include: {
+            customerCompany: {
+              select: {
+                id: true,
+                displayName: true,
+              },
+            },
+            customerLocation: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            manufacturer: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            deviceModel: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
         internalNotes: {
           orderBy: { createdAt: "desc" },
           include: {

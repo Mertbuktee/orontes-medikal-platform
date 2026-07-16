@@ -18,6 +18,7 @@ describe("admin RBAC contracts", () => {
       "dashboard.view",
       "serviceRequests.view",
       "technicalCustomers.view",
+      "technicalDevices.view",
       "account.security.manage",
       "sessions.manage.own",
       "mfa.manage.own",
@@ -49,6 +50,8 @@ describe("admin RBAC contracts", () => {
     );
     expect(hasPermission("SERVICE_STAFF", "technicalCustomers.create")).toBe(true);
     expect(hasPermission("SERVICE_STAFF", "technicalCustomers.update")).toBe(true);
+    expect(hasPermission("SERVICE_STAFF", "technicalDevices.create")).toBe(true);
+    expect(hasPermission("SERVICE_STAFF", "technicalDevices.update")).toBe(true);
     expect(hasPermission("SERVICE_STAFF", "serviceRequests.assign")).toBe(false);
     expect(hasPermission("SERVICE_STAFF", "serviceRequests.archive")).toBe(false);
     expect(hasPermission("SERVICE_STAFF", "serviceRequests.delete")).toBe(false);

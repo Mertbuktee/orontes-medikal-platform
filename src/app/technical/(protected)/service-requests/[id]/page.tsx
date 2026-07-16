@@ -5,6 +5,7 @@ import {
   CalendarClock,
   FileText,
   Mail,
+  MonitorCog,
   Paperclip,
   Phone,
   Save,
@@ -24,6 +25,7 @@ import {
 } from "@/components/admin/service-request-status";
 import { requirePermission } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/database/prisma";
+import { PrismaCustomerDeviceRepository } from "@/lib/database/repositories/customer-devices";
 import { PrismaCustomerRegistryRepository } from "@/lib/database/repositories/customer-registry";
 import { PrismaServiceRequestRepository } from "@/lib/database/repositories/service-requests";
 import { hasPermission } from "@/lib/rbac/permissions";
@@ -38,6 +40,10 @@ import {
   createCustomerFromServiceRequest,
   linkServiceRequestToCustomer,
 } from "@/app/technical/(protected)/customers/actions";
+import {
+  createDeviceFromServiceRequest,
+  linkServiceRequestToDevice,
+} from "@/app/technical/(protected)/devices/actions";
 
 type TechnicalServiceRequestDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -52,11 +58,13 @@ export default async function TechnicalServiceRequestDetailPage({
   const { id } = await params;
   const repository = new PrismaServiceRequestRepository(prisma);
   const customerRepository = new PrismaCustomerRegistryRepository(prisma);
-  const [request, assignableUsers, deviceHistory, customerOptions] = await Promise.all([
+  const deviceRepository = new PrismaCustomerDeviceRepository(prisma);
+  const [request, assignableUsers, deviceHistory, customerOptions, deviceOptions] = await Promise.all([
     repository.findById(id),
     repository.listAssignableUsers(),
     repository.findDeviceServiceHistoryByRequestId(id),
     customerRepository.listCompanyOptions(),
+    deviceRepository.listDeviceOptions(),
   ]);
 
   if (!request) {
@@ -70,6 +78,13 @@ export default async function TechnicalServiceRequestDetailPage({
   const canManageCustomerLink = hasPermission(
     session.role,
     "technicalCustomers.create",
+  );
+  const canManageDeviceLink =
+    canUpdate && hasPermission(session.role, "technicalDevices.create");
+  const canCreateDeviceFromRequest = Boolean(
+    request.customerCompanyId &&
+      request.customerLocationId &&
+      request.deviceSerialNumber,
   );
   const canViewAttachment = hasPermission(
     session.role,
@@ -430,6 +445,79 @@ export default async function TechnicalServiceRequestDetailPage({
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
+            <h2 className="text-lg font-semibold text-slate-950">
+              Cihaz Kaydı
+            </h2>
+            {request.customerDevice ? (
+              <div className="mt-4 rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
+                <p className="flex items-center gap-2 text-sm font-semibold text-cyan-950">
+                  <MonitorCog className="size-4" aria-hidden="true" />
+                  {request.customerDevice.publicCode} ·{" "}
+                  {getDeviceLabel(request.customerDevice)}
+                </p>
+                <p className="mt-1 text-sm text-cyan-900">
+                  Seri No: {request.customerDevice.serialNumber}
+                </p>
+                <Link
+                  href={`/technical/devices/${request.customerDevice.id}`}
+                  className="mt-3 inline-flex min-h-10 items-center rounded-xl bg-cyan-500 px-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+                >
+                  Cihaz Detayı
+                </Link>
+              </div>
+            ) : (
+              <p className="mt-2 text-sm text-slate-500">
+                Bu talep henüz fiziksel cihaz kartına bağlı değil.
+              </p>
+            )}
+
+            {canManageDeviceLink ? (
+              <div className="mt-5 space-y-3">
+                <form action={linkServiceRequestToDevice} className="space-y-3">
+                  <input type="hidden" name="serviceRequestId" value={request.id} />
+                  <label className="block">
+                    <span className="sr-only">Mevcut cihaz</span>
+                    <select
+                      name="customerDeviceId"
+                      required
+                      defaultValue={request.customerDeviceId ?? ""}
+                      className="min-h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-800 outline-none focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100"
+                    >
+                      <option value="">Mevcut cihaz seç</option>
+                      {deviceOptions.map((device) => (
+                        <option key={device.id} value={device.id}>
+                          {device.publicCode} - {getDeviceLabel(device)} - {device.serialNumber}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button
+                    type="submit"
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-cyan-200 bg-cyan-50 px-4 text-sm font-semibold text-cyan-800 transition hover:bg-cyan-100"
+                  >
+                    Mevcut Cihaza Bağla
+                  </button>
+                </form>
+                <form action={createDeviceFromServiceRequest}>
+                  <input type="hidden" name="serviceRequestId" value={request.id} />
+                  <button
+                    type="submit"
+                    disabled={!canCreateDeviceFromRequest}
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-cyan-500 px-4 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+                  >
+                    Talepten Cihaz Oluştur
+                  </button>
+                </form>
+                {!canCreateDeviceFromRequest ? (
+                  <p className="text-xs leading-5 text-slate-500">
+                    Otomatik cihaz oluşturmak için talep önce müşteri, lokasyon ve seri no bilgisi taşımalı.
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </section>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
             <h2 className="text-lg font-semibold text-slate-950">Ekler</h2>
             {imageAttachments.length ? (
               <ServiceRequestAttachmentViewer attachments={imageAttachments} />
@@ -585,4 +673,20 @@ function formatDate(date: Date) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
+}
+
+function getDeviceLabel(device: {
+  manufacturer: { name: string } | null;
+  deviceModel: { name: string } | null;
+  customManufacturer: string | null;
+  customModel: string | null;
+}) {
+  return (
+    [
+      device.manufacturer?.name ?? device.customManufacturer,
+      device.deviceModel?.name ?? device.customModel,
+    ]
+      .filter(Boolean)
+      .join(" ") || "Cihaz bilgisi yok"
+  );
 }

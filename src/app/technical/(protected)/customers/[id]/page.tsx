@@ -1,3 +1,4 @@
+import type { ServiceRequestStatus } from "@prisma/client";
 import { ArrowUpRight, Building2, Mail, Phone, UserRound } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -150,9 +151,37 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
 
       <section id="cihazlar" className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
         <h2 className="text-lg font-semibold text-slate-950">Cihazlar</h2>
-        <p className="mt-2 text-sm text-slate-500">
-          Cihaz kartları TASK-044 ile ayrı CustomerDevice registry olarak eklenecek. Bu müşteri kartı o modele hazır.
-        </p>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          {customer.devices.length ? (
+            customer.devices.map((device) => (
+              <Link
+                key={device.id}
+                href={`/technical/devices/${device.id}`}
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-cyan-200 hover:bg-cyan-50"
+              >
+                <p className="text-sm font-semibold text-slate-950">
+                  {device.publicCode} · {getDeviceLabel(device)}
+                </p>
+                <p className="mt-1 text-sm text-slate-600">
+                  Seri No: {device.serialNumber}
+                </p>
+                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+                  {device.customerLocation.name}
+                </p>
+              </Link>
+            ))
+          ) : (
+            <p className="text-sm text-slate-500">Cihaz kaydı yok.</p>
+          )}
+        </div>
+        {canUpdate ? (
+          <Link
+            href="/technical/devices/new"
+            className="mt-4 inline-flex min-h-10 items-center rounded-xl bg-cyan-500 px-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+          >
+            Cihaz Oluştur
+          </Link>
+        ) : null}
       </section>
 
       <RequestList
@@ -239,7 +268,7 @@ function RequestList({
   title: string;
   requests: Array<{
     id: string;
-    status: string;
+    status: ServiceRequestStatus;
     company: string;
     fullName: string;
     message: string;
@@ -256,13 +285,13 @@ function RequestList({
       <div className="divide-y divide-slate-100">
         {requests.length ? (
           requests.map((request) => {
-            const status = getServiceRequestStatusMeta(request.status as never);
+            const status = getServiceRequestStatusMeta(request.status);
             return (
               <article key={request.id} className="grid gap-4 px-5 py-5 md:grid-cols-[1fr_auto]">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">#{request.id.slice(-6).toUpperCase()}</span>
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${getServiceRequestStatusClassName(request.status as never)}`}>{status.label}</span>
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${getServiceRequestStatusClassName(request.status)}`}>{status.label}</span>
                   </div>
                   <p className="mt-2 font-semibold text-slate-950">{request.company || request.fullName}</p>
                   <p className="mt-1 line-clamp-2 text-sm text-slate-500">{request.message}</p>
@@ -334,4 +363,20 @@ function slugify(value: string) {
     .replace("ö", "o")
     .replace("ç", "c")
     .replace(/\s+/g, "-");
+}
+
+function getDeviceLabel(device: {
+  manufacturer: { name: string } | null;
+  deviceModel: { name: string } | null;
+  customManufacturer: string | null;
+  customModel: string | null;
+}) {
+  return (
+    [
+      device.manufacturer?.name ?? device.customManufacturer,
+      device.deviceModel?.name ?? device.customModel,
+    ]
+      .filter(Boolean)
+      .join(" ") || "Cihaz bilgisi yok"
+  );
 }

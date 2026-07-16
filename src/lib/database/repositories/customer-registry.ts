@@ -86,6 +86,14 @@ export class PrismaCustomerRegistryRepository {
         legalName: true,
         phone: true,
         email: true,
+        locations: {
+          where: { archivedAt: null, isActive: true },
+          orderBy: [{ isPrimary: "desc" }, { name: "asc" }],
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
   }
@@ -102,6 +110,30 @@ export class PrismaCustomerRegistryRepository {
           where: { archivedAt: null },
           orderBy: [{ isPrimary: "desc" }, { fullName: "asc" }],
           include: {
+            customerLocation: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        devices: {
+          where: { archivedAt: null },
+          orderBy: { updatedAt: "desc" },
+          include: {
+            manufacturer: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            deviceModel: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
             customerLocation: {
               select: {
                 id: true,

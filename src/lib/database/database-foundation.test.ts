@@ -51,6 +51,19 @@ describe("database foundation contracts", () => {
     expect(schema).toContain("email              String");
   });
 
+  it("defines customer device registry separately from public device groups", async () => {
+    const schema = await readFile(schemaPath, "utf8");
+
+    expect(schema).toContain("enum CustomerDeviceStatus");
+    expect(schema).toContain("enum CustomerDeviceCriticality");
+    expect(schema).toContain("model Manufacturer");
+    expect(schema).toContain("model DeviceModel");
+    expect(schema).toContain("model CustomerDevice");
+    expect(schema).toContain("publicCode              String");
+    expect(schema).toContain("customerDeviceId   String?");
+    expect(schema).toContain('deviceGroup     DeviceGroup?');
+  });
+
   it("prepares ordered active and featured device seed records", () => {
     const records = getDeviceGroupSeedRecords();
     const orders = records.map((record) => record.order);
