@@ -58,7 +58,7 @@ export default async function AdminHeroSlidesPage() {
         <h2 className="text-lg font-semibold text-slate-950">Slider Ayarları</h2>
         <form
           action={updateHeroSliderSettings}
-          className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-6"
+          className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-7"
         >
           <label className="block">
             <span className="text-sm font-semibold text-slate-700">
@@ -90,9 +90,10 @@ export default async function AdminHeroSlidesPage() {
           <SettingCheck name="pauseOnHover" label="Hover'da duraklat" checked={settings.pauseOnHover} />
           <SettingCheck name="showPagination" label="Noktaları göster" checked={settings.showPagination} />
           <SettingCheck name="showArrows" label="Okları göster" checked={settings.showArrows} />
+          <SettingCheck name="showSlideCounter" label="Slayt sayacını göster" checked={settings.showSlideCounter} />
           <button
             type="submit"
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-orange-500 xl:col-span-6"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-orange-500 xl:col-span-7"
           >
             Ayarları Kaydet
           </button>

@@ -466,7 +466,7 @@ Values are JSON but not arbitrary: application-level Zod schemas validate each g
 - `linkLabel`, `linkUrl` and `objectPosition` support admin-managed CTA and image focal point settings.
 - `order`, `isActive` and `includeInAutoplay` control public ordering and autoplay behavior.
 
-Slider settings are stored in `SiteSetting` under `hero.slider.settings` as typed JSON. The application validates interval and transition bounds before persistence.
+Slider settings are stored in `SiteSetting` under `hero.slider.settings` as typed JSON. The application validates interval and transition bounds before persistence. Missing legacy `showSlideCounter` values default to `false`, so the public counter badge stays hidden unless an admin enables it.
 
 ## Device Group Model
 

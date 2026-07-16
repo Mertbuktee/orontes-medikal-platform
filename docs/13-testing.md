@@ -119,6 +119,7 @@ Hero Slider coverage includes:
 - reduced-motion, hover/focus and visibility pause logic
 - safe link and object-position validation
 - slider settings bounds
+- backwards-compatible slider counter default
 - RBAC permissions for Hero slider management
 
 Database-backed Hero slide repository behavior should use isolated database integration tests before destructive reorder/delete scenarios are expanded.

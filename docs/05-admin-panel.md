@@ -504,7 +504,7 @@ Hero Slider module is managed under `/admin/hero-slides`.
 
 Slides select images from the Media Library. Archived media and non-image media cannot be selected. Deleting a Hero slide never deletes the referenced media record.
 
-Slider settings are stored as the typed `hero.slider.settings` site setting. Public updates revalidate the homepage, dashboard and Hero Slider admin routes.
+Slider settings are stored as the typed `hero.slider.settings` site setting. Admins can manage autoplay, hover pause, pagination dots, arrows and the public slide counter badge from this form. Public updates revalidate the homepage, dashboard and Hero Slider admin routes.
 
 ## Device Group Management
 

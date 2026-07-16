@@ -9,6 +9,7 @@ export const defaultHeroSliderSettings = {
   pauseOnHover: true,
   showPagination: true,
   showArrows: true,
+  showSlideCounter: false,
 } as const;
 
 export const heroSliderSettingsSchema = z.object({
@@ -18,6 +19,7 @@ export const heroSliderSettingsSchema = z.object({
   pauseOnHover: z.boolean(),
   showPagination: z.boolean(),
   showArrows: z.boolean(),
+  showSlideCounter: z.boolean().default(false),
 });
 
 export type HeroSliderSettings = z.infer<typeof heroSliderSettingsSchema>;

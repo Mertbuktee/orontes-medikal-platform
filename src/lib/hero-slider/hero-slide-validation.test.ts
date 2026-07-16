@@ -60,6 +60,7 @@ describe("Hero slide validation", () => {
         pauseOnHover: true,
         showPagination: true,
         showArrows: true,
+        showSlideCounter: false,
       }).success
     ).toBe(true);
     expect(
@@ -70,6 +71,7 @@ describe("Hero slide validation", () => {
         pauseOnHover: true,
         showPagination: true,
         showArrows: true,
+        showSlideCounter: false,
       }).success
     ).toBe(false);
     expect(
@@ -80,7 +82,21 @@ describe("Hero slide validation", () => {
         pauseOnHover: true,
         showPagination: true,
         showArrows: true,
+        showSlideCounter: false,
       }).success
     ).toBe(false);
+  });
+
+  it("keeps older slider settings compatible by defaulting the counter off", () => {
+    const parsed = heroSliderSettingsSchema.parse({
+      autoplayEnabled: true,
+      autoplayIntervalMs: 6_000,
+      transitionDurationMs: 700,
+      pauseOnHover: true,
+      showPagination: true,
+      showArrows: true,
+    });
+
+    expect(parsed.showSlideCounter).toBe(false);
   });
 });

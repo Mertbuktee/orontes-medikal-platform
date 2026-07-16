@@ -186,16 +186,22 @@ export function HeroServiceSlider({
 
           <div className="absolute inset-0 z-20 bg-[linear-gradient(180deg,rgba(2,6,23,0.04)_0%,rgba(2,6,23,0.24)_42%,rgba(2,6,23,0.88)_100%)]" />
           <div className="absolute inset-x-0 bottom-0 z-30 p-4 text-white sm:p-6">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              {currentSlide.badge ? (
-                <span className="rounded-full border border-orange-300/40 bg-orange-500/15 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-orange-100 backdrop-blur">
-                  {currentSlide.badge}
-                </span>
-              ) : null}
-              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
-                {getSlideIndicator(currentIndex, visibleSlides.length)}
-              </span>
-            </div>
+            {currentSlide.badge || settings.showSlideCounter ? (
+              <div className="mb-4 flex items-center justify-between gap-3">
+                {currentSlide.badge ? (
+                  <span className="rounded-full border border-orange-300/40 bg-orange-500/15 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-orange-100 backdrop-blur">
+                    {currentSlide.badge}
+                  </span>
+                ) : (
+                  <span aria-hidden="true" />
+                )}
+                {settings.showSlideCounter ? (
+                  <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                    {getSlideIndicator(currentIndex, visibleSlides.length)}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
             <h2 className="max-w-xl text-2xl font-semibold leading-tight sm:text-3xl">
               {currentSlide.title}
             </h2>

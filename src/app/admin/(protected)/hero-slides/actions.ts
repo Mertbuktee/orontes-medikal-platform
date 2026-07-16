@@ -183,6 +183,7 @@ export async function updateHeroSliderSettings(formData: FormData) {
     pauseOnHover: formData.get('pauseOnHover') === 'true',
     showPagination: formData.get('showPagination') === 'true',
     showArrows: formData.get('showArrows') === 'true',
+    showSlideCounter: formData.get('showSlideCounter') === 'true',
   });
 
   if (!parsed.success) return;

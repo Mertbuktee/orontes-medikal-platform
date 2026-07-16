@@ -316,7 +316,7 @@ Hero Slider management currently uses App Router server actions rather than publ
 - `moveHeroSlide(formData)`: requires `heroSlides.reorder`.
 - `toggleHeroSlideActive(formData)`: requires `heroSlides.publish`.
 - `toggleHeroSlideAutoplay(formData)`: requires `heroSlides.update`.
-- `updateHeroSliderSettings(formData)`: requires `heroSlides.update`.
+- `updateHeroSliderSettings(formData)`: requires `heroSlides.update`; manages autoplay, interval, transition, hover pause, pagination dots, arrows and slide counter visibility.
 
 All actions validate input server-side, select media by Media ID only, write audit events and revalidate affected public/admin routes.
 
