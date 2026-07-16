@@ -67,7 +67,7 @@ export default async function TechnicalServiceRequestsPage({
       />
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard label="Listelenen Kayıt" value={result.total} active />
+        <SummaryCard label="Listelenen Kayıt" value={result.total} />
         <SummaryCard label="Aktif Kapsam" value={activeTotal} />
         <SummaryCard label="Yeni" value={statusCounts.find((item) => item.status === "NEW")?._count.status ?? 0} />
         <SummaryCard label="Bekleyen" value={statusCounts.find((item) => item.status === "WAITING_FOR_CUSTOMER")?._count.status ?? 0} />
