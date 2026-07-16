@@ -29,9 +29,25 @@ test.describe('service request workflow', () => {
       await adminPage.getByRole('button', { name: /atamay/i }).click();
       await expect(adminPage.locator('dd').getByText(fixture.users.serviceStaff.name, { exact: true })).toBeVisible();
 
-      await adminPage.locator('#service-request-status').selectOption('COMPLETED');
-      await adminPage.locator('#service-request-status-reason').fill('E2E tamamlanan servis gecisi.');
-      await adminPage.getByRole('button', { name: /durumu/i }).click();
+      await adminPage.locator('textarea[name="diagnosis"]').fill('E2E teshis: guc besleme karti arizali.');
+      await adminPage.locator('textarea[name="workPerformed"]').fill('E2E islem: guc besleme karti degistirildi.');
+      await adminPage.locator('textarea[name="testResult"]').fill('E2E test: cihaz stabil calisti.');
+      await adminPage.locator('textarea[name="finalResult"]').fill('E2E final: cihaz teslimata hazir.');
+      await adminPage.getByRole('button', { name: /teknik alanları kaydet/i }).click();
+      await expect(adminPage.locator('textarea[name="finalResult"]')).toHaveValue(/teslimata hazir/i);
+
+      await adminPage.locator('select[name="actionType"]').selectOption('REPAIR');
+      await adminPage.locator('textarea[name="description"]').fill('E2E teknik islem kaydi.');
+      await adminPage.getByRole('button', { name: /^İşlem Ekle$/i }).click();
+      await expect(adminPage.getByText('E2E teknik islem kaydi.')).toBeVisible();
+
+      await adminPage.locator('input[name="partName"]').fill('E2E test parcasi');
+      await adminPage.locator('input[name="quantity"]').fill('1');
+      await adminPage.locator('select[name="operation"]').selectOption('REPLACED');
+      await adminPage.getByRole('button', { name: /^Parça Ekle$/i }).click();
+      await expect(adminPage.getByText(/E2E test parcasi/i)).toBeVisible();
+
+      await adminPage.getByRole('button', { name: /servisi tamamla/i }).click();
       await expect(adminPage.getByText(/Tamamland/i).first()).toBeVisible();
       await expect(adminPage.getByText(/cihaz geçmişi otomatik/i)).toBeVisible();
 
@@ -42,6 +58,20 @@ test.describe('service request workflow', () => {
         fixture.serviceRequest.deviceSerialNumber ?? '',
       );
       await expect(adminPage.locator('input[name="company"]')).toHaveValue(fixture.serviceRequest.company);
+
+      const { prisma } = await import('@/lib/database/prisma');
+      const completedRequest = await prisma.serviceRequest.findUnique({
+        where: { id: fixture.serviceRequest.id },
+        select: { completedById: true, serviceCompletedAt: true },
+      });
+      expect(completedRequest?.completedById).toBe(fixture.users.admin.id);
+      expect(completedRequest?.serviceCompletedAt).toBeTruthy();
+
+      const completedDevice = await prisma.customerDevice.findUnique({
+        where: { id: fixture.customerDevice.id },
+        select: { lastServiceAt: true },
+      });
+      expect(completedDevice?.lastServiceAt).toBeTruthy();
 
       const download = await adminContext.request.get(
         attachmentPath,

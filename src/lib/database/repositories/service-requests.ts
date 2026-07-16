@@ -3,7 +3,11 @@ import type {
   Prisma,
   PrismaClient,
   Role,
+  ServicePriority,
+  ServiceRequestPartOperation,
+  ServiceRequestTechnicalActionType,
   ServiceRequestStatus,
+  TechnicalServiceType,
 } from "@prisma/client";
 
 import type { StoredFileRecord } from "@/lib/security/storage";
@@ -28,6 +32,17 @@ export type AdminServiceRequestListInput = {
   sort?: AdminServiceRequestSort;
 };
 
+export type TechnicalServiceRequestInput = {
+  priority: ServicePriority;
+  serviceType: TechnicalServiceType;
+  reportedFault?: string | null;
+  initialAssessment?: string | null;
+  diagnosis?: string | null;
+  workPerformed?: string | null;
+  testResult?: string | null;
+  finalResult?: string | null;
+};
+
 export const serviceRequestPageSizes = [20, 50, 100] as const;
 
 export class PrismaServiceRequestRepository
@@ -49,6 +64,7 @@ export class PrismaServiceRequestRepository
         deviceModel: input.deviceModel ?? null,
         deviceSerialNumber: input.deviceSerialNumber ?? null,
         message: input.message,
+        reportedFault: input.message,
         attachments: attachment
           ? {
               create: {
@@ -288,6 +304,37 @@ export class PrismaServiceRequestRepository
             },
           },
         },
+        completedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        parts: {
+          orderBy: { createdAt: "desc" },
+          include: {
+            createdBy: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+        technicalActions: {
+          orderBy: { performedAt: "desc" },
+          include: {
+            performedBy: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
         internalNotes: {
           orderBy: { createdAt: "desc" },
           include: {
@@ -324,10 +371,25 @@ export class PrismaServiceRequestRepository
     return this.client.$transaction(async (tx) => {
       const current = await tx.serviceRequest.findUnique({
         where: { id: input.id },
-        select: { id: true, status: true },
+        select: {
+          id: true,
+          status: true,
+          diagnosis: true,
+          workPerformed: true,
+          finalResult: true,
+        },
       });
 
       if (!current) {
+        return null;
+      }
+
+      if (
+        input.status === "COMPLETED" &&
+        (!hasText(current.diagnosis) ||
+          !hasText(current.workPerformed) ||
+          !hasText(current.finalResult))
+      ) {
         return null;
       }
 
@@ -364,10 +426,19 @@ export class PrismaServiceRequestRepository
             deviceSerialNumber: true,
             message: true,
             updatedAt: true,
+            customerDeviceId: true,
           },
         });
 
-        if (completedRequest) {
+        if (completedRequest?.customerDeviceId) {
+          await tx.customerDevice.update({
+            where: { id: completedRequest.customerDeviceId },
+            data: {
+              lastServiceAt: completedRequest.updatedAt,
+              status: "ACTIVE",
+            },
+          });
+
           await tx.deviceServiceHistory.upsert({
             where: { serviceRequestId: completedRequest.id },
             create: {
@@ -397,6 +468,201 @@ export class PrismaServiceRequestRepository
             },
           });
         }
+      }
+
+      return updated;
+    });
+  }
+
+  updateTechnicalFields(id: string, input: TechnicalServiceRequestInput) {
+    return this.client.serviceRequest.update({
+      where: { id },
+      data: {
+        priority: input.priority,
+        serviceType: input.serviceType,
+        reportedFault: input.reportedFault || null,
+        initialAssessment: input.initialAssessment || null,
+        diagnosis: input.diagnosis || null,
+        workPerformed: input.workPerformed || null,
+        testResult: input.testResult || null,
+        finalResult: input.finalResult || null,
+      },
+    });
+  }
+
+  async startTechnicalService(input: { id: string; changedById: string }) {
+    return this.client.$transaction(async (tx) => {
+      const current = await tx.serviceRequest.findUnique({
+        where: { id: input.id },
+        select: { id: true, status: true, serviceStartedAt: true },
+      });
+
+      if (!current) return null;
+
+      const nextStatus: ServiceRequestStatus =
+        current.status === "APPROVED"
+          ? "IN_REPAIR"
+          : current.status;
+
+      const updated = await tx.serviceRequest.update({
+        where: { id: input.id },
+        data: {
+          serviceStartedAt: current.serviceStartedAt ?? new Date(),
+          status: nextStatus,
+        },
+      });
+
+      if (current.status !== nextStatus) {
+        await tx.serviceRequestStatusHistory.create({
+          data: {
+            serviceRequestId: input.id,
+            fromStatus: current.status,
+            toStatus: nextStatus,
+            changedById: input.changedById,
+          },
+        });
+      }
+
+      return updated;
+    });
+  }
+
+  addPart(input: {
+    serviceRequestId: string;
+    partName: string;
+    partNumber?: string | null;
+    serialNumber?: string | null;
+    quantity: number;
+    operation: ServiceRequestPartOperation;
+    notes?: string | null;
+    createdById: string;
+  }) {
+    return this.client.serviceRequestPart.create({
+      data: {
+        serviceRequestId: input.serviceRequestId,
+        partName: input.partName,
+        partNumber: input.partNumber || null,
+        serialNumber: input.serialNumber || null,
+        quantity: input.quantity,
+        operation: input.operation,
+        notes: input.notes || null,
+        createdById: input.createdById,
+      },
+    });
+  }
+
+  addTechnicalAction(input: {
+    serviceRequestId: string;
+    actionType: ServiceRequestTechnicalActionType;
+    description: string;
+    performedById: string;
+    performedAt?: Date | null;
+  }) {
+    return this.client.serviceRequestTechnicalAction.create({
+      data: {
+        serviceRequestId: input.serviceRequestId,
+        actionType: input.actionType,
+        description: input.description,
+        performedById: input.performedById,
+        performedAt: input.performedAt || new Date(),
+      },
+    });
+  }
+
+  async completeTechnicalServiceRequest(input: {
+    id: string;
+    completedById: string;
+  }) {
+    return this.client.$transaction(async (tx) => {
+      const current = await tx.serviceRequest.findUnique({
+        where: { id: input.id },
+        select: {
+          id: true,
+          status: true,
+          fullName: true,
+          company: true,
+          phone: true,
+          email: true,
+          deviceBrand: true,
+          deviceModel: true,
+          deviceSerialNumber: true,
+          message: true,
+          diagnosis: true,
+          workPerformed: true,
+          finalResult: true,
+          serviceCompletedAt: true,
+          customerDeviceId: true,
+        },
+      });
+
+      if (
+        !current ||
+        !hasText(current.diagnosis) ||
+        !hasText(current.workPerformed) ||
+        !hasText(current.finalResult)
+      ) {
+        return null;
+      }
+
+      const completedAt = current.serviceCompletedAt ?? new Date();
+      const updated = await tx.serviceRequest.update({
+        where: { id: input.id },
+        data: {
+          status: "COMPLETED",
+          serviceCompletedAt: completedAt,
+          completedById: input.completedById,
+          archivedAt: null,
+        },
+      });
+
+      if (current.status !== "COMPLETED") {
+        await tx.serviceRequestStatusHistory.create({
+          data: {
+            serviceRequestId: input.id,
+            fromStatus: current.status,
+            toStatus: "COMPLETED",
+            changedById: input.completedById,
+          },
+        });
+      }
+
+      if (current.customerDeviceId) {
+        await tx.customerDevice.update({
+          where: { id: current.customerDeviceId },
+          data: {
+            lastServiceAt: completedAt,
+            status: "ACTIVE",
+          },
+        });
+
+        await tx.deviceServiceHistory.upsert({
+          where: { serviceRequestId: current.id },
+          create: {
+            serviceRequestId: current.id,
+            completedById: input.completedById,
+            fullName: current.fullName,
+            company: current.company,
+            phone: current.phone,
+            email: current.email,
+            deviceBrand: current.deviceBrand,
+            deviceModel: current.deviceModel,
+            deviceSerialNumber: current.deviceSerialNumber,
+            serviceSummary: current.finalResult || current.message,
+            completedAt,
+          },
+          update: {
+            completedById: input.completedById,
+            fullName: current.fullName,
+            company: current.company,
+            phone: current.phone,
+            email: current.email,
+            deviceBrand: current.deviceBrand,
+            deviceModel: current.deviceModel,
+            deviceSerialNumber: current.deviceSerialNumber,
+            serviceSummary: current.finalResult || current.message,
+            completedAt,
+          },
+        });
       }
 
       return updated;
@@ -461,6 +727,10 @@ export class PrismaServiceRequestRepository
       },
     });
   }
+}
+
+function hasText(value: string | null | undefined) {
+  return Boolean(value?.trim());
 }
 
 function buildServiceRequestWhere(

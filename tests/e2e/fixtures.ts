@@ -62,6 +62,36 @@ export async function createE2EFixture() {
   await mkdir(storageRoot, { recursive: true });
   await writeFile(path.join(storageRoot, storageKey), attachmentBody, { flag: 'wx' });
 
+  const customer = await prisma.customerCompany.create({
+    data: {
+      legalName: `E2E Klinik ${suffix} A.S.`,
+      displayName: `E2E Klinik ${suffix}`,
+      phone: '05536065703',
+      email: `customer-${suffix}@${fixtureDomain}`,
+      locations: {
+        create: {
+          name: 'E2E Teknik Servis Lokasyonu',
+          city: 'Istanbul',
+          district: 'Kavacik',
+          addressLine: 'E2E test adresi',
+          isPrimary: true,
+        },
+      },
+    },
+    include: { locations: true },
+  });
+
+  const customerDevice = await prisma.customerDevice.create({
+    data: {
+      publicCode: `E2E-DEV-${suffix}`,
+      customerCompanyId: customer.id,
+      customerLocationId: customer.locations[0].id,
+      customManufacturer: 'Medikal Marka',
+      customModel: 'E2E-100',
+      serialNumber: `SN-${suffix}`,
+    },
+  });
+
   const serviceRequest = await prisma.serviceRequest.create({
     data: {
       fullName: 'E2E Klinik Kullanici',
@@ -72,7 +102,11 @@ export async function createE2EFixture() {
       deviceModel: 'E2E-100',
       deviceSerialNumber: `SN-${suffix}`,
       message: 'E2E servis talebi, yetki ve ek dosya akisi icin olusturuldu.',
+      reportedFault: 'E2E servis talebi, yetki ve ek dosya akisi icin olusturuldu.',
       status: 'IN_REPAIR',
+      customerCompanyId: customer.id,
+      customerLocationId: customer.locations[0].id,
+      customerDeviceId: customerDevice.id,
       attachments: {
         create: {
           storageKey,
@@ -88,6 +122,8 @@ export async function createE2EFixture() {
   return {
     password,
     users,
+    customer,
+    customerDevice,
     serviceRequest,
     attachment: serviceRequest.attachments[0],
     storagePath: path.join(storageRoot, storageKey),
@@ -150,6 +186,10 @@ async function cleanupE2EFixture(prisma: PrismaClient) {
 
   await prisma.serviceRequest.deleteMany({
     where: { id: { in: requests.map((request) => request.id) } },
+  });
+
+  await prisma.customerCompany.deleteMany({
+    where: { email: { endsWith: `@${fixtureDomain}` } },
   });
 
   await Promise.all(

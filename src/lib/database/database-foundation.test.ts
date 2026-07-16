@@ -64,6 +64,23 @@ describe("database foundation contracts", () => {
     expect(schema).toContain('deviceGroup     DeviceGroup?');
   });
 
+  it("defines technical service request management without introducing work orders", async () => {
+    const schema = await readFile(schemaPath, "utf8");
+
+    expect(schema).toContain("enum ServicePriority");
+    expect(schema).toContain("enum TechnicalServiceType");
+    expect(schema).toContain("enum ServiceRequestPartOperation");
+    expect(schema).toContain("enum ServiceRequestTechnicalActionType");
+    expect(schema).toContain("priority           ServicePriority");
+    expect(schema).toContain("serviceType        TechnicalServiceType");
+    expect(schema).toContain("diagnosis          String?");
+    expect(schema).toContain("workPerformed      String?");
+    expect(schema).toContain("finalResult        String?");
+    expect(schema).toContain("model ServiceRequestPart");
+    expect(schema).toContain("model ServiceRequestTechnicalAction");
+    expect(schema).not.toContain("model WorkOrder");
+  });
+
   it("prepares ordered active and featured device seed records", () => {
     const records = getDeviceGroupSeedRecords();
     const orders = records.map((record) => record.order);

@@ -94,6 +94,42 @@ enum CustomerDeviceCriticality {
   CRITICAL
 }
 
+enum ServicePriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TechnicalServiceType {
+  REPAIR
+  PREVENTIVE_MAINTENANCE
+  INSPECTION
+  INSTALLATION
+  CALIBRATION_CHECK
+  FIELD_SERVICE
+  WORKSHOP_SERVICE
+}
+
+enum ServiceRequestPartOperation {
+  USED
+  REPLACED
+  REMOVED
+}
+
+enum ServiceRequestTechnicalActionType {
+  INSPECTION
+  DIAGNOSIS
+  REPAIR
+  REPLACEMENT
+  CLEANING
+  ADJUSTMENT
+  SOFTWARE
+  TEST
+  CALIBRATION_CHECK
+  OTHER
+}
+
 enum MediaCategory {
   GENERAL
   HERO
@@ -154,6 +190,9 @@ model User {
   assignedRequests      ServiceRequest[]              @relation("AssignedServiceRequests")
   authoredNotes         ServiceRequestNote[]          @relation("ServiceRequestNoteAuthor")
   statusChanges         ServiceRequestStatusHistory[] @relation("ServiceRequestStatusChanger")
+  completedServiceRequests ServiceRequest[]            @relation("CompletedServiceRequests")
+  createdServiceRequestParts ServiceRequestPart[]      @relation("ServiceRequestPartCreator")
+  performedTechnicalActions ServiceRequestTechnicalAction[] @relation("ServiceRequestTechnicalActionPerformer")
   completedDeviceHistories DeviceServiceHistory[]      @relation("DeviceServiceHistoryCompletedBy")
   uploadedMedia         Media[]                       @relation("MediaUploader")
   heroSlidesCreated     HeroSlide[]                   @relation("HeroSlideCreator")
@@ -271,9 +310,23 @@ model ServiceRequest {
   customerContact    CustomerContact?              @relation(fields: [customerContactId], references: [id], onDelete: SetNull)
   customerDeviceId   String?
   customerDevice     CustomerDevice?               @relation(fields: [customerDeviceId], references: [id], onDelete: SetNull)
+  priority           ServicePriority               @default(NORMAL)
+  serviceType        TechnicalServiceType          @default(REPAIR)
+  reportedFault      String?
+  initialAssessment  String?
+  diagnosis          String?
+  workPerformed      String?
+  testResult         String?
+  finalResult        String?
+  serviceStartedAt   DateTime?
+  serviceCompletedAt DateTime?
+  completedById      String?
+  completedBy        User?                         @relation("CompletedServiceRequests", fields: [completedById], references: [id], onDelete: SetNull)
   attachments        Attachment[]
   internalNotes      ServiceRequestNote[]
   statusHistory      ServiceRequestStatusHistory[]
+  parts              ServiceRequestPart[]
+  technicalActions   ServiceRequestTechnicalAction[]
   deviceHistory      DeviceServiceHistory?
   createdAt          DateTime                      @default(now())
   updatedAt          DateTime                      @updatedAt
@@ -285,6 +338,11 @@ model ServiceRequest {
   @@index([customerLocationId])
   @@index([customerContactId])
   @@index([customerDeviceId])
+  @@index([priority])
+  @@index([serviceType])
+  @@index([serviceStartedAt])
+  @@index([serviceCompletedAt])
+  @@index([completedById])
   @@index([createdAt])
   @@index([archivedAt])
 }
@@ -498,6 +556,44 @@ model ServiceRequestStatusHistory {
 
   @@index([serviceRequestId])
   @@index([changedById])
+  @@index([createdAt])
+}
+
+model ServiceRequestPart {
+  id               String                      @id @default(cuid())
+  serviceRequestId String
+  serviceRequest   ServiceRequest              @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  partName         String                      @db.VarChar(180)
+  partNumber       String?                     @db.VarChar(120)
+  serialNumber     String?                     @db.VarChar(120)
+  quantity         Int                         @default(1)
+  operation        ServiceRequestPartOperation
+  notes            String?
+  createdById      String
+  createdBy        User                        @relation("ServiceRequestPartCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt        DateTime                    @default(now())
+
+  @@index([serviceRequestId])
+  @@index([createdById])
+  @@index([operation])
+  @@index([createdAt])
+}
+
+model ServiceRequestTechnicalAction {
+  id               String                            @id @default(cuid())
+  serviceRequestId String
+  serviceRequest   ServiceRequest                    @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  actionType       ServiceRequestTechnicalActionType
+  description      String
+  performedById    String
+  performedBy      User                              @relation("ServiceRequestTechnicalActionPerformer", fields: [performedById], references: [id], onDelete: Restrict)
+  performedAt      DateTime                          @default(now())
+  createdAt        DateTime                          @default(now())
+
+  @@index([serviceRequestId])
+  @@index([performedById])
+  @@index([actionType])
+  @@index([performedAt])
   @@index([createdAt])
 }
 

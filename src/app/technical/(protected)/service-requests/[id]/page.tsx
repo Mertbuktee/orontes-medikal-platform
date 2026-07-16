@@ -1,3 +1,9 @@
+import type {
+  ServicePriority,
+  ServiceRequestPartOperation,
+  ServiceRequestTechnicalActionType,
+  TechnicalServiceType,
+} from "@prisma/client";
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -44,6 +50,13 @@ import {
   createDeviceFromServiceRequest,
   linkServiceRequestToDevice,
 } from "@/app/technical/(protected)/devices/actions";
+import {
+  addServiceRequestPart,
+  addTechnicalServiceAction,
+  completeTechnicalService,
+  startTechnicalService,
+  updateTechnicalServiceFields,
+} from "@/app/technical/(protected)/service-requests/actions";
 
 type TechnicalServiceRequestDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -90,6 +103,13 @@ export default async function TechnicalServiceRequestDetailPage({
     session.role,
     "serviceRequests.attachments.view",
   );
+  const canCompleteRequest =
+    canUpdate &&
+    Boolean(
+      request.diagnosis?.trim() &&
+        request.workPerformed?.trim() &&
+        request.finalResult?.trim(),
+    );
   const statusMeta = getServiceRequestStatusMeta(request.status);
   const allowedNextStatuses = getAllowedNextStatuses(request.status);
   const imageAttachments = canViewAttachment
@@ -198,6 +218,196 @@ export default async function TechnicalServiceRequestDetailPage({
                 {request.message}
               </p>
             </div>
+          </section>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-950">
+                  Teknik Servis Kaydı
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Talep özeti, arıza, inceleme, teşhis, yapılan iş ve sonuç alanları.
+                </p>
+              </div>
+              {canUpdate ? (
+                <form action={startTechnicalService}>
+                  <input type="hidden" name="serviceRequestId" value={request.id} />
+                  <button
+                    type="submit"
+                    className="inline-flex min-h-10 items-center rounded-xl border border-cyan-200 bg-cyan-50 px-3 text-sm font-semibold text-cyan-800 transition hover:bg-cyan-100"
+                  >
+                    Teknik İncelemeyi Başlat
+                  </button>
+                </form>
+              ) : null}
+            </div>
+
+            <form action={updateTechnicalServiceFields} className="mt-5 space-y-4">
+              <input type="hidden" name="serviceRequestId" value={request.id} />
+              <div className="grid gap-4 md:grid-cols-2">
+                <SelectField
+                  name="priority"
+                  label="Öncelik"
+                  defaultValue={request.priority}
+                  options={priorityOptions}
+                  disabled={!canUpdate}
+                />
+                <SelectField
+                  name="serviceType"
+                  label="Servis Tipi"
+                  defaultValue={request.serviceType}
+                  options={serviceTypeOptions}
+                  disabled={!canUpdate}
+                />
+              </div>
+              <TextAreaField
+                name="reportedFault"
+                label="Bildirilen Arıza"
+                defaultValue={request.reportedFault ?? request.message}
+                disabled={!canUpdate}
+              />
+              <TextAreaField
+                name="initialAssessment"
+                label="İlk İnceleme"
+                defaultValue={request.initialAssessment}
+                disabled={!canUpdate}
+              />
+              <TextAreaField
+                name="diagnosis"
+                label="Teşhis"
+                defaultValue={request.diagnosis}
+                disabled={!canUpdate}
+              />
+              <TextAreaField
+                name="workPerformed"
+                label="Yapılan İşlemler"
+                defaultValue={request.workPerformed}
+                disabled={!canUpdate}
+              />
+              <TextAreaField
+                name="testResult"
+                label="Test Sonucu"
+                defaultValue={request.testResult}
+                disabled={!canUpdate}
+              />
+              <TextAreaField
+                name="finalResult"
+                label="Final Sonuç"
+                defaultValue={request.finalResult}
+                disabled={!canUpdate}
+              />
+              {canUpdate ? (
+                <button
+                  type="submit"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+                >
+                  Teknik Alanları Kaydet
+                  <Save className="size-4" aria-hidden="true" />
+                </button>
+              ) : null}
+            </form>
+          </section>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
+            <h2 className="text-lg font-semibold text-slate-950">
+              Yapılan Teknik İşlemler
+            </h2>
+            <div className="mt-4 space-y-3">
+              {request.technicalActions.length ? (
+                request.technicalActions.map((action) => (
+                  <article key={action.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-slate-950">
+                        {technicalActionTypeLabels[action.actionType]}
+                      </p>
+                      <p className="text-xs font-medium text-slate-500">
+                        {action.performedBy.name} · {formatDate(action.performedAt)}
+                      </p>
+                    </div>
+                    <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                      {action.description}
+                    </p>
+                  </article>
+                ))
+              ) : (
+                <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500">
+                  Henüz teknik işlem kaydı yok.
+                </p>
+              )}
+            </div>
+            {canUpdate ? (
+              <form action={addTechnicalServiceAction} className="mt-5 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <input type="hidden" name="serviceRequestId" value={request.id} />
+                <SelectField
+                  name="actionType"
+                  label="İşlem Tipi"
+                  defaultValue="INSPECTION"
+                  options={technicalActionTypeOptions}
+                />
+                <TextAreaField name="description" label="İşlem Açıklaması" required />
+                <button type="submit" className="inline-flex min-h-10 items-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800">
+                  İşlem Ekle
+                </button>
+              </form>
+            ) : null}
+          </section>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
+            <h2 className="text-lg font-semibold text-slate-950">
+              Değişen/Kullanılan Parçalar
+            </h2>
+            <div className="mt-4 space-y-3">
+              {request.parts.length ? (
+                request.parts.map((part) => (
+                  <article key={part.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-slate-950">
+                        {part.partName} · {part.quantity} adet
+                      </p>
+                      <p className="text-xs font-medium text-slate-500">
+                        {partOperationLabels[part.operation]} · {part.createdBy.name}
+                      </p>
+                    </div>
+                    <p className="mt-2 text-sm text-slate-600">
+                      Parça No: {part.partNumber || "Yok"} · Seri No: {part.serialNumber || "Yok"}
+                    </p>
+                    {part.notes ? (
+                      <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                        {part.notes}
+                      </p>
+                    ) : null}
+                  </article>
+                ))
+              ) : (
+                <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500">
+                  Parça kaydı yok.
+                </p>
+              )}
+            </div>
+            {canUpdate ? (
+              <form action={addServiceRequestPart} className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-2">
+                <input type="hidden" name="serviceRequestId" value={request.id} />
+                <TextInput name="partName" label="Parça Adı" required />
+                <TextInput name="partNumber" label="Parça No" />
+                <TextInput name="serialNumber" label="Seri No" />
+                <TextInput name="quantity" label="Adet" type="number" defaultValue="1" required />
+                <SelectField
+                  name="operation"
+                  label="İşlem"
+                  defaultValue="REPLACED"
+                  options={partOperationOptions}
+                />
+                <div className="md:col-span-2">
+                  <TextAreaField name="notes" label="Parça Notu" />
+                </div>
+                <div className="md:col-span-2">
+                  <button type="submit" className="inline-flex min-h-10 items-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800">
+                    Parça Ekle
+                  </button>
+                </div>
+              </form>
+            ) : null}
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
@@ -340,6 +550,27 @@ export default async function TechnicalServiceRequestDetailPage({
                   Talebi Arşivle
                 </button>
               </form>
+            ) : null}
+
+            {canUpdate ? (
+              <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-sm font-semibold text-slate-950">
+                  Tamamlanma Kontrolü
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Teşhis, yapılan iş ve final sonuç dolmadan servis tamamlanamaz. Atama zorunlu değildir; tamamlayan kullanıcı oturumdan alınır.
+                </p>
+                <form action={completeTechnicalService} className="mt-3">
+                  <input type="hidden" name="serviceRequestId" value={request.id} />
+                  <button
+                    type="submit"
+                    disabled={!canCompleteRequest || request.status === "COMPLETED"}
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-teal-500 px-4 text-sm font-semibold text-slate-950 transition hover:bg-teal-400 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
+                  >
+                    Servisi Tamamla
+                  </button>
+                </form>
+              </div>
             ) : null}
           </section>
 
@@ -659,6 +890,144 @@ function InfoItem({
       {content}
     </div>
   );
+}
+
+const priorityLabels: Record<ServicePriority, string> = {
+  LOW: "Düşük",
+  NORMAL: "Normal",
+  HIGH: "Yüksek",
+  URGENT: "Acil",
+};
+
+const serviceTypeLabels: Record<TechnicalServiceType, string> = {
+  REPAIR: "Onarım",
+  PREVENTIVE_MAINTENANCE: "Periyodik Bakım",
+  INSPECTION: "İnceleme",
+  INSTALLATION: "Kurulum",
+  CALIBRATION_CHECK: "Kalibrasyon Kontrol",
+  FIELD_SERVICE: "Saha Servisi",
+  WORKSHOP_SERVICE: "Atölye Servisi",
+};
+
+const technicalActionTypeLabels: Record<
+  ServiceRequestTechnicalActionType,
+  string
+> = {
+  INSPECTION: "İnceleme",
+  DIAGNOSIS: "Teşhis",
+  REPAIR: "Onarım",
+  REPLACEMENT: "Değişim",
+  CLEANING: "Temizlik",
+  ADJUSTMENT: "Ayar",
+  SOFTWARE: "Yazılım",
+  TEST: "Test",
+  CALIBRATION_CHECK: "Kalibrasyon Kontrol",
+  OTHER: "Diğer",
+};
+
+const partOperationLabels: Record<ServiceRequestPartOperation, string> = {
+  USED: "Kullanıldı",
+  REPLACED: "Değiştirildi",
+  REMOVED: "Söküldü",
+};
+
+const priorityOptions = toOptions(priorityLabels);
+const serviceTypeOptions = toOptions(serviceTypeLabels);
+const technicalActionTypeOptions = toOptions(technicalActionTypeLabels);
+const partOperationOptions = toOptions(partOperationLabels);
+
+function SelectField<TValue extends string>({
+  name,
+  label,
+  defaultValue,
+  options,
+  disabled = false,
+}: {
+  name: string;
+  label: string;
+  defaultValue: TValue;
+  options: Array<{ value: TValue; label: string }>;
+  disabled?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm font-semibold text-slate-800">{label}</span>
+      <select
+        name={name}
+        defaultValue={defaultValue}
+        disabled={disabled}
+        className="mt-2 min-h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100 disabled:bg-slate-100 disabled:text-slate-500"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function TextAreaField({
+  name,
+  label,
+  defaultValue,
+  disabled = false,
+  required = false,
+}: {
+  name: string;
+  label: string;
+  defaultValue?: string | null;
+  disabled?: boolean;
+  required?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm font-semibold text-slate-800">{label}</span>
+      <textarea
+        name={name}
+        required={required}
+        disabled={disabled}
+        defaultValue={defaultValue ?? ""}
+        maxLength={4000}
+        className="mt-2 min-h-28 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 outline-none focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100 disabled:bg-slate-100 disabled:text-slate-500"
+      />
+    </label>
+  );
+}
+
+function TextInput({
+  name,
+  label,
+  type = "text",
+  defaultValue,
+  required = false,
+}: {
+  name: string;
+  label: string;
+  type?: string;
+  defaultValue?: string;
+  required?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm font-semibold text-slate-800">{label}</span>
+      <input
+        name={name}
+        type={type}
+        required={required}
+        defaultValue={defaultValue}
+        className="mt-2 min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100"
+      />
+    </label>
+  );
+}
+
+function toOptions<TValue extends string>(labels: Record<TValue, string>) {
+  return (Object.keys(labels) as TValue[]).map((value) => ({
+    value,
+    label: labels[value],
+  }));
 }
 
 function shortId(id: string) {
