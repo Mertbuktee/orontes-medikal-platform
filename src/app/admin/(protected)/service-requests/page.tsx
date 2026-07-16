@@ -74,6 +74,12 @@ export default async function AdminServiceRequestsPage({
         ))}
       </section>
 
+      <ServiceRequestStatusTabs
+        filters={filters}
+        statusCounts={statusCounts}
+        totalCount={totalActive}
+      />
+
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60">
         <form
           className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1.2fr_repeat(8,minmax(0,1fr))_auto]"
@@ -378,6 +384,70 @@ function StatusSummaryCard({
       <p className="text-sm font-medium text-slate-500">{label}</p>
       <p className="mt-2 text-3xl font-semibold text-slate-950">{value}</p>
     </div>
+  );
+}
+
+function ServiceRequestStatusTabs({
+  filters,
+  statusCounts,
+  totalCount,
+}: {
+  filters: ParsedServiceRequestFilters;
+  statusCounts: Array<{
+    status: ServiceRequestStatus;
+    _count: { status: number };
+  }>;
+  totalCount: number;
+}) {
+  const tabs: Array<{
+    label: string;
+    status?: ServiceRequestStatus;
+    count: number;
+  }> = [
+    { label: "Tümü", count: totalCount },
+    ...serviceRequestStatusOptions.map((option) => ({
+      label: option.label,
+      status: option.value,
+      count:
+        statusCounts.find((item) => item.status === option.value)?._count
+          .status ?? 0,
+    })),
+  ];
+
+  return (
+    <nav
+      aria-label="Servis talebi durumları"
+      className="flex gap-2 overflow-x-auto rounded-3xl border border-slate-200 bg-white p-2 shadow-sm shadow-slate-200/60"
+    >
+      {tabs.map((tab) => {
+        const active =
+          filters.status === tab.status || (!filters.status && !tab.status);
+
+        return (
+          <Link
+            key={tab.status ?? "all"}
+            href={buildListHref({ ...filters, status: tab.status, page: 1 })}
+            aria-current={active ? "page" : undefined}
+            className={`inline-flex min-h-10 shrink-0 items-center gap-2 rounded-2xl px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${
+              active
+                ? "bg-orange-500 text-white shadow-sm shadow-orange-500/20"
+                : "text-slate-600 hover:bg-orange-50 hover:text-orange-700"
+            }`}
+          >
+            <span>{tab.label}</span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs ${
+                active
+                  ? "bg-white/20 text-white"
+                  : "bg-slate-100 text-slate-500"
+              }`}
+            >
+              {tab.count}
+            </span>
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
 
