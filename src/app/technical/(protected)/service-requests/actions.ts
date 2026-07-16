@@ -22,11 +22,12 @@ import { PrismaServiceRequestRepository } from "@/lib/database/repositories/serv
 import { noopServiceRequestEventPublisher } from "@/lib/domain/service-request-events";
 import { NotificationService } from "@/lib/notifications/notification-service";
 import { assertSameOriginAction } from "@/lib/security/action-origin";
+import { serviceRequestPhoneSchema } from "@/lib/validation/service-request";
 
 const technicalServiceRequestSchema = z.object({
   fullName: z.string().trim().min(2).max(100),
   company: z.string().trim().min(2).max(150),
-  phone: z.string().trim().min(1).max(30),
+  phone: serviceRequestPhoneSchema,
   email: z.string().trim().email().max(254),
   deviceBrand: z.string().trim().max(120).optional(),
   deviceModel: z.string().trim().max(120).optional(),

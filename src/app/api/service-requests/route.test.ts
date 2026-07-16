@@ -96,4 +96,37 @@ describe('service request route', () => {
     expect(response.status).toBe(500);
     expect(removedStorageKey).toBe(storedFile.storageKey);
   });
+
+  it('rejects malformed phone numbers before persistence', async () => {
+    let persisted = false;
+    const handler = createServiceRequestHandler({
+      storage: {
+        save: async () => {
+          throw new Error('should not save');
+        },
+        remove: async () => undefined,
+      },
+      repository: {
+        save: async () => {
+          persisted = true;
+          return { id: 'request-1' };
+        },
+      },
+    });
+    const formData = validFormData();
+    formData.set('phone', '0535+564');
+
+    const response = await handler(
+      new Request('https://example.com/api/service-requests', {
+        method: 'POST',
+        headers: { origin: 'https://example.com' },
+        body: formData,
+      }),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(persisted).toBe(false);
+    expect(body.fieldErrors.phone).toBeTruthy();
+  });
 });

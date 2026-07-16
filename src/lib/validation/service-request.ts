@@ -1,5 +1,19 @@
 import { z } from "zod";
 
+const phoneAllowedCharactersPattern = /^\+?[\d\s().-]+$/;
+
+export const serviceRequestPhoneSchema = z
+  .string()
+  .trim()
+  .min(1, "Telefon numarası zorunludur.")
+  .max(30, "Telefon numarası çok uzun.")
+  .refine((value) => phoneAllowedCharactersPattern.test(value), {
+    message: "Geçerli bir telefon numarası girin.",
+  })
+  .refine((value) => isValidTurkishPhoneNumber(value), {
+    message: "Telefon numarası 10 haneli Türkiye numarası olmalıdır.",
+  });
+
 export const serviceRequestFieldNames = [
   "fullName",
   "company",
@@ -17,7 +31,7 @@ export const serviceRequestFieldNames = [
 export const serviceRequestSchema = z.object({
   fullName: z.string().trim().min(2).max(100),
   company: z.string().trim().min(2).max(150),
-  phone: z.string().trim().min(1).max(30),
+  phone: serviceRequestPhoneSchema,
   email: z.string().trim().email().max(254),
   deviceBrand: z.string().trim().max(120).optional(),
   deviceModel: z.string().trim().max(120).optional(),
@@ -58,4 +72,22 @@ export function toFieldErrors(error: z.ZodError) {
   }
 
   return fieldErrors;
+}
+
+export function isValidTurkishPhoneNumber(value: string) {
+  if (value.includes("+") && !value.trim().startsWith("+")) {
+    return false;
+  }
+
+  let digits = value.replace(/\D/g, "");
+
+  if (digits.startsWith("0090")) {
+    digits = digits.slice(4);
+  } else if (digits.startsWith("90") && digits.length === 12) {
+    digits = digits.slice(2);
+  } else if (digits.startsWith("0") && digits.length === 11) {
+    digits = digits.slice(1);
+  }
+
+  return /^[2-5]\d{9}$/.test(digits);
 }
