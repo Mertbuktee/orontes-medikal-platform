@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Added `/technical/customers` customer, location and contact registry for technical service records.
+- Added `/technical/devices` physical customer device registry with manufacturer/model support, public device codes and duplicate warnings.
+- Extended service requests into the technical operational record with priority, service type, diagnosis, work performed, test/final result, parts and technical actions.
+- Completion now requires diagnosis, work performed and final result; assignment is not mandatory and the completing user is captured from the current session.
+- Linked device completion updates `CustomerDevice.lastServiceAt`; device history is derived from completed linked service requests.
+- Added shared Turkish phone validation for public and technical service request creation.
+- Added live auto-refresh and UI/browser notification support for admin and technical service request lists.
 - TASK-040 production hardening: added shared private storage configuration, readiness validation, Docker build-secret flow, worker dependency hardening and a non-destructive storage migration inventory command.
 - TASK-039E Site Settings source-of-truth audit: removed business identity/contact fallbacks from canonical route config, stopped metadata helpers from injecting a hardcoded company site name, made Organization/LocalBusiness/Article JSON-LD require Site Settings identity input, and added production Site Settings readiness validation.
 - Cleaned stale visual QA Turkish text expectations and tightened Site Settings source-of-truth behavior for footer social links, Article JSON-LD publisher identity and notification email branding.

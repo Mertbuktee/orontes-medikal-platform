@@ -400,10 +400,14 @@ Ilk gercek admin modulu servis talepleridir.
 
 - Public `/api/service-requests` endpoint'i artik `PrismaServiceRequestRepository` ile PostgreSQL'e yazar.
 - `/admin`: yalnizca `SUPER_ADMIN` icin sistem yonetim alanidir.
-- `/technical`: `SUPER_ADMIN` ve `SERVICE_STAFF` icin ayri teknik servis panelidir.
-- `/technical/service-requests`: aktif servis taleplerini listeler, durum ve arama filtresi sunar. `/admin/service-requests` bu operasyon ekranina yonlenir.
-- `/technical/service-requests/[id]`: talep detayi, musteri bilgileri, cihaz bilgileri, attachment metadata, internal notlar ve durum gecmisini gosterir. `/admin/service-requests/[id]` bu detay ekranina yonlenir.
-- `/technical/history`: `COMPLETED` durumuna gecen servis taleplerinden otomatik olusan cihaz servis gecmisini gosterir.
+- `/technical`: `SUPER_ADMIN` ve `SERVICE_STAFF` icin ayri teknik servis panelidir; kendi `/technical/login` giris ekranini kullanir.
+- `/admin/service-requests`: `SUPER_ADMIN` icin admin paneli icinde kalir ve servis taleplerini buradan da yonetilebilir sekilde gosterir.
+- `/technical/service-requests`: teknik operasyon kuyrugudur; server-side pagination, durum, arama, atanan personel, attachment, arsiv ve siralama filtreleri sunar.
+- `/admin/service-requests` ve `/technical/service-requests` listeleri live snapshot endpoint'i ile otomatik yenilenir; yeni servis talebi geldiginde UI bildirimi ve istege bagli browser notification uretilir.
+- `/technical/service-requests/[id]`: talep ozeti, musteri/lokasyon, cihaz, bildirilen ariza, ilk inceleme, teshis, yapilan islem, parca kayitlari, test/final sonuc, attachment metadata, internal notlar ve durum gecmisini gosterir.
+- `/technical/customers`: teknik servis icin hafif musteri, lokasyon ve yetkili kayitlarini yonetir; satis CRM'i degildir.
+- `/technical/devices`: gercek fiziksel musteri cihazlarini `CustomerDevice` olarak yonetir; public `DeviceGroup` icerigiyle karistirilmaz.
+- `/technical/history`: cihaza bagli ve `COMPLETED` durumuna gecen servis taleplerinden turetilen cihaz servis gecmisini gosterir.
 - `/technical/service-requests/new`: servis gecmisinden kopyalanan musteri/cihaz bilgileriyle yeni servis talebi acar.
 - Durum guncelleme ve internal not ekleme server action olarak calisir.
 - Her mutation kendi icinde `serviceRequests.update` permission kontrolu yapar.
@@ -424,9 +428,47 @@ Durum geçişleri `src/components/admin/service-request-status.ts` içinde typed
 
 Private attachment erişimi `/technical/service-requests/[id]/attachments/[attachmentId]` route handler'ı ile yapılır. Endpoint geçerli admin session, `serviceRequests.attachments.view` izni ve attachment-request ownership kontrolü olmadan dosya döndürmez. Response `nosniff` ve `private, no-store` header'ları ile gelir; raw filesystem path veya storage root sızdırılmaz.
 
-Device service history elle girilmez. Bir servis talebi `COMPLETED` durumuna
-gectiginde `DeviceServiceHistory` kaydi otomatik olusur ve tamamlanma anindaki
-musteri, marka, model, seri no ve servis ozetini snapshot olarak saklar.
+Device service history elle girilmez. Bir servis talebi cihaza bagliyken
+`COMPLETED` durumuna gectiginde `CustomerDevice.lastServiceAt` guncellenir ve
+gecmis gorunumu tamamlanan servis talebinden turetilir. Cihaz bagli degilse
+talep tamamlanabilir fakat cihaz gecmisi uretilemez; UI cihaz baglamayi onerir.
+
+### Technical Customer and Device Registry
+
+- `CustomerCompany`, `CustomerLocation` ve `CustomerContact` servis kayitlari
+  icin hafif musteri karti saglar. Public formdan gelen snapshot alanlari
+  (`fullName`, `company`, `phone`, `email`) sonradan musteri karti degisse bile
+  geriye donuk degistirilmez.
+- `Manufacturer`, `DeviceModel` ve `CustomerDevice` fiziksel cihaz kaydini
+  tutar. `CustomerDevice.publicCode` ornegi: `ORT-DEV-000012`.
+- Cihaz duplicate uyarilari manufacturer+serial, demirbas etiketi ve hastane
+  envanter numarasi uzerinden verilir; kayitlar otomatik merge edilmez.
+- Servis talebi mevcut musteriye/cihaza baglanabilir, servis talebinden yeni
+  musteri/cihaz olusturulabilir veya kimlik bilinmiyorsa baglantisiz kalabilir.
+
+### Technical Service Workflow
+
+- `ServiceRequest` ayri bir WorkOrder modeli olmadan teknik operasyon kaydi
+  olarak genisletildi.
+- Desteklenen teknik alanlar: priority, serviceType, reportedFault,
+  initialAssessment, diagnosis, workPerformed, testResult, finalResult,
+  serviceStartedAt, serviceCompletedAt ve completedById.
+- `ServiceRequestPart` degisen/kullanilan/sokulen parca kayitlarini tutar;
+  stok veya fiyat yonetimi yapmaz.
+- `ServiceRequestTechnicalAction` inceleme, teshis, onarim, temizlik, ayar,
+  yazilim, test ve kalibrasyon kontrol gibi islem kayitlarini tutar.
+- Servis tamamlamak icin `diagnosis`, `workPerformed` ve `finalResult` server
+  tarafinda zorunludur. Atama zorunlu degildir; tamamlayan kullanici mevcut
+  oturumdan `completedById` olarak yazilir.
+
+### Service Request Input Validation
+
+- Public servis talebi ve `/technical/service-requests/new` ayni telefon
+  validasyonunu kullanir.
+- Kabul edilen ornekler: `0553 606 57 03`, `5536065703`,
+  `+90 553 606 57 03`, `0090 553 606 57 03`, `(0216) 555 44 33`.
+- `0535+564`, harf iceren degerler, eksik/fazla haneler ve ikinci `+`
+  isareti olan degerler reddedilir.
 
 Eski local JSON servis talepleri için `npm run service-requests:import` komutu dry-run modunda rapor üretir. Gerçek import için `npm run service-requests:import -- --apply` açıkça kullanılmalıdır.
 

@@ -25,6 +25,7 @@ Kapsanan alanlar:
 
 - Prisma enumlari ile RBAC type'lari hizali mi?
 - Service request status akisi schema'da eksiksiz mi?
+- Technical customer/device registry ve technical service request modelleri WorkOrder eklemeden tanimli mi?
 - Device/service slug'lari unique mi?
 - Seed transformlari order, active ve featured alanlarini koruyor mu?
 - Repository DTO'lari `passwordHash` dondurmuyor mu?
@@ -75,11 +76,16 @@ Manual local verification for the module:
 2. Submit a public service request with a valid image or PDF.
 3. Confirm both records appear in PostgreSQL.
 4. Confirm `/technical/service-requests` lists them after login.
-5. Move a request to `COMPLETED` and confirm `/technical/history` receives an automatic device history row.
-5. Open detail, update status, add an internal note and assign a user when available.
-6. Confirm authorized attachment download works and unauthenticated access fails.
-7. Archive the request and confirm it disappears from the default active listing.
-8. Confirm status history and audit rows are created without PII-heavy metadata.
+5. Confirm malformed phone values such as `0535+564` are rejected before persistence.
+6. Link or create a customer and customer device when the device identity is known.
+7. Fill diagnosis, work performed and final result; complete the request without requiring technician assignment.
+8. Confirm the current user becomes `completedById` and linked device `lastServiceAt` is updated.
+9. Confirm `/technical/history` shows the completed, linked device service history.
+10. Confirm `/technical/service-requests` and `/admin/service-requests` auto-refresh through the live watcher when new requests arrive.
+11. Open detail, update status, add an internal note and assign a user when available.
+12. Confirm authorized attachment download works and unauthenticated access fails.
+13. Archive the request and confirm it disappears from the default active listing.
+14. Confirm status history and audit rows are created without PII-heavy metadata.
 
 Visual QA now also captures synthetic admin service-request list and detail states. These screenshots must not include real customer data or private customer attachments.
 

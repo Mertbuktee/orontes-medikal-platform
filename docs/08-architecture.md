@@ -361,7 +361,7 @@ Private service-request attachments are intentionally served from an authenticat
 
 The local JSON importer remains non-destructive: dry-run is the default, `--apply` is required for writes, duplicates are skipped, missing attachments are reported, and source JSON files are never deleted automatically.
 
-Service request domain events are exposed through a typed publisher interface. The current publisher is no-op by design; notification delivery will be implemented in a later notification module without changing the public form or admin action contracts.
+Service request domain events are exposed through a typed publisher interface. User-facing notification and email outbox infrastructure exists, while the domain publisher remains intentionally lightweight so public form and admin action contracts do not depend on a specific delivery provider.
 
 ## Media Library Flow
 

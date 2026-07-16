@@ -96,6 +96,34 @@ This route intentionally lives under `/admin` because the admin session cookie u
 
 ## Service Requests
 
+Current contract:
+
+- `GET /api/admin/service-requests/live`: admin ve technical servis talebi
+  listelerinin otomatik yenilenmesi icin private live snapshot dondurur.
+  Gecerli admin session ve `serviceRequests.view` izni gerektirir. Response
+  `private, no-store` cache header'i ile gelir.
+- `/admin/service-requests`: `SUPER_ADMIN` icin admin paneli icinde servis
+  taleplerini listeler ve yonetir.
+- `/technical/service-requests`: teknik operasyon kuyrugu; server-side
+  pagination, arama, durum, atanan personel, attachment, tarih, arsiv ve
+  siralama filtresi sunar.
+- `/admin/service-requests` ve `/technical/service-requests` listeleri live
+  endpoint ile yeni/guncellenen talepleri otomatik algilar ve client tarafinda
+  refresh eder.
+- `/technical/service-requests/[id]`: teknik servis kaydi; musteri, cihaz,
+  bildirilen ariza, teshis, yapilan islem, parca kayitlari, test/final sonuc,
+  attachment metadata, notlar ve durum gecmisini gosterir.
+- `/technical/customers`: CustomerCompany, CustomerLocation ve CustomerContact
+  kayitlari.
+- `/technical/devices`: Manufacturer, DeviceModel ve CustomerDevice kayitlari.
+- `/technical/history`: cihaza bagli tamamlanan servis taleplerinden turetilen
+  cihaz servis gecmisi.
+
+Public `POST /api/service-requests` ve teknik panelde yeni servis olusturma
+akisi ortak Turkiye telefon validasyonu kullanir. `0553 606 57 03`,
+`5536065703`, `+90 553 606 57 03` ve `0090 553 606 57 03` kabul edilir;
+`0535+564` gibi malformed degerler 400 validation error ile reddedilir.
+
 GET /api/admin/service-requests
 
 ↓
@@ -249,7 +277,7 @@ Servis talebi admin akisi su an App Router server component ve server action yap
 - `addServiceRequestNote(formData)`: server action, `serviceRequests.notes.create` izni gerektirir.
 - `archiveServiceRequest(formData)`: server action, `serviceRequests.archive` izni gerektirir.
 - `GET /technical/service-requests/:id/attachments/:attachmentId`: authenticated private download endpoint, `serviceRequests.attachments.view` izni ve ownership kontrolü gerektirir.
-- `DeviceServiceHistory`: `ServiceRequest.status` `COMPLETED` oldugunda server action/repository katmaninda otomatik upsert edilir.
+- Cihaz gecmisi: `ServiceRequest.status` `COMPLETED` oldugunda ve `customerDeviceId` varsa `CustomerDevice.lastServiceAt` guncellenir; gecmis gorunumu tamamlanan servis talebinden turetilir.
 
 Bu islemler Prisma repository katmanini kullanir; UI component icinde dogrudan Prisma sorgusu dagitilmaz.
 

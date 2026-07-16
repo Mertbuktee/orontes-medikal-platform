@@ -397,7 +397,7 @@ Kurallar:
 
 ### Local JSON Migration Readiness
 
-Development servis talepleri halen `storage/private/service-requests/requests/` altinda local JSON olarak bulunabilir. Import temeli dry-run calisir, duplicate id/storage key raporlar ve dosya veya JSON silmez. Production gecisinde `PrismaServiceRequestRepository` hedef repository olacaktir.
+Development servis talepleri eski local kurulumlardan `storage/private/service-requests/requests/` altinda bulunabilir. Import temeli dry-run calisir, duplicate id/storage key raporlar ve dosya veya JSON silmez. Guncel yazma yolu PostgreSQL destekli `PrismaServiceRequestRepository` uzerindendir; local JSON yalniz migration/import kaynagi olarak ele alinir.
 
 - id
 - title
