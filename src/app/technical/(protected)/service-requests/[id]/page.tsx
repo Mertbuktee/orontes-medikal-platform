@@ -22,7 +22,6 @@ import {
   getServiceRequestStatusClassName,
   getServiceRequestStatusMeta,
 } from "@/components/admin/service-request-status";
-import { AdminAuthRepository } from "@/lib/auth/admin-auth-repository";
 import { requirePermission } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/database/prisma";
 import { PrismaServiceRequestRepository } from "@/lib/database/repositories/service-requests";
@@ -61,18 +60,12 @@ export default async function TechnicalServiceRequestDetailPage({
   const canAssign = hasPermission(session.role, "serviceRequests.assign");
   const canArchive = hasPermission(session.role, "serviceRequests.archive");
   const canAddNote = hasPermission(session.role, "serviceRequests.notes.create");
-  const canViewAudit = hasPermission(session.role, "audit.view");
   const canViewAttachment = hasPermission(
     session.role,
     "serviceRequests.attachments.view",
   );
   const statusMeta = getServiceRequestStatusMeta(request.status);
   const allowedNextStatuses = getAllowedNextStatuses(request.status);
-  const auditEvents = canViewAudit
-    ? await new AdminAuthRepository(prisma).listServiceRequestAuditEvents(
-        request.id,
-      )
-    : [];
   const imageAttachments = canViewAttachment
     ? request.attachments
         .filter((attachment) =>
@@ -457,35 +450,6 @@ export default async function TechnicalServiceRequestDetailPage({
             </section>
           ) : null}
 
-          {canViewAudit ? (
-            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
-              <h2 className="text-lg font-semibold text-slate-950">
-                Audit Özeti
-              </h2>
-              <div className="mt-4 space-y-3">
-                {auditEvents.length ? (
-                  auditEvents.map((event) => (
-                    <div
-                      key={event.id}
-                      className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
-                    >
-                      <p className="text-sm font-semibold text-slate-950">
-                        {event.action} - {event.entityType}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {event.actor?.name ?? "Sistem"} -{" "}
-                        {formatDate(event.createdAt)}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">
-                    Bu talep için audit kaydı bulunmuyor.
-                  </p>
-                )}
-              </div>
-            </section>
-          ) : null}
         </aside>
       </div>
     </div>

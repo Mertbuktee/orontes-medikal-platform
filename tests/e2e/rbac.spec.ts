@@ -10,7 +10,7 @@ test.describe('admin RBAC route boundaries', () => {
       const scenarios = [
         {
           email: fixture.users.admin.email,
-          allow: ['/technical/service-requests', '/admin/users', '/admin/settings'],
+          allow: ['/admin/service-requests', '/technical/service-requests', '/admin/users', '/admin/settings'],
           deny: [] as string[],
         },
         {
@@ -55,5 +55,30 @@ test.describe('admin RBAC route boundaries', () => {
     await page.goto('/technical', { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/\/technical\/login/);
     await expect(page.getByRole('heading', { name: /Teknik Servis Paneli/i })).toBeVisible();
+  });
+
+  test('admin service requests stay inside the admin panel', async ({ browser }) => {
+    const fixture = await createE2EFixture();
+
+    try {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      await page.goto('/');
+      await loginAs(context, fixture.users.admin.email);
+
+      await page.goto('/admin/service-requests', { waitUntil: 'domcontentloaded' });
+      await expect(page).toHaveURL(/\/admin\/service-requests$/);
+      await expect(page.getByRole('heading', { name: /Servis Talepleri/i })).toBeVisible();
+
+      await page.goto(`/admin/service-requests/${fixture.serviceRequest.id}`, {
+        waitUntil: 'domcontentloaded',
+      });
+      await expect(page).toHaveURL(new RegExp(`/admin/service-requests/${fixture.serviceRequest.id}$`));
+      await expect(page.getByText(fixture.serviceRequest.company, { exact: true })).toBeVisible();
+
+      await context.close();
+    } finally {
+      await fixture.cleanup();
+    }
   });
 });
