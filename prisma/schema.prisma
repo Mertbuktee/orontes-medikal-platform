@@ -248,6 +248,12 @@ model ServiceRequest {
   status             ServiceRequestStatus          @default(NEW)
   assignedUserId     String?
   assignedUser       User?                         @relation("AssignedServiceRequests", fields: [assignedUserId], references: [id], onDelete: SetNull)
+  customerCompanyId  String?
+  customerCompany    CustomerCompany?              @relation(fields: [customerCompanyId], references: [id], onDelete: SetNull)
+  customerLocationId String?
+  customerLocation   CustomerLocation?             @relation(fields: [customerLocationId], references: [id], onDelete: SetNull)
+  customerContactId  String?
+  customerContact    CustomerContact?              @relation(fields: [customerContactId], references: [id], onDelete: SetNull)
   attachments        Attachment[]
   internalNotes      ServiceRequestNote[]
   statusHistory      ServiceRequestStatusHistory[]
@@ -258,7 +264,93 @@ model ServiceRequest {
 
   @@index([status])
   @@index([assignedUserId])
+  @@index([customerCompanyId])
+  @@index([customerLocationId])
+  @@index([customerContactId])
   @@index([createdAt])
+  @@index([archivedAt])
+}
+
+model CustomerCompany {
+  id              String             @id @default(cuid())
+  legalName       String             @db.VarChar(180)
+  displayName     String             @db.VarChar(180)
+  phone           String             @db.VarChar(30)
+  email           String             @db.VarChar(254)
+  taxNumber       String?            @db.VarChar(50)
+  taxOffice       String?            @db.VarChar(120)
+  notes           String?
+  isActive        Boolean            @default(true)
+  archivedAt      DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  locations       CustomerLocation[]
+  contacts        CustomerContact[]
+  serviceRequests ServiceRequest[]
+
+  @@index([legalName])
+  @@index([displayName])
+  @@index([phone])
+  @@index([email])
+  @@index([taxNumber])
+  @@index([isActive])
+  @@index([archivedAt])
+  @@index([createdAt])
+}
+
+model CustomerLocation {
+  id                String           @id @default(cuid())
+  customerCompanyId String
+  customerCompany   CustomerCompany  @relation(fields: [customerCompanyId], references: [id], onDelete: Cascade)
+  name              String           @db.VarChar(160)
+  city              String           @db.VarChar(80)
+  district          String           @db.VarChar(80)
+  addressLine       String
+  department        String?          @db.VarChar(120)
+  building          String?          @db.VarChar(120)
+  floor             String?          @db.VarChar(40)
+  phone             String?          @db.VarChar(30)
+  isPrimary         Boolean          @default(false)
+  isActive          Boolean          @default(true)
+  archivedAt        DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  contacts          CustomerContact[]
+  serviceRequests   ServiceRequest[]
+
+  @@index([customerCompanyId])
+  @@index([city])
+  @@index([district])
+  @@index([isPrimary])
+  @@index([isActive])
+  @@index([archivedAt])
+}
+
+model CustomerContact {
+  id                 String            @id @default(cuid())
+  customerCompanyId  String
+  customerCompany    CustomerCompany   @relation(fields: [customerCompanyId], references: [id], onDelete: Cascade)
+  customerLocationId String?
+  customerLocation   CustomerLocation? @relation(fields: [customerLocationId], references: [id], onDelete: SetNull)
+  fullName           String            @db.VarChar(120)
+  title              String?           @db.VarChar(120)
+  department         String?           @db.VarChar(120)
+  phone              String            @db.VarChar(30)
+  email              String?           @db.VarChar(254)
+  isPrimary          Boolean           @default(false)
+  isActive           Boolean           @default(true)
+  archivedAt         DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  serviceRequests    ServiceRequest[]
+
+  @@index([customerCompanyId])
+  @@index([customerLocationId])
+  @@index([fullName])
+  @@index([phone])
+  @@index([email])
+  @@index([isPrimary])
+  @@index([isActive])
   @@index([archivedAt])
 }
 

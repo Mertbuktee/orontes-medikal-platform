@@ -36,6 +36,21 @@ describe("database foundation contracts", () => {
     ]);
   });
 
+  it("defines technical customer registry models without rewriting submitted snapshots", async () => {
+    const schema = await readFile(schemaPath, "utf8");
+
+    expect(schema).toContain("model CustomerCompany");
+    expect(schema).toContain("model CustomerLocation");
+    expect(schema).toContain("model CustomerContact");
+    expect(schema).toContain("customerCompanyId  String?");
+    expect(schema).toContain("customerLocationId String?");
+    expect(schema).toContain("customerContactId  String?");
+    expect(schema).toContain("fullName           String");
+    expect(schema).toContain("company            String");
+    expect(schema).toContain("phone              String");
+    expect(schema).toContain("email              String");
+  });
+
   it("prepares ordered active and featured device seed records", () => {
     const records = getDeviceGroupSeedRecords();
     const orders = records.map((record) => record.order);

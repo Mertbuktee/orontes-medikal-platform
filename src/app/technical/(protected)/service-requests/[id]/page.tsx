@@ -24,6 +24,7 @@ import {
 } from "@/components/admin/service-request-status";
 import { requirePermission } from "@/lib/auth/admin-session";
 import { prisma } from "@/lib/database/prisma";
+import { PrismaCustomerRegistryRepository } from "@/lib/database/repositories/customer-registry";
 import { PrismaServiceRequestRepository } from "@/lib/database/repositories/service-requests";
 import { hasPermission } from "@/lib/rbac/permissions";
 
@@ -33,6 +34,10 @@ import {
   assignServiceRequest,
   updateServiceRequestStatus,
 } from "@/app/admin/(protected)/service-requests/actions";
+import {
+  createCustomerFromServiceRequest,
+  linkServiceRequestToCustomer,
+} from "@/app/technical/(protected)/customers/actions";
 
 type TechnicalServiceRequestDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -46,10 +51,12 @@ export default async function TechnicalServiceRequestDetailPage({
   const session = await requirePermission("serviceRequests.view");
   const { id } = await params;
   const repository = new PrismaServiceRequestRepository(prisma);
-  const [request, assignableUsers, deviceHistory] = await Promise.all([
+  const customerRepository = new PrismaCustomerRegistryRepository(prisma);
+  const [request, assignableUsers, deviceHistory, customerOptions] = await Promise.all([
     repository.findById(id),
     repository.listAssignableUsers(),
     repository.findDeviceServiceHistoryByRequestId(id),
+    customerRepository.listCompanyOptions(),
   ]);
 
   if (!request) {
@@ -60,6 +67,10 @@ export default async function TechnicalServiceRequestDetailPage({
   const canAssign = hasPermission(session.role, "serviceRequests.assign");
   const canArchive = hasPermission(session.role, "serviceRequests.archive");
   const canAddNote = hasPermission(session.role, "serviceRequests.notes.create");
+  const canManageCustomerLink = hasPermission(
+    session.role,
+    "technicalCustomers.create",
+  );
   const canViewAttachment = hasPermission(
     session.role,
     "serviceRequests.attachments.view",
@@ -351,6 +362,71 @@ export default async function TechnicalServiceRequestDetailPage({
                 Atama yapmak için yetki gerekir.
               </p>
             )}
+          </section>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
+            <h2 className="text-lg font-semibold text-slate-950">
+              Müşteri Kaydı
+            </h2>
+            {request.customerCompany ? (
+              <div className="mt-4 rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
+                <p className="text-sm font-semibold text-cyan-950">
+                  {request.customerCompany.displayName}
+                </p>
+                <p className="mt-1 text-sm text-cyan-900">
+                  {request.customerCompany.phone} · {request.customerCompany.email}
+                </p>
+                <Link
+                  href={`/technical/customers/${request.customerCompany.id}`}
+                  className="mt-3 inline-flex min-h-10 items-center rounded-xl bg-cyan-500 px-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+                >
+                  Müşteri Detayı
+                </Link>
+              </div>
+            ) : (
+              <p className="mt-2 text-sm text-slate-500">
+                Bu talep henüz müşteri kartına bağlı değil.
+              </p>
+            )}
+
+            {canManageCustomerLink ? (
+              <div className="mt-5 space-y-3">
+                <form action={linkServiceRequestToCustomer} className="space-y-3">
+                  <input type="hidden" name="serviceRequestId" value={request.id} />
+                  <label className="block">
+                    <span className="sr-only">Mevcut müşteri</span>
+                    <select
+                      name="customerCompanyId"
+                      required
+                      defaultValue={request.customerCompanyId ?? ""}
+                      className="min-h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-medium text-slate-800 outline-none focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100"
+                    >
+                      <option value="">Mevcut müşteri seç</option>
+                      {customerOptions.map((customer) => (
+                        <option key={customer.id} value={customer.id}>
+                          {customer.displayName}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button
+                    type="submit"
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-cyan-200 bg-cyan-50 px-4 text-sm font-semibold text-cyan-800 transition hover:bg-cyan-100"
+                  >
+                    Mevcut Müşteriye Bağla
+                  </button>
+                </form>
+                <form action={createCustomerFromServiceRequest}>
+                  <input type="hidden" name="serviceRequestId" value={request.id} />
+                  <button
+                    type="submit"
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-cyan-500 px-4 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+                  >
+                    Yeni Müşteri Oluştur
+                  </button>
+                </form>
+              </div>
+            ) : null}
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">

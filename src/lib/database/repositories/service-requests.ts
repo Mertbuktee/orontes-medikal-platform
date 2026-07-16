@@ -257,6 +257,9 @@ export class PrismaServiceRequestRepository
             email: true,
           },
         },
+        customerCompany: true,
+        customerLocation: true,
+        customerContact: true,
         internalNotes: {
           orderBy: { createdAt: "desc" },
           include: {
