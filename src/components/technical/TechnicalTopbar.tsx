@@ -1,5 +1,9 @@
 import { LogOut, Search } from "lucide-react";
 
+import {
+  NotificationPreviewMenu,
+  type NotificationPreviewItem,
+} from "@/components/panel/NotificationPreviewMenu";
 import type { AdminSessionMode } from "@/lib/auth/admin-session";
 import { TechnicalBreadcrumbs } from "@/components/technical/TechnicalBreadcrumbs";
 import { TechnicalMobileNav } from "@/components/technical/TechnicalMobileNav";
@@ -7,11 +11,15 @@ import { TechnicalMobileNav } from "@/components/technical/TechnicalMobileNav";
 type TechnicalTopbarProps = {
   currentPath: string;
   sessionMode: AdminSessionMode;
+  unreadNotificationCount?: number;
+  unreadNotifications?: NotificationPreviewItem[];
 };
 
 export function TechnicalTopbar({
   currentPath,
   sessionMode,
+  unreadNotificationCount = 0,
+  unreadNotifications = [],
 }: TechnicalTopbarProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
@@ -53,6 +61,12 @@ export function TechnicalTopbar({
                 : "Oturum durumu bilinmiyor"}
             </p>
           </div>
+          <NotificationPreviewMenu
+            unreadNotificationCount={unreadNotificationCount}
+            items={unreadNotifications}
+            allHref="/technical/notifications"
+            accent="cyan"
+          />
           <form action="/admin/auth/logout" method="post">
             <button
               type="submit"

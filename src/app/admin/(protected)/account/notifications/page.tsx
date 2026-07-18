@@ -16,7 +16,7 @@ export default async function AccountNotificationPreferencesPage() {
     <div className="space-y-6">
       <AdminPageHeader
         title="Bildirim Tercihleri"
-        description="Kendi admin bildirimlerinizi yonetin. Kritik guvenlik e-postalari kapatilamaz."
+        description="Kendi admin bildirimlerinizi yönetin. Kritik güvenlik e-postaları kapatılamaz."
         eyebrow="Hesap"
       />
 
@@ -37,8 +37,8 @@ export default async function AccountNotificationPreferencesPage() {
                   </h2>
                   <p className="mt-1 text-sm text-slate-600">
                     {mandatory
-                      ? "Kritik guvenlik e-postalari zorunludur."
-                      : "E-posta ve panel ici bildirim ayri ayri yonetilir."}
+                      ? "Kritik güvenlik e-postaları zorunludur."
+                      : "E-posta ve panel içi bildirim ayrı ayrı yönetilir."}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
@@ -57,7 +57,7 @@ export default async function AccountNotificationPreferencesPage() {
                       name="inAppEnabled"
                       defaultChecked={preference.inAppEnabled}
                     />
-                    Panel ici
+                    Panel içi
                   </label>
                   <button className="rounded-2xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
                     Kaydet

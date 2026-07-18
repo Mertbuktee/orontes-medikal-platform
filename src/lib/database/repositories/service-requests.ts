@@ -294,6 +294,93 @@ export class PrismaServiceRequestRepository
     });
   }
 
+  listMatchingDeviceServiceHistory(input: {
+    serviceRequestId: string;
+    deviceBrand?: string | null;
+    deviceModel?: string | null;
+    deviceSerialNumber?: string | null;
+    limit?: number;
+  }) {
+    const serialNumber = normalizeDeviceIdentity(input.deviceSerialNumber);
+
+    if (!serialNumber) {
+      return Promise.resolve([]);
+    }
+
+    const brand = normalizeDeviceIdentity(input.deviceBrand);
+    const model = normalizeDeviceIdentity(input.deviceModel);
+
+    return this.client.deviceServiceHistory.findMany({
+      where: {
+        serviceRequestId: { not: input.serviceRequestId },
+        deviceSerialNumber: {
+          equals: serialNumber,
+          mode: "insensitive",
+        },
+        ...(brand
+          ? {
+              deviceBrand: {
+                equals: brand,
+                mode: "insensitive",
+              },
+            }
+          : {}),
+        ...(model
+          ? {
+              deviceModel: {
+                equals: model,
+                mode: "insensitive",
+              },
+            }
+          : {}),
+      },
+      orderBy: { completedAt: "desc" },
+      take: normalizeHistoryLimit(input.limit),
+      include: {
+        completedBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        serviceRequest: {
+          select: {
+            id: true,
+            status: true,
+            message: true,
+            reportedFault: true,
+            diagnosis: true,
+            workPerformed: true,
+            testResult: true,
+            finalResult: true,
+            technicalActions: {
+              orderBy: { performedAt: "desc" },
+              take: 5,
+              select: {
+                id: true,
+                actionType: true,
+                description: true,
+                performedAt: true,
+              },
+            },
+            parts: {
+              orderBy: { createdAt: "desc" },
+              take: 5,
+              select: {
+                id: true,
+                partName: true,
+                partNumber: true,
+                quantity: true,
+                operation: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
   findById(id: string) {
     return this.client.serviceRequest.findUnique({
       where: { id },
@@ -764,6 +851,16 @@ export class PrismaServiceRequestRepository
 
 function hasText(value: string | null | undefined) {
   return Boolean(value?.trim());
+}
+
+function normalizeDeviceIdentity(value: string | null | undefined) {
+  const normalized = value?.trim().replace(/\s+/g, " ");
+  return normalized || null;
+}
+
+function normalizeHistoryLimit(value: number | undefined) {
+  if (!value || !Number.isInteger(value)) return 5;
+  return Math.min(Math.max(value, 1), 20);
 }
 
 function buildServiceRequestWhere(

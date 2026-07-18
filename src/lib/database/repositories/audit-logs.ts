@@ -523,9 +523,9 @@ function getSecurityRecommendations(input: {
     items.push({
       key: "failed-logins",
       severity: "warning",
-      title: "Basarisiz giris hareketi var",
+      title: "Başarısız giriş hareketi var",
       description:
-        "Secili aralikta basarisiz giris olaylari goruldu. Audit Log uzerinden actor ve zaman akisini inceleyin.",
+        "Seçili aralıkta başarısız giriş olayları görüldü. Audit Log üzerinden actor ve zaman akışını inceleyin.",
       href: "/admin/audit?action=LOGIN_FAILURE",
     });
   }
@@ -542,9 +542,9 @@ function getSecurityRecommendations(input: {
     items.push({
       key: "baseline",
       severity: "info",
-      title: "Kritik guvenlik uyarisi yok",
+      title: "Kritik güvenlik uyarısı yok",
       description:
-        "Secili aralikta dashboard tarafinda kritik bir hesap guvenligi sinyali gorunmuyor.",
+        "Seçili aralıkta dashboard tarafında kritik bir hesap güvenliği sinyali görünmüyor.",
     });
   }
   return items;

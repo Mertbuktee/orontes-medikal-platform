@@ -6,15 +6,20 @@ import type { ReactNode } from "react";
 import type { AdminSessionMode } from "@/lib/auth/admin-session";
 import { TechnicalSidebar } from "@/components/technical/TechnicalSidebar";
 import { TechnicalTopbar } from "@/components/technical/TechnicalTopbar";
+import type { NotificationPreviewItem } from "@/components/panel/NotificationPreviewMenu";
 
 type TechnicalShellProps = {
   children: ReactNode;
   sessionMode: AdminSessionMode;
+  unreadNotificationCount?: number;
+  unreadNotifications?: NotificationPreviewItem[];
 };
 
 export function TechnicalShell({
   children,
   sessionMode,
+  unreadNotificationCount = 0,
+  unreadNotifications = [],
 }: TechnicalShellProps) {
   const pathname = usePathname();
 
@@ -26,6 +31,8 @@ export function TechnicalShell({
           <TechnicalTopbar
             currentPath={pathname}
             sessionMode={sessionMode}
+            unreadNotificationCount={unreadNotificationCount}
+            unreadNotifications={unreadNotifications}
           />
           <main className="px-4 py-6 sm:px-6 lg:px-8">{children}</main>
         </div>

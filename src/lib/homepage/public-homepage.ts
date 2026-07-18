@@ -10,13 +10,13 @@ const getCachedHomepageSections = unstable_cache(
   async () =>
     new HomepageContentRepository(prisma).getPublicHomepageSections(),
   ["public-homepage-sections"],
-  { tags: [HOMEPAGE_CONTENT_CACHE_TAG] }
+  { tags: [HOMEPAGE_CONTENT_CACHE_TAG], revalidate: 300 }
 );
 
 const getCachedHomepageSeo = unstable_cache(
   async () => new HomepageContentRepository(prisma).getHomepageSeo(),
   ["public-homepage-seo"],
-  { tags: [HOMEPAGE_SEO_CACHE_TAG] }
+  { tags: [HOMEPAGE_SEO_CACHE_TAG], revalidate: 300 }
 );
 
 export async function getPublicHomepageSections() {

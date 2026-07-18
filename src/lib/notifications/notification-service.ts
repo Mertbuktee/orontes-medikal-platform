@@ -114,6 +114,17 @@ export class NotificationService {
     return this.repository.getUnreadCount(userId);
   }
 
+  async getUnreadPreview(userId: string, limit = 5) {
+    const result = await this.repository.listForUser({
+      userId,
+      page: 1,
+      pageSize: limit,
+      state: "unread",
+    });
+
+    return result.items;
+  }
+
   async notifyNewServiceRequest(input: {
     serviceRequestId: string;
     requestShortId: string;
@@ -224,6 +235,8 @@ export function getMailMaxAttempts(env: NodeJS.ProcessEnv = process.env) {
 
 function sanitizeInternalLink(value: string | undefined) {
   if (!value) return undefined;
-  if (!value.startsWith("/admin/")) return undefined;
+  if (!value.startsWith("/admin/") && !value.startsWith("/technical/")) {
+    return undefined;
+  }
   return value.slice(0, 300);
 }

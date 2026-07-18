@@ -124,7 +124,7 @@ export function createServiceRequestHandler({
           if (error instanceof FileValidationError) {
             return validationError(requestId, {
               attachment: [
-                "Bu dosya desteklenmiyor. Lütfen geçerli bir dosya yükleyin.",
+                "Bu dosya desteklenmiyor. Lütfen JPEG, PNG veya WebP yükleyin.",
               ],
             });
           }

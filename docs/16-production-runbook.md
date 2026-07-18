@@ -165,13 +165,13 @@ Production kararı:
 - Service-request attachments media library'ye karıştırılmamalı.
 - PostgreSQL backup dosya byte'larını içermez; object storage backup planı ayrı yapılmalı.
 
-## Upload, PDF And Malware Scanning
+## Upload And Malware Scanning
 
 - Reverse proxy body limiti: 12 MB.
 - Public servis talebi upload server-side magic-byte, MIME/extension ve boyut kontrolünü korumalı.
+- Public servis talepleri yalnizca JPEG, PNG ve WebP gorsel kabul eder; PDF/dokuman kabul edilmez.
 - Görseller Sharp ile decode/re-encode edilmeye devam etmeli.
-- PDF kabulü production'da malware scanning olmadan tekrar risk değerlendirmesinden geçmeli.
-- ClamAV veya managed scanning servisi production hardening olarak planlanmalı.
+- PDF/dokuman yukleme tekrar acilacaksa once malware scanning, yapisal dogrulama ve gerekirse CDR risk degerlendirmesi yapilmalidir.
 - Malware scanning yoksa kullanıcıya veya admin'e "antivirüs yapıldı" gibi bir iddia gösterilmemeli.
 
 ## Rate Limiting And Proxy
@@ -296,7 +296,7 @@ npm run db:deploy
 - S3-compatible production storage adapter and CDN/object-storage delivery policy.
 - Blog scheduled publishing worker/cron. Current UI only records the planned date and must not imply automatic publishing is active.
 - Blog editorial workflow hardening: revision compare/restore UI, review/approval flow and publish checklist.
-- Malware scanning / PDF hardening with ClamAV or a managed scanning service before accepting production PDFs at scale.
+- Malware scanning and document/PDF hardening before reintroducing non-image uploads.
 - Kullanicilar, roller and audit log screens.
 - Notification module: e-posta/SMS/WhatsApp delivery for service request lifecycle events.
 - Customer-facing service request status tracking after privacy and token policy are designed.

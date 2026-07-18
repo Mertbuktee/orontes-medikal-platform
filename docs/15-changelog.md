@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Removed PDF/document upload support from public service requests; new submissions accept only JPEG, PNG and WebP images with matching client and server validation.
+- Updated public service request copy to remove "guvenli servis" wording and PDF references.
+- Added shared notification preview dropdowns to admin and technical topbars; full lists remain under `/admin/notifications` and `/technical/notifications`.
+- Added same-device previous service history on technical request detail pages by matching brand, model and serial number.
+- Tightened technical completion UX: `COMPLETED` is hidden from the generic status dropdown until diagnosis, work performed and final result are saved.
+- Removed homepage hero/process numeric badges while preserving the original public copy.
+- Added short public homepage cache revalidation so database-backed homepage edits refresh without a manual server restart.
 - Added `/technical/customers` customer, location and contact registry for technical service records.
 - Added `/technical/devices` physical customer device registry with manufacturer/model support, public device codes and duplicate warnings.
 - Extended service requests into the technical operational record with priority, service type, diagnosis, work performed, test/final result, parts and technical actions.

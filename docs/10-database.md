@@ -336,10 +336,13 @@ Prisma 7 ve PostgreSQL icin definitive schema `prisma/schema.prisma` altindadir.
 ### Core Models
 
 - `User`: admin kullanicilari. `email` unique ve normalize edilmelidir. `passwordHash` zorunludur; plain password alani yoktur.
-- `ServiceRequest`: public servis talebi metadata'si, cihaz bilgileri, status, atama ve arsiv tarihi.
-- `Attachment`: private/object storage dosya metadata'si. Binary data PostgreSQL'e yazilmaz.
+- `ServiceRequest`: public servis talebi metadata'si, cihaz bilgileri, status, atama, arsiv tarihi ve teknik operasyon alanlari (`priority`, `serviceType`, `reportedFault`, `initialAssessment`, `diagnosis`, `workPerformed`, `testResult`, `finalResult`, `serviceStartedAt`, `completedAt`, `completedById`).
+- `Attachment`: private/object storage dosya metadata'si. Binary data PostgreSQL'e yazilmaz. Yeni public servis talebi ekleri image-only kabul edilir; PDF/dokuman reddedilir.
 - `ServiceRequestNote`: admin internal notlari.
 - `ServiceRequestStatusHistory`: durum degisikligi gecmisi.
+- `CustomerCompany`, `CustomerLocation`, `CustomerContact`: technical panel icin hafif musteri, lokasyon ve yetkili kayitlari.
+- `Manufacturer`, `DeviceModel`, `CustomerDevice`: fiziksel musteri cihaz kayitlari ve cihaz sozlugu.
+- `DeviceServiceHistory`: tamamlanan linked servis taleplerinden uretilen cihaz servis gecmisi gorunumu.
 - `DeviceGroup`: cihaz gruplari, slug, aciklamalar, icon key, capabilities, featured/active/order ve SEO alanlari.
 - `Service`: hizmetler, slug, aciklamalar, icon key, featured/active/order ve SEO alanlari.
 - `Media`: private/object storage medya metadata'si, alt text ve boyut bilgisi.
@@ -349,6 +352,17 @@ Prisma 7 ve PostgreSQL icin definitive schema `prisma/schema.prisma` altindadir.
 - `SiteSetting`: typed application-level parsing gerektiren JSON ayar degeri. Secret'lar burada tutulmaz.
 - `AdminSession`: opaque admin session token hash'i, expiry, revocation, last seen, IP ve user-agent metadata'si.
 - `AuditLog`: immutable davranisla planlanan guvenlik/yonetim olay kayitlari.
+- `NotificationPreference`, `Notification`, `EmailDelivery`, `EmailDeliveryAttempt`: panel ici bildirim ve transactional email outbox altyapisi.
+
+Technical completion davranisi:
+
+- `COMPLETED` durumuna gecis diagnosis, work performed ve final result alanlari
+  dolmadan UI tarafinda sunulmaz; server policy yine yetki ve gecis kontrolu
+  yapar.
+- Tamamlanan linked kayitlar `CustomerDevice.lastServiceAt` degerini gunceller
+  ve cihaz gecmisi bu kayitlardan turetilir.
+- Technical detay sayfasi onceki tamamlanan kayitlari marka, model ve seri
+  numarasi eslesmesine gore gosterir; current request sonuctan haric tutulur.
 
 ### Index And Uniqueness
 

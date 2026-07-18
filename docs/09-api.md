@@ -112,17 +112,25 @@ Current contract:
   refresh eder.
 - `/technical/service-requests/[id]`: teknik servis kaydi; musteri, cihaz,
   bildirilen ariza, teshis, yapilan islem, parca kayitlari, test/final sonuc,
-  attachment metadata, notlar ve durum gecmisini gosterir.
+  attachment metadata, notlar, durum gecmisi ve ayni marka/model/seri icin
+  onceki tamamlanan servis gecmisini gosterir.
 - `/technical/customers`: CustomerCompany, CustomerLocation ve CustomerContact
   kayitlari.
 - `/technical/devices`: Manufacturer, DeviceModel ve CustomerDevice kayitlari.
 - `/technical/history`: cihaza bagli tamamlanan servis taleplerinden turetilen
   cihaz servis gecmisi.
+- `/technical/notifications`: technical panel icindeki current-user bildirim
+  listesi.
 
 Public `POST /api/service-requests` ve teknik panelde yeni servis olusturma
 akisi ortak Turkiye telefon validasyonu kullanir. `0553 606 57 03`,
 `5536065703`, `+90 553 606 57 03` ve `0090 553 606 57 03` kabul edilir;
 `0535+564` gibi malformed degerler 400 validation error ile reddedilir.
+
+Attachment istege baglidir ve yalnizca JPEG/JPG/JFIF, PNG veya WebP gorsel
+kabul edilir. PDF, dokuman, SVG, arsiv ve unknown binary dosyalar client hint'e
+bakilmadan server-side validation ile reddedilir. Tek dosya, 10 MB dosya limiti
+ve 12 MB request body limiti korunur.
 
 GET /api/admin/service-requests
 
@@ -256,11 +264,18 @@ Form field adları:
 
 Frontend:
 
-- `/servis-talebi` sayfası mevcut güvenli `ServiceRequestForm` component'ini kullanır.
+- `/servis-talebi` sayfası mevcut `ServiceRequestForm` component'ini kullanır.
 - `multipart/form-data` davranışı korunur.
 - Honeypot `website` alanı korunur.
 - `formStartedAt` alanı korunur.
-- Dosya yükleme server-side validasyonları korunur.
+- Dosya yükleme image-only server-side validasyonları korunur.
+
+Completion:
+
+- Technical detail ekraninda `COMPLETED`, genel durum dropdown'inda ancak
+  diagnosis, work performed ve final result kaydedildikten sonra sunulur.
+- "Servisi Tamamla" akisi assignment zorunlu kilmaz; tamamlayan kullanici
+  current session'dan alinir.
 
 Sitemap ve robots:
 
@@ -269,7 +284,7 @@ Sitemap ve robots:
 Servis talebi admin akisi su an App Router server component ve server action yapisi ile calisir.
 
 - `/technical/service-requests`: server-side pagination, arama, durum, atanan personel, attachment, tarih, arşiv ve sıralama filtresi.
-- `/technical/service-requests/[id]`: detay, attachment metadata, notlar ve durum gecmisi.
+- `/technical/service-requests/[id]`: detay, attachment metadata, notlar, durum gecmisi ve ayni cihaz icin onceki tamamlanan servis gecmisi.
 - `/technical/history`: tamamlanan servis taleplerinden otomatik uretilen cihaz servis gecmisi.
 - `/technical/service-requests/new?historyId=...`: servis gecmisinden kopyalanan cihaz/musteri bilgileriyle yeni servis talebi formu.
 - `updateServiceRequestStatus(formData)`: server action, `serviceRequests.update` izni gerektirir.
@@ -278,6 +293,7 @@ Servis talebi admin akisi su an App Router server component ve server action yap
 - `archiveServiceRequest(formData)`: server action, `serviceRequests.archive` izni gerektirir.
 - `GET /technical/service-requests/:id/attachments/:attachmentId`: authenticated private download endpoint, `serviceRequests.attachments.view` izni ve ownership kontrolü gerektirir.
 - Cihaz gecmisi: `ServiceRequest.status` `COMPLETED` oldugunda ve `customerDeviceId` varsa `CustomerDevice.lastServiceAt` guncellenir; gecmis gorunumu tamamlanan servis talebinden turetilir.
+- Ayni cihaz gecmisi: technical detay sayfasi marka, model ve seri numarasi eslesen tamamlanmis onceki kayitlari gosterir; current request sonuctan haric tutulur.
 
 Bu islemler Prisma repository katmanini kullanir; UI component icinde dogrudan Prisma sorgusu dagitilmaz.
 
@@ -415,7 +431,8 @@ Bu rotalar public API degildir; admin session ve server-side RBAC ile korunur. E
 
 ## Admin Notification Actions
 
-- `markNotificationRead`, `markAllNotificationsRead`: yalniz current user bildirimlerini gunceller.
+- `getUnreadPreview`: admin ve technical topbar dropdown'lari icin current-user okunmamis bildirim onizlemesi dondurur.
+- `markNotificationRead`, `markAllNotificationsRead`: yalniz current user bildirimlerini gunceller; admin ve technical route setleri kendi paneline geri yonlenir.
 - `updateNotificationPreference`: kendi tercihlerini gunceller; mandatory security e-postalari kapatilamaz.
 - `sendTestEmail`: `notifications.testEmail.send` izni, same-origin ve rate limit gerektirir.
 - `retryEmailDelivery`, `cancelEmailDelivery`: delivery operasyon izinleriyle korunur.

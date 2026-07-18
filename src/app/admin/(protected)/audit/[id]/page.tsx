@@ -79,9 +79,9 @@ export default async function AdminAuditDetailPage({
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold text-slate-950">Iliskili Olaylar</h2>
+          <h2 className="text-lg font-semibold text-slate-950">İlişkili Olaylar</h2>
           <Link href="/admin/audit" className="text-sm font-semibold text-sky-700 hover:text-orange-700">
-            Tum loglar
+            Tüm loglar
           </Link>
         </div>
         {event.relatedEvents.length ? (
@@ -99,7 +99,7 @@ export default async function AdminAuditDetailPage({
             ))}
           </div>
         ) : (
-          <p className="mt-4 text-sm text-slate-600">Iliskili ek olay bulunmuyor.</p>
+          <p className="mt-4 text-sm text-slate-600">İlişkili ek olay bulunmuyor.</p>
         )}
       </section>
     </div>

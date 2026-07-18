@@ -1,7 +1,7 @@
 export const maxClientAttachmentSize = 10 * 1024 * 1024;
 
-const allowedExtensions = [".jpg", ".jpeg", ".jfif", ".png", ".webp", ".pdf"];
-const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+const allowedExtensions = [".jpg", ".jpeg", ".jfif", ".png", ".webp"];
+const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp"];
 
 export type ContactFormValues = {
   fullName: string;
@@ -48,7 +48,7 @@ export function validateContactAttachment(file: File) {
   }
 
   if (!allowedExtensions.includes(extension) || !allowedMimeTypes.includes(file.type)) {
-    return "Bu dosya desteklenmiyor. Lütfen JPEG, PNG, WebP veya PDF yükleyin.";
+    return "Bu dosya desteklenmiyor. Lütfen JPEG, PNG veya WebP yükleyin.";
   }
 
   return "";

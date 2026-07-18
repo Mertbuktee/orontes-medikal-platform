@@ -73,19 +73,23 @@ Unit coverage includes RBAC role behavior, service request status transition pol
 Manual local verification for the module:
 
 1. Submit a public service request without attachment.
-2. Submit a public service request with a valid image or PDF.
+2. Submit a public service request with a valid image (JPEG, PNG or WebP).
 3. Confirm both records appear in PostgreSQL.
 4. Confirm `/technical/service-requests` lists them after login.
 5. Confirm malformed phone values such as `0535+564` are rejected before persistence.
-6. Link or create a customer and customer device when the device identity is known.
-7. Fill diagnosis, work performed and final result; complete the request without requiring technician assignment.
-8. Confirm the current user becomes `completedById` and linked device `lastServiceAt` is updated.
-9. Confirm `/technical/history` shows the completed, linked device service history.
-10. Confirm `/technical/service-requests` and `/admin/service-requests` auto-refresh through the live watcher when new requests arrive.
-11. Open detail, update status, add an internal note and assign a user when available.
-12. Confirm authorized attachment download works and unauthenticated access fails.
-13. Archive the request and confirm it disappears from the default active listing.
-14. Confirm status history and audit rows are created without PII-heavy metadata.
+6. Confirm PDF/document uploads are rejected by client hint and server validation.
+7. Link or create a customer and customer device when the device identity is known.
+8. Confirm `COMPLETED` is not offered in the generic status dropdown until diagnosis, work performed and final result are saved.
+9. Fill diagnosis, work performed and final result; complete the request without requiring technician assignment.
+10. Confirm the current user becomes `completedById` and linked device `lastServiceAt` is updated.
+11. Confirm `/technical/history` shows the completed, linked device service history.
+12. Open a new request with the same brand, model and serial number; confirm previous completed history appears on the technical detail page.
+13. Confirm `/technical/service-requests` and `/admin/service-requests` auto-refresh through the live watcher when new requests arrive.
+14. Confirm admin and technical notification bells open an unread preview menu before navigating to the full notifications page.
+15. Open detail, update status, add an internal note and assign a user when available.
+16. Confirm authorized attachment download works and unauthenticated access fails.
+17. Archive the request and confirm it disappears from the default active listing and appears under archived filtering.
+18. Confirm status history and audit rows are created without PII-heavy metadata.
 
 Visual QA now also captures synthetic admin service-request list and detail states. These screenshots must not include real customer data or private customer attachments.
 
@@ -204,4 +208,4 @@ User-management coverage prioritizes privilege-escalation policy and lifecycle b
 - Mail config testleri production guard, missing SMTP config ve development capture davranisini kapsar.
 - Template testleri HTML escape, unsafe URL reddi ve plain-text fallback davranisini kapsar.
 - Queue testleri enqueue, idempotency, retry backoff, SENT/FAILED transition ve worker batch davranisini kapsamalidir.
-- Visual QA notification listesi, preferences, email settings ve delivery list ekranlarini synthetic data ile yakalar.
+- Visual QA notification preview menu, notification listesi, preferences, email settings ve delivery list ekranlarini synthetic data ile yakalar.

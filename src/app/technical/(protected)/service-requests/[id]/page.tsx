@@ -84,6 +84,14 @@ export default async function TechnicalServiceRequestDetailPage({
     notFound();
   }
 
+  const matchingDeviceHistory = await repository.listMatchingDeviceServiceHistory({
+    serviceRequestId: request.id,
+    deviceBrand: request.deviceBrand,
+    deviceModel: request.deviceModel,
+    deviceSerialNumber: request.deviceSerialNumber,
+    limit: 5,
+  });
+
   const canUpdate = hasPermission(session.role, "serviceRequests.update");
   const canAssign = hasPermission(session.role, "serviceRequests.assign");
   const canArchive = hasPermission(session.role, "serviceRequests.archive");
@@ -110,8 +118,15 @@ export default async function TechnicalServiceRequestDetailPage({
         request.workPerformed?.trim() &&
         request.finalResult?.trim(),
     );
+  const missingCompletionFields = [
+    !request.diagnosis?.trim() ? "Teşhis" : null,
+    !request.workPerformed?.trim() ? "Yapılan İşlemler" : null,
+    !request.finalResult?.trim() ? "Final Sonuç" : null,
+  ].filter((item): item is string => Boolean(item));
   const statusMeta = getServiceRequestStatusMeta(request.status);
-  const allowedNextStatuses = getAllowedNextStatuses(request.status);
+  const allowedNextStatuses = getAllowedNextStatuses(request.status).filter(
+    (status) => status !== "COMPLETED" || canCompleteRequest,
+  );
   const imageAttachments = canViewAttachment
     ? request.attachments
         .filter((attachment) =>
@@ -530,6 +545,20 @@ export default async function TechnicalServiceRequestDetailPage({
               </p>
             )}
 
+            {canUpdate &&
+            request.status !== "COMPLETED" &&
+            missingCompletionFields.length ? (
+              <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+                <p className="font-semibold text-amber-950">
+                  Tamamlandı yapmak için eksik alanlar var.
+                </p>
+                <p className="mt-1">
+                  Önce şu teknik alanları doldurup kaydedin:{" "}
+                  {missingCompletionFields.join(", ")}.
+                </p>
+              </div>
+            ) : null}
+
             {canArchive && allowedNextStatuses.includes("ARCHIVED") ? (
               <form action={archiveServiceRequest} className="mt-3 space-y-3">
                 <input type="hidden" name="id" value={request.id} />
@@ -560,6 +589,11 @@ export default async function TechnicalServiceRequestDetailPage({
                 <p className="mt-2 text-sm leading-6 text-slate-600">
                   Teşhis, yapılan iş ve final sonuç dolmadan servis tamamlanamaz. Atama zorunlu değildir; tamamlayan kullanıcı oturumdan alınır.
                 </p>
+                {missingCompletionFields.length ? (
+                  <p className="mt-2 text-sm leading-6 text-amber-700">
+                    Eksik: {missingCompletionFields.join(", ")}.
+                  </p>
+                ) : null}
                 <form action={completeTechnicalService} className="mt-3">
                   <input type="hidden" name="serviceRequestId" value={request.id} />
                   <button
@@ -821,6 +855,111 @@ export default async function TechnicalServiceRequestDetailPage({
               )}
             </div>
           </section>
+
+          {matchingDeviceHistory.length ? (
+            <section className="rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm shadow-amber-100/70">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-semibold text-amber-950">
+                    Önceki Cihaz Geçmişi
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-amber-900">
+                    Aynı marka, model ve seri numarasıyla tamamlanmış önceki servis kayıtları.
+                  </p>
+                </div>
+                <span className="rounded-full bg-white/70 px-2.5 py-1 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">
+                  {matchingDeviceHistory.length} kayıt
+                </span>
+              </div>
+
+              <div className="mt-5 space-y-4">
+                {matchingDeviceHistory.map((history) => {
+                  const fault =
+                    history.serviceRequest.reportedFault ||
+                    history.serviceRequest.message;
+                  const workSummary =
+                    history.serviceRequest.workPerformed ||
+                    history.serviceRequest.finalResult ||
+                    history.serviceSummary;
+
+                  return (
+                    <article
+                      key={history.id}
+                      className="rounded-2xl border border-amber-200 bg-white/80 p-4"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-amber-950">
+                            {formatDate(history.completedAt)}
+                          </p>
+                          <p className="mt-1 text-xs font-medium text-amber-800">
+                            {history.completedBy?.name
+                              ? `${history.completedBy.name} tamamladı`
+                              : "Tamamlayan kullanıcı yok"}
+                          </p>
+                        </div>
+                        <Link
+                          href={`/technical/service-requests/${history.serviceRequestId}`}
+                          className="inline-flex min-h-9 items-center rounded-xl border border-amber-200 bg-amber-100 px-3 text-xs font-semibold text-amber-900 transition hover:bg-amber-200"
+                        >
+                          Kaydı aç
+                        </Link>
+                      </div>
+
+                      <div className="mt-4 space-y-3 text-sm leading-6 text-amber-950">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">
+                            Önceki arıza
+                          </p>
+                          <p className="mt-1 whitespace-pre-wrap">{fault}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">
+                            Yapılan işlem / sonuç
+                          </p>
+                          <p className="mt-1 whitespace-pre-wrap">{workSummary}</p>
+                        </div>
+
+                        {history.serviceRequest.technicalActions.length ? (
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">
+                              İşlem kayıtları
+                            </p>
+                            <ul className="mt-2 space-y-2">
+                              {history.serviceRequest.technicalActions.map((action) => (
+                                <li key={action.id} className="rounded-xl bg-amber-50 px-3 py-2">
+                                  <span className="font-semibold">
+                                    {technicalActionTypeLabels[action.actionType]}:
+                                  </span>{" "}
+                                  {action.description}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : null}
+
+                        {history.serviceRequest.parts.length ? (
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">
+                              Parçalar
+                            </p>
+                            <ul className="mt-2 space-y-2">
+                              {history.serviceRequest.parts.map((part) => (
+                                <li key={part.id} className="rounded-xl bg-amber-50 px-3 py-2">
+                                  {part.partName} · {part.quantity} adet
+                                  {part.partNumber ? ` · ${part.partNumber}` : ""}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : null}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          ) : null}
 
           {deviceHistory ? (
             <section className="rounded-3xl border border-cyan-200 bg-cyan-50 p-6 shadow-sm shadow-cyan-100/70">

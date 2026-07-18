@@ -96,17 +96,19 @@ export default function Process({
         <div>
           <div className="relative space-y-4">
             <div className="absolute left-8 top-8 hidden h-[calc(100%-4rem)] w-px bg-linear-to-b from-sky-200 via-slate-200 to-orange-200 sm:block" />
-            {steps.map(({ title, description, iconKey }, index) => {
+            {steps.map(({ title, description, iconKey }) => {
               const Icon = getHomepageIcon(iconKey);
-              const number = String(index + 1).padStart(2, "0");
 
               return (
                 <div
                   key={title}
                   className="group relative rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl hover:shadow-sky-900/10 sm:ml-16"
                 >
-                  <div className="absolute -left-16 top-5 hidden size-16 items-center justify-center rounded-2xl border border-white bg-slate-950 text-lg font-semibold text-white shadow-lg shadow-slate-900/15 sm:flex">
-                    {number}
+                  <div className="absolute -left-16 top-5 hidden size-16 items-center justify-center rounded-2xl border border-white bg-slate-950 text-white shadow-lg shadow-slate-900/15 sm:flex">
+                    {createElement(Icon, {
+                      className: "size-6",
+                      "aria-hidden": true,
+                    })}
                   </div>
                   <div className="flex min-w-0 items-start gap-4">
                     <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700 ring-1 ring-sky-100 transition-colors group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:ring-orange-100">
@@ -116,9 +118,6 @@ export default function Process({
                       })}
                     </div>
                     <div className="min-w-0">
-                      <span className="text-xs font-semibold text-orange-500 sm:hidden">
-                        {number}
-                      </span>
                       <h3 className="text-lg font-semibold text-slate-950">
                         {title}
                       </h3>

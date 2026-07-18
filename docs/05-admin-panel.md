@@ -404,11 +404,12 @@ Ilk gercek admin modulu servis talepleridir.
 - `/admin/service-requests`: `SUPER_ADMIN` icin admin paneli icinde kalir ve servis taleplerini buradan da yonetilebilir sekilde gosterir.
 - `/technical/service-requests`: teknik operasyon kuyrugudur; server-side pagination, durum, arama, atanan personel, attachment, arsiv ve siralama filtreleri sunar.
 - `/admin/service-requests` ve `/technical/service-requests` listeleri live snapshot endpoint'i ile otomatik yenilenir; yeni servis talebi geldiginde UI bildirimi ve istege bagli browser notification uretilir.
-- `/technical/service-requests/[id]`: talep ozeti, musteri/lokasyon, cihaz, bildirilen ariza, ilk inceleme, teshis, yapilan islem, parca kayitlari, test/final sonuc, attachment metadata, internal notlar ve durum gecmisini gosterir.
+- `/technical/service-requests/[id]`: talep ozeti, musteri/lokasyon, cihaz, bildirilen ariza, ilk inceleme, teshis, yapilan islem, parca kayitlari, test/final sonuc, attachment metadata, internal notlar, durum gecmisi ve ayni marka/model/seri icin onceki tamamlanan servis gecmisini gosterir.
 - `/technical/customers`: teknik servis icin hafif musteri, lokasyon ve yetkili kayitlarini yonetir; satis CRM'i degildir.
 - `/technical/devices`: gercek fiziksel musteri cihazlarini `CustomerDevice` olarak yonetir; public `DeviceGroup` icerigiyle karistirilmaz.
 - `/technical/history`: cihaza bagli ve `COMPLETED` durumuna gecen servis taleplerinden turetilen cihaz servis gecmisini gosterir.
 - `/technical/service-requests/new`: servis gecmisinden kopyalanan musteri/cihaz bilgileriyle yeni servis talebi acar.
+- `/technical/notifications`: teknik panel kullanicisinin kendi bildirimlerini listeler; topbar zil once okunmamis bildirim onizleme menusu acar.
 - Durum guncelleme ve internal not ekleme server action olarak calisir.
 - Her mutation kendi icinde `serviceRequests.update` permission kontrolu yapar.
 - Durum degisiklikleri `ServiceRequestStatusHistory` ve `AuditLog` kaydi olusturur.
@@ -432,6 +433,13 @@ Device service history elle girilmez. Bir servis talebi cihaza bagliyken
 `COMPLETED` durumuna gectiginde `CustomerDevice.lastServiceAt` guncellenir ve
 gecmis gorunumu tamamlanan servis talebinden turetilir. Cihaz bagli degilse
 talep tamamlanabilir fakat cihaz gecmisi uretilemez; UI cihaz baglamayi onerir.
+Technical detay ekraninda ayni marka, model ve seri numarasina sahip onceki
+tamamlanan kayitlar ayrica gosterilir; boylece ayni cihaz tekrar geldiginde
+gecmis ariza/teshis/islem bilgisi yeni kaydin altinda gorulebilir.
+
+`COMPLETED` durumu genel status dropdown'inda diagnosis, work performed ve
+final result kaydedilmeden gosterilmez. Tamamlama aksiyonu assignment
+zorunlulugu aramaz; tamamlayan kullanici current session'dan kaydedilir.
 
 ### Technical Customer and Device Registry
 
@@ -621,7 +629,9 @@ Custom role editing, SCIM/SSO ve enterprise identity federation bu asamada bilin
 
 ## Bildirimler ve E-posta Operasyonu
 
+- Admin ve technical topbar bildirim zilleri dogrudan listeye gitmez; once okunmamis bildirim onizleme menusu acar ve "tumunu gor" aksiyonu ilgili panelin notification sayfasina gider.
 - `/admin/notifications` kullanicinin kendi panel ici bildirimlerini listeler ve okundu isaretler.
+- `/technical/notifications` teknik panel icindeki kullanicinin kendi bildirimlerini listeler ve okundu isaretler.
 - `/admin/account/notifications` kullanicinin kendi bildirim tercihlerini yonetir; kritik guvenlik e-postalari kapatilamaz.
 - `/admin/settings/email` SMTP/capture provider durumunu, queue sagligini ve test e-postasini gosterir.
 - `/admin/notifications/email-deliveries` redakte edilmis delivery listesi, retry ve cancel operasyonlarini sunar.

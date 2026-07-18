@@ -31,21 +31,12 @@ export function AdminSidebar({ currentPath }: AdminSidebarProps) {
 
       <nav
         aria-label="Admin yönetim menüsü"
-        className="flex-1 overflow-y-auto px-4 py-5"
+        className="flex flex-1 overflow-y-auto px-4 py-3"
       >
-        <AdminNavList currentPath={currentPath} />
-      </nav>
-
-      <div className="border-t border-white/10 p-4">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-200">
-            Oturum
-          </p>
-          <p className="mt-2 text-sm text-slate-300">
-            Admin erişimi veritabanlı oturum ve rol kontrolleriyle korunur.
-          </p>
+        <div className="my-auto w-full">
+          <AdminNavList currentPath={currentPath} />
         </div>
-      </div>
+      </nav>
     </aside>
   );
 }

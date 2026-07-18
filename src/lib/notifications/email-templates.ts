@@ -179,10 +179,10 @@ function getCtaHref(payload: EmailTemplatePayload) {
 }
 
 function defaultCtaLabel(key: EmailTemplateKey) {
-  if (key === "password-reset") return "Parolayi sifirla";
-  if (key === "account-setup-link") return "Hesabi kur";
-  if (key.includes("service-request")) return "Admin panelde ac";
-  return "Detayi ac";
+  if (key === "password-reset") return "Parolayı sıfırla";
+  if (key === "account-setup-link") return "Hesabı kur";
+  if (key.includes("service-request")) return "Admin panelde aç";
+  return "Detayı aç";
 }
 
 function renderEmailHtml(input: {

@@ -28,7 +28,7 @@ export default async function PrivacyPolicyPage() {
           title: "Toplanan Bilgiler",
           items: [
             "İletişim formu üzerinden ad soyad, firma veya hastane bilgisi, telefon, e-posta ve mesaj içeriği alınabilir.",
-            "Servis talebi kapsamında cihaz marka, model, seri numarası ve kullanıcı tarafından eklenen görsel veya PDF dosyaları işlenebilir.",
+            "Servis talebi kapsamında cihaz marka, model, seri numarası ve kullanıcı tarafından eklenen görsel dosyalar işlenebilir.",
             "Web sitesi güvenliği, çerez tercihleri ve kötüye kullanımın önlenmesi için sınırlı teknik kayıtlar tutulabilir.",
           ],
         },

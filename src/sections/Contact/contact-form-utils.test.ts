@@ -84,6 +84,12 @@ describe("contact form helpers", () => {
     expect(validateContactAttachment(file)).toContain("Bu dosya desteklenmiyor");
   });
 
+  it("rejects PDF files client-side", () => {
+    const file = new File(["%PDF-1.7"], "report.pdf", { type: "application/pdf" });
+
+    expect(validateContactAttachment(file)).toContain("JPEG, PNG veya WebP");
+  });
+
   it("maps rate-limit responses", async () => {
     const fetcher: Fetcher = async () =>
       jsonResponse(

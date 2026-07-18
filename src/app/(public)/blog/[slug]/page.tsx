@@ -148,7 +148,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
             </h2>
             <p className="mt-3 text-sm leading-7 text-slate-300">
               Arıza, bakım veya elektronik kart onarımı için servis talebinizi
-              güvenli form üzerinden iletebilirsiniz.
+              ekibimize iletebilirsiniz.
             </p>
             <Link
               href="/servis-talebi"

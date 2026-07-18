@@ -79,7 +79,7 @@ export const publicRoutes: PublicRoute[] = [
     path: '/servis-talebi',
     title: 'Servis Talebi Oluştur',
     description:
-      'Medikal cihaz arızası, bakım ihtiyacı veya elektronik kart tamiri için güvenli servis talebi formu.',
+      'Medikal cihaz arızası, bakım ihtiyacı veya elektronik kart tamiri için servis talebi formu.',
     priority: 0.85,
     changeFrequency: 'monthly',
   },

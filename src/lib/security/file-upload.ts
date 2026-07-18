@@ -10,7 +10,6 @@ const allowedByDetectedExt = {
   jpg: { extension: ".jpg", mime: "image/jpeg", kind: "image" },
   png: { extension: ".png", mime: "image/png", kind: "image" },
   webp: { extension: ".webp", mime: "image/webp", kind: "image" },
-  pdf: { extension: ".pdf", mime: "application/pdf", kind: "pdf" },
 } as const;
 
 const extensionAliases: Record<string, keyof typeof allowedByDetectedExt> = {
@@ -19,7 +18,6 @@ const extensionAliases: Record<string, keyof typeof allowedByDetectedExt> = {
   ".jfif": "jpg",
   ".png": "png",
   ".webp": "webp",
-  ".pdf": "pdf",
 };
 
 export type StoredUpload = {
@@ -71,10 +69,6 @@ export async function validateAndHardenUpload(
     throw new FileValidationError();
   }
 
-  if (detectedKey === "pdf" && !hasPdfEndMarker(originalBuffer)) {
-    throw new FileValidationError();
-  }
-
   let buffer = originalBuffer;
 
   if (isImageType(detectedKey)) {
@@ -119,8 +113,4 @@ async function reencodeImage(buffer: Buffer, type: "jpg" | "png" | "webp") {
 
 function isImageType(type: keyof typeof allowedByDetectedExt): type is "jpg" | "png" | "webp" {
   return type === "jpg" || type === "png" || type === "webp";
-}
-
-function hasPdfEndMarker(buffer: Buffer) {
-  return buffer.subarray(Math.max(0, buffer.length - 1024)).includes(Buffer.from("%%EOF"));
 }

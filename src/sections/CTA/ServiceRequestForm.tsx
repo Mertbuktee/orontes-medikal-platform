@@ -149,7 +149,7 @@ export default function ServiceRequestForm() {
         </p>
         <h3 className="mt-1 text-xl font-semibold text-white sm:text-2xl">Teknik Servis Talebi</h3>
         <p className="mt-2 text-sm leading-6 text-slate-300">
-          Cihaz ve arıza detaylarını güvenli form üzerinden ekibimize iletin.
+          Cihaz ve arıza detaylarını ekibimize iletin.
         </p>
       </div>
 
@@ -214,7 +214,7 @@ export default function ServiceRequestForm() {
           <span className="flex min-w-0 flex-col gap-3 rounded-xl border border-dashed border-white/20 bg-slate-950/35 px-3 py-4 text-sm text-slate-300 transition-colors hover:border-orange-300/50 sm:flex-row sm:items-center sm:justify-between sm:px-4">
             <span className="inline-flex min-w-0 items-center gap-2">
               <Paperclip className="size-4 text-orange-300" aria-hidden="true" />
-              <span className="min-w-0">Sorununuzu görsel veya PDF ile belirtin</span>
+              <span className="min-w-0">Sorununuzu görsel ile belirtin</span>
             </span>
             <input
               ref={(element) => {
@@ -224,7 +224,7 @@ export default function ServiceRequestForm() {
               id="attachment"
               name="attachment"
               type="file"
-              accept=".jpg,.jpeg,.jfif,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+              accept=".jpg,.jpeg,.jfif,.png,.webp,image/jpeg,image/png,image/webp"
               onChange={handleFileChange}
               aria-invalid={Boolean(getError("attachment"))}
               aria-describedby={describedBy("attachment")}
@@ -253,9 +253,7 @@ export default function ServiceRequestForm() {
                 <p className="font-medium">{feedback.message}</p>
                 {feedback.type === "error" && feedback.requestId && <p className="mt-1 text-slate-400">Destek referansı: {feedback.requestId}</p>}
               </div>
-            ) : (
-              "Form güvenli servis talebi altyapısına gönderilecektir."
-            )}
+            ) : null}
           </div>
         </div>
       </form>

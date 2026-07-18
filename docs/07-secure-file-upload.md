@@ -7,10 +7,9 @@ The service request endpoint accepts one optional private attachment.
 - JPEG: `.jpg`, `.jpeg`, `.jfif`
 - PNG: `.png`
 - WebP: `.webp`
-- PDF: `.pdf`
 
 All other formats are rejected, including SVG, HTML, JavaScript, executables,
-archives, Office macro files, and unknown binary formats.
+archives, Office/PDF documents, macro files, and unknown binary formats.
 
 ## Maximum Size
 
@@ -45,9 +44,9 @@ Images are decoded and re-encoded with `sharp` before private storage so user
 metadata is not preserved. Image decoding is limited to 40,000,000 input pixels
 to reduce decompression bomb risk.
 
-PDF uploads are checked for matching extension, reported MIME type, detected
-signature, and an EOF marker. This is not full PDF sanitization or structural
-validation.
+PDF uploads are intentionally disabled for public service requests. The UI
+`accept` attribute, server-side extension/MIME/signature allowlist and tests all
+enforce image-only submissions.
 
 ## Local Storage Location
 
@@ -119,15 +118,15 @@ Multiple origins can be supplied as a comma-separated list if needed. Malformed
 ## Antivirus And Content Scanning
 
 Antivirus scanning is not implemented yet and should not be assumed to exist.
-Before launch, PDF and other accepted document uploads should be routed through
-a real scanning layer such as ClamAV or a managed malware scanning service.
+Because public service requests now accept images only, document/PDF upload is
+outside the active production contract.
 
 A production flow should keep files quarantined until the scanner returns a
-clean result.
+clean result if document uploads are reintroduced.
 
-If PDF uploads remain enabled in production, add structural PDF validation and,
-where appropriate, Content Disarm and Reconstruction before files are released
-to internal users.
+If PDF or other document uploads are reintroduced later, add real malware
+scanning, structural validation and, where appropriate, Content Disarm and
+Reconstruction before files are released to internal users.
 
 ## Retention And Deletion
 

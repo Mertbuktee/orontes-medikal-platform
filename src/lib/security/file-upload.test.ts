@@ -69,11 +69,8 @@ describe("validateAndHardenUpload", () => {
     await expect(validateAndHardenUpload(file)).rejects.toBeInstanceOf(FileValidationError);
   });
 
-  it("rejects malformed PDF files", async () => {
-    const file = new File([Buffer.from("%PDF-1.7\n1 0 obj")], "report.pdf", {
-      type: "application/pdf",
-    });
-    await expect(validateAndHardenUpload(file)).rejects.toBeInstanceOf(FileValidationError);
+  it("rejects PDF files", async () => {
+    await expect(validateAndHardenUpload(pdfFile())).rejects.toBeInstanceOf(FileValidationError);
   });
 
   it("sanitizes path traversal filenames", async () => {
@@ -108,10 +105,4 @@ describe("validateAndHardenUpload", () => {
     expect(result.serverFileName).toMatch(/\.webp$/);
   });
 
-  it("accepts valid PDF files", async () => {
-    const result = await validateAndHardenUpload(pdfFile());
-
-    expect(result.detectedMime).toBe("application/pdf");
-    expect(result.serverFileName).toMatch(/\.pdf$/);
-  });
 });

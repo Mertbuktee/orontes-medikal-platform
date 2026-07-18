@@ -71,10 +71,9 @@ Production öncesi yapılacaklar:
 
 Malware scanning:
 
-- Production'da gerçek antivirüs/malware scanning eklenmeden PDF ve doküman kabulü tekrar risk değerlendirmesinden geçmeli.
-- ClamAV veya managed malware scanning servisi eklenmeli.
-- Dosyalar tarama tamamlanana kadar karantinada tutulmalı.
-- PDF için ileride yapısal doğrulama veya CDR katmanı değerlendirilmeli.
+- Public servis talebi akisi artik yalnizca JPEG, PNG ve WebP gorsel kabul eder; PDF/dokuman kabul edilmez.
+- Ileride PDF veya dokuman kabul edilecekse once gercek antivirus/malware scanning, yapisal dogrulama ve gerekirse CDR katmani tasarlanmalidir.
+- Dokuman kabulunun geri gelmesi halinde dosyalar tarama tamamlanana kadar karantinada tutulmalidir.
 
 Retention:
 
@@ -129,7 +128,7 @@ Korunması gereken mevcut davranış:
 - Server-side dosya validasyonu
 - Magic byte kontrolü
 - Image re-encode
-- PDF signature/EOF kontrolü
+- PDF/dokuman reddi
 - Hassas veri loglanmaması
 
 Canlı öncesi:

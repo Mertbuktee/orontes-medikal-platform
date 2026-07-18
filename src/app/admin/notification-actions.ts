@@ -94,10 +94,10 @@ export async function sendTestEmail(formData: FormData) {
   const rendered = await renderEmailTemplate({
     key: "test-email",
     payload: {
-      title: `${settings.general.companyName} test e-postasi`,
-      body: "Bu mesaj SMTP ve notification altyapisini test etmek icin olusturuldu.",
+      title: `${settings.general.companyName} test e-postası`,
+      body: "Bu mesaj SMTP ve notification altyapısını test etmek için oluşturuldu.",
       ctaHref: "/admin/settings/email",
-      ctaLabel: "E-posta ayarlarini ac",
+      ctaLabel: "E-posta ayarlarını aç",
     },
     companyName: settings.general.companyName,
     supportEmail,

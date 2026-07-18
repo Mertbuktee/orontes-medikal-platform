@@ -16,14 +16,14 @@ export const metadata: Metadata = createPageMetadata({
   title: route?.title ?? 'Servis Talebi Oluştur',
   description:
     route?.description ??
-    'Medikal cihaz arızası için güvenli servis talebi formu.',
+    'Medikal cihaz arızası için servis talebi formu.',
   path: '/servis-talebi',
 });
 
 const supportItems = [
   'Marka, model ve seri no ile detaylı kayıt',
-  'Görsel veya PDF ekleyerek arızayı açıklama',
-  'Teknik ön değerlendirme için güvenli başvuru',
+  'Görsel ekleyerek arızayı açıklama',
+  'Teknik ön değerlendirme için hızlı başvuru',
 ];
 
 export default async function ServiceRequestPage() {
@@ -43,15 +43,12 @@ export default async function ServiceRequestPage() {
                 { name: 'Servis Talebi', path: '/servis-talebi' },
               ]}
             />
-            <p className="text-sm font-semibold tracking-[0.18em] text-orange-300 uppercase">
-              Güvenli servis başvurusu
-            </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-              Medikal cihazınız için teknik servis talebi oluşturun
+              Arıza mı var? Çözüm için buradayız.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-              Cihaz bilgilerini, arıza belirtisini ve varsa görsel/PDF ekini
-              paylaşın. Başvurunuz güvenli servis talebi altyapısına iletilir.
+              Cihaz bilgilerini, arıza belirtisini ve varsa görsel ekini
+              paylaşın. En kısa zamanda geri dönüş sağlayalım.
             </p>
 
             <div className="mt-8 grid gap-3">

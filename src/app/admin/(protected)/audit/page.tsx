@@ -37,8 +37,8 @@ export default async function AdminAuditPage({ searchParams }: AuditPageProps) {
     <div className="space-y-6">
       <AdminPageHeader
         title="Audit Log"
-        description="Yonetim panelindeki kritik islemleri guvenli, redakte edilmis ve okunabilir sekilde inceleyin."
-        eyebrow="Guvenlik"
+        description="Yönetim panelindeki kritik işlemleri güvenli, redakte edilmiş ve okunabilir şekilde inceleyin."
+        eyebrow="Güvenlik"
       />
 
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -50,7 +50,7 @@ export default async function AdminAuditPage({ searchParams }: AuditPageProps) {
             className="min-h-11 rounded-2xl border border-slate-200 px-4 text-sm md:col-span-2"
           />
           <select name="category" defaultValue={parsed.category ?? ""} className="min-h-11 rounded-2xl border border-slate-200 px-3 text-sm">
-            <option value="">Tum kategoriler</option>
+            <option value="">Tüm kategoriler</option>
             {auditCategories.map((category) => (
               <option key={category} value={category}>
                 {getAuditCategoryLabel(category)}
@@ -58,7 +58,7 @@ export default async function AdminAuditPage({ searchParams }: AuditPageProps) {
             ))}
           </select>
           <select name="severity" defaultValue={parsed.severity ?? ""} className="min-h-11 rounded-2xl border border-slate-200 px-3 text-sm">
-            <option value="">Tum seviyeler</option>
+            <option value="">Tüm seviyeler</option>
             {auditSeverities.map((severity) => (
               <option key={severity} value={severity}>
                 {getAuditSeverityLabel(severity)}
@@ -66,7 +66,7 @@ export default async function AdminAuditPage({ searchParams }: AuditPageProps) {
             ))}
           </select>
           <select name="success" defaultValue={parsed.success ?? ""} className="min-h-11 rounded-2xl border border-slate-200 px-3 text-sm">
-            <option value="">Tum sonuclar</option>
+            <option value="">Tüm sonuçlar</option>
             {auditSuccessStates.map((state) => (
               <option key={state} value={state}>
                 {state}
@@ -74,7 +74,7 @@ export default async function AdminAuditPage({ searchParams }: AuditPageProps) {
             ))}
           </select>
           <select name="action" defaultValue={parsed.action ?? ""} className="min-h-11 rounded-2xl border border-slate-200 px-3 text-sm">
-            <option value="">Tum aksiyonlar</option>
+            <option value="">Tüm aksiyonlar</option>
             {Object.values(AuditAction).map((action) => (
               <option key={action} value={action}>
                 {action}

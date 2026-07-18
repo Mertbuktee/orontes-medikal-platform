@@ -24,8 +24,8 @@ describe("LocalServiceRequestRepository", () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "service-requests-"));
     const repository = new LocalServiceRequestRepository(root);
     const result = await repository.save(input, {
-      storageKey: "file.pdf",
-      mimeType: "application/pdf",
+      storageKey: "file.png",
+      mimeType: "image/png",
       size: 42,
     });
     const json = JSON.parse(await readFile(path.join(root, `${result.id}.json`), "utf8"));
@@ -35,8 +35,8 @@ describe("LocalServiceRequestRepository", () => {
     expect(json.deviceModel).toBe("BeneView T5");
     expect(json.deviceSerialNumber).toBe("SN-12345");
     expect(json.attachment).toEqual({
-      storageKey: "file.pdf",
-      mimeType: "application/pdf",
+      storageKey: "file.png",
+      mimeType: "image/png",
       size: 42,
     });
     expect(json.attachment.buffer).toBeUndefined();

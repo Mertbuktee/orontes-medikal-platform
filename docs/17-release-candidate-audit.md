@@ -245,7 +245,7 @@ Fixed during TASK-041:
 - Custom roles.
 - WebAuthn/security keys.
 - External SIEM/log platform.
-- Malware scanning for uploaded PDFs/files.
+- Malware scanning and document/PDF hardening before reintroducing non-image uploads.
 - Advanced analytics and reporting.
 
 ## Recommended Deployment Sequence

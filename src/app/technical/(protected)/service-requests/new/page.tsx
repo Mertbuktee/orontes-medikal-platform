@@ -29,7 +29,7 @@ export default async function NewTechnicalServiceRequestPage({
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        eyebrow="Teknik Operasyon"
+        eyebrow="Servis Talebi"
         title="Yeni Servis Oluştur"
         description="Servis geçmişinden kopyalanan müşteri ve cihaz bilgileriyle yeni servis talebi açın."
       />

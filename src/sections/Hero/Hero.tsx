@@ -1,7 +1,11 @@
 import {
   ArrowRight,
   CheckCircle2,
+  ClipboardCheck,
+  Microscope,
+  Wrench,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 
 import { HeroServiceSlider } from "./HeroServiceSlider";
@@ -15,21 +19,21 @@ const trustItems = [
 
 const stats = [
   {
-    step: "01",
+    icon: Microscope,
     title: "Kontrollü Arıza Analizi",
     text: "Cihaz ve kart tarafında teknik ön değerlendirme.",
   },
   {
-    step: "02",
+    icon: Wrench,
     title: "Onarım + Test Süreci",
     text: "Uygulanan işlem sonrası fonksiyon kontrolü.",
   },
   {
-    step: "03",
+    icon: ClipboardCheck,
     title: "Cihaz Kabul Desteği",
     text: "Türkiye genelinden servis başvurusu ve yönlendirme.",
   },
-];
+] satisfies Array<{ icon: LucideIcon; title: string; text: string }>;
 
 export default async function Hero() {
   const heroSlider = await getPublicHeroSliderData();
@@ -87,14 +91,17 @@ export default async function Hero() {
               </p>
             </div>
             <div className="grid gap-0 sm:grid-cols-3">
-            {stats.map((item) => (
+            {stats.map((item) => {
+              const Icon = item.icon;
+
+              return (
               <div
                 key={item.title}
                 className="group relative px-4 py-4 text-sm text-slate-700 transition-colors hover:bg-sky-50/70 sm:border-r sm:border-slate-200/70 sm:last:border-r-0"
               >
                 <div className="mb-3 flex items-center gap-3">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-950 text-xs font-semibold text-orange-300 shadow-sm transition-colors group-hover:bg-orange-500 group-hover:text-white">
-                    {item.step}
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-slate-950 text-orange-300 shadow-sm transition-colors group-hover:bg-orange-500 group-hover:text-white">
+                    <Icon className="size-4" aria-hidden="true" />
                   </span>
                   <span className="h-px flex-1 bg-linear-to-r from-orange-300 to-transparent" />
                 </div>
@@ -103,7 +110,8 @@ export default async function Hero() {
                 </h2>
                 <p className="mt-1 text-xs leading-5 text-slate-500">{item.text}</p>
               </div>
-            ))}
+              );
+            })}
             </div>
           </div>
         </div>

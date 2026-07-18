@@ -112,7 +112,7 @@ export default async function AdminSecurityPage({
                     <span className="text-xs text-slate-500">{item.userRole}</span>
                   </div>
                   <p className="mt-1 text-slate-600">
-                    {item.userAgentLabel} - {item.ipAddressLabel} - son gorulme {formatDate(item.lastSeenAt ?? item.createdAt)}
+                    {item.userAgentLabel} - {item.ipAddressLabel} - son görülme {formatDate(item.lastSeenAt ?? item.createdAt)}
                   </p>
                 </div>
               ))}
@@ -120,7 +120,7 @@ export default async function AdminSecurityPage({
           </Panel>
         ) : null}
 
-        <Panel title="Oneriler">
+        <Panel title="Öneriler">
           <div className="space-y-3">
             {summary.recommendations.map((item) => (
               <div key={item.key} className="rounded-2xl bg-slate-50 p-4">
@@ -133,7 +133,7 @@ export default async function AdminSecurityPage({
                 </div>
                 {item.href ? (
                   <Link href={item.href} className="mt-3 inline-flex text-sm font-semibold text-sky-700 hover:text-orange-700">
-                    Incele
+                    İncele
                   </Link>
                 ) : null}
               </div>
@@ -142,7 +142,7 @@ export default async function AdminSecurityPage({
         </Panel>
       </section>
 
-      <Panel title="Son Guvenlik Olaylari" href="/admin/audit">
+      <Panel title="Son Güvenlik Olayları" href="/admin/audit">
         {summary.recentSecurityEvents.length ? (
           <div className="divide-y divide-slate-100">
             {summary.recentSecurityEvents.map((item) => (
@@ -162,7 +162,7 @@ export default async function AdminSecurityPage({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-600">Secili aralikta guvenlik olayi bulunmuyor.</p>
+          <p className="text-sm text-slate-600">Seçili aralıkta güvenlik olayı bulunmuyor.</p>
         )}
       </Panel>
     </div>

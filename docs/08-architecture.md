@@ -254,7 +254,7 @@ Bu katman ileride PostgreSQL/Prisma ve admin panel yönetimiyle değiştirilecek
 ## Form Ayrımı
 
 - `/iletisim`: iletişim bilgileri ve ofis konumu
-- `/servis-talebi`: güvenli servis talebi formu
+- `/servis-talebi`: image-only servis talebi formu
 
 İletişim sayfasında ikinci bir form kopyası oluşturulmaz.
 
@@ -363,6 +363,18 @@ The local JSON importer remains non-destructive: dry-run is the default, `--appl
 
 Service request domain events are exposed through a typed publisher interface. User-facing notification and email outbox infrastructure exists, while the domain publisher remains intentionally lightweight so public form and admin action contracts do not depend on a specific delivery provider.
 
+Public service request attachments are image-only. JPEG/JPG/JFIF, PNG and WebP
+are accepted after server-side extension, MIME and magic-byte validation; PDF
+and document uploads are rejected. Accepted images are decoded and re-encoded
+before private storage.
+
+`/technical` is a separate operational panel, not an admin sub-page. It reuses
+the same auth/session/RBAC, Prisma repositories and service-request domain, but
+has its own login route, shell, notification list and technician-facing service
+request workflow. Completed technical records feed device service history;
+technical detail pages also surface previous completed records with the same
+brand, model and serial number.
+
 ## Media Library Flow
 
 General media files use a separate storage domain under `storage/private/media/`:
@@ -468,4 +480,4 @@ Mail sistemi provider-agnostic arayuz kullanir. Ilk provider SMTP (`nodemailer`)
 
 Email outbox `EmailDelivery` modeliyle tutulur. Business mutation tamamlandiktan sonra delivery kaydi olusturulur; `npm run mail:process` due kayitlari claim eder, provider'a gonderir, `SENT`, `RETRY_SCHEDULED` veya `FAILED` durumuna tasir. Retry policy max 5 deneme ve artan backoff kullanir.
 
-In-app bildirimler `Notification`, kullanici tercihleri `NotificationPreference` modeliyle tutulur. UI dogrudan Prisma kullanmaz; `PrismaNotificationRepository` ve `NotificationService` uzerinden DTO akisi saglanir.
+In-app bildirimler `Notification`, kullanici tercihleri `NotificationPreference` modeliyle tutulur. UI dogrudan Prisma kullanmaz; `PrismaNotificationRepository` ve `NotificationService` uzerinden DTO akisi saglanir. Admin ve technical topbar'lari ayni preview servis sozlesmesini kullanir; tam liste linki panel baglamina gore `/admin/notifications` veya `/technical/notifications` rotasina gider.

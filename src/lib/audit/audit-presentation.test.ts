@@ -52,7 +52,7 @@ describe("audit presentation", () => {
     expect(result.category).toBe("AUTHENTICATION");
     expect(result.severity).toBe("WARNING");
     expect(result.success).toBe("failure");
-    expect(result.label).toBe("Basarisiz giris");
+    expect(result.label).toBe("Başarısız giriş");
   });
 
   it("redacts IP and summarizes user agent", () => {

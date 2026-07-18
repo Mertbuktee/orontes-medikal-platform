@@ -38,14 +38,14 @@ export default async function EmailDeliveriesPage({
     <div className="space-y-6">
       <AdminPageHeader
         title="E-posta Teslimatlari"
-        description="Queued, retry ve failed transactional e-postalari guvenli sekilde izleyin."
+        description="Queued, retry ve failed transactional e-postaları güvenli şekilde izleyin."
         eyebrow="Bildirim Operasyonu"
       />
 
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <form className="grid gap-3 md:grid-cols-5" action="/admin/notifications/email-deliveries">
           <select name="status" defaultValue={parsed.status ?? ""} className="min-h-11 rounded-2xl border border-slate-200 px-3 text-sm">
-            <option value="">Tum durumlar</option>
+            <option value="">Tüm durumlar</option>
             {Object.values(EmailDeliveryStatus).map((status) => (
               <option key={status} value={status}>{status}</option>
             ))}

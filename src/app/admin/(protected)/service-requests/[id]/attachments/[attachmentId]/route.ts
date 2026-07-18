@@ -80,7 +80,6 @@ function createDownloadName(attachment: { id: string; mimeType: string }) {
     "image/jpeg": "jpg",
     "image/png": "png",
     "image/webp": "webp",
-    "application/pdf": "pdf",
   };
   const extension = extensionByMime[attachment.mimeType] ?? "bin";
 

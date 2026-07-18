@@ -28,6 +28,7 @@ This checklist is the final go-live gate. Do not mark an item complete unless it
 
 - `storage/private` is a persistent volume or S3-compatible storage is configured.
 - Service-request attachments remain private.
+- Public service-request uploads accept only JPEG, PNG and WebP images; PDF/document uploads are rejected.
 - Media originals remain private.
 - Public media delivery uses controlled hardened variants only.
 
@@ -75,12 +76,26 @@ This checklist is the final go-live gate. Do not mark an item complete unless it
 - Emergency admin recovery procedure is documented.
 - Site Settings contact, social, footer and SEO values are verified.
 - Maintenance mode can be enabled and disabled by an admin.
+- Admin notification bell opens the unread preview menu and the full notifications page remains accessible.
+
+## Technical Panel
+
+- `/technical/login` works separately from `/admin/login`.
+- `SERVICE_STAFF` can access `/technical` but cannot access `/admin`.
+- `SUPER_ADMIN` can access both panels.
+- `EDITOR` is denied from technical operations.
+- Technical notification bell opens the unread preview menu and `/technical/notifications` remains accessible.
+- Completing a service request requires diagnosis, work performed and final result.
+- Completed linked requests update device service history.
+- Same-brand/model/serial previous completed history appears on technical detail pages.
 
 ## Smoke Tests
 
 - `npm run smoke` passes against production.
 - Admin login page loads.
+- Technical login page loads.
 - Protected admin route redirects unauthenticated users.
+- Protected technical route redirects unauthenticated users.
 - Private attachment URL rejects unauthenticated access.
 
 ## Rollback
