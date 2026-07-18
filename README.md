@@ -1,77 +1,92 @@
 # Orontes Medikal Platform
 
-Orontes Medikal Platform is a Next.js 16 application for a public medical
-technical-service website and a database-backed admin panel. It manages service
-requests, media, homepage content, blog content, site settings, notifications,
-audit logs and release-readiness checks.
+Orontes Medikal Platform; public medikal teknik servis web sitesi,
+veritabanı destekli admin paneli ve ayrı teknik operasyon paneli için
+geliştirilen bir Next.js 16 uygulamasıdır. Servis talepleri, müşteri/cihaz
+kayıtları, medya, ana sayfa içerikleri, blog içerikleri, site ayarları,
+bildirimler, audit kayıtları ve release-readiness kontrollerini yönetir.
 
-This repository does not contain production secrets, default credentials or a
-completed public deployment.
+Bu repository production secret, varsayılan giriş bilgisi veya tamamlanmış bir
+public deployment içermez.
 
-## Stack
+## Teknoloji
 
-- Next.js 16.2.10 with App Router and standalone output
+- App Router ve standalone output ile Next.js 16.2.10
 - React 19
 - TypeScript
-- Prisma 7 with PostgreSQL
+- PostgreSQL ile Prisma 7
 - Tailwind CSS
-- Playwright for visual and release E2E checks
-- Vitest for unit/integration tests
-- Docker and Docker Compose references for production-style runtime
+- Görsel ve release E2E kontrolleri için Playwright
+- Unit/integration testleri için Vitest
+- Production benzeri çalışma ortamı için Docker ve Docker Compose referansları
 
-## Public Modules
+## Public Modüller
 
-- Home page
-- Services
-- Device groups
-- Board repair
-- About
-- Service process
-- Blog list/detail/category pages
-- Contact
-- Service request form
-- Legal pages
-- Sitemap and robots
+- Ana sayfa
+- Hizmetler
+- Cihaz grupları
+- Elektronik kart tamiri
+- Hakkımızda
+- Servis süreci
+- Blog liste/detay/kategori sayfaları
+- İletişim
+- Servis talebi formu
+- Yasal sayfalar
+- Sitemap ve robots
 
-## Admin Modules
+Public servis talebi ekleri yalnızca görsel kabul eder: JPEG, PNG ve WebP
+desteklenir; PDF ve doküman yüklemeleri reddedilir.
 
-- Authentication and account security
+## Admin Modülleri
+
+- Kimlik doğrulama ve hesap güvenliği
 - Dashboard
-- Service request management
-- Media library
-- Hero slider management
-- Device and service management
-- Homepage management
+- Servis talebi yönetimi
+- Medya kütüphanesi
+- Hero slider yönetimi
+- Cihaz ve hizmet yönetimi
+- Ana sayfa yönetimi
 - Blog CMS
-- Site Settings
-- Users and fixed roles
-- Audit Log and Security Center
-- Notifications and e-mail delivery queue
+- Site ayarları
+- Kullanıcılar ve sabit roller
+- Audit Log ve Güvenlik Merkezi
+- Bildirimler ve e-posta delivery queue
 
-## Prerequisites
+## Teknik Panel
+
+- Ayrı `/technical/login` ve `/technical` shell yapısı
+- Tekniker servis talebi kuyruğu ve detay akışı
+- Müşteri, lokasyon, yetkili ve cihaz kayıtları
+- Tamamlanan taleplerden otomatik cihaz servis geçmişi
+- Marka, model ve seri numarasına göre aynı cihazın önceki geçmiş eşleşmesi
+- Teknik bildirim önizlemesi ve `/technical/notifications`
+
+## Gereksinimler
 
 - Node.js `22.13.1`
-- npm compatible with Node 22
-- Docker Desktop or a Docker Engine installation
-- PostgreSQL 17 for local development, usually through Docker Compose
+- Node 22 ile uyumlu npm
+- Docker Desktop veya Docker Engine kurulumu
+- Local development için PostgreSQL 17, genellikle Docker Compose üzerinden
 
-Local Node 24 may run many commands, but the project policy is Node `22.13.1`.
-CI and production images use Node `22.13.1`.
+Local Node 24 birçok komutu çalıştırabilir; ancak proje politikası Node
+`22.13.1` kullanmaktır. CI ve production image’ları Node `22.13.1` kullanır.
 
-## Install
+## Kurulum
 
 ```bash
 npm ci
 ```
 
-On Windows, stop running Next.js/dev processes before `npm ci`; native packages
-such as Tailwind or Lightning CSS can otherwise be locked by the OS.
+Windows’ta `npm ci` çalıştırmadan önce çalışan Next.js/dev process’lerini
+durdurun; Tailwind veya Lightning CSS gibi native paketler aksi halde işletim
+sistemi tarafından kilitlenebilir.
 
-## Environment
+## Ortam Değişkenleri
 
-Copy `.env.example` to `.env.local` and fill local-only values.
+`.env.example` dosyasını `.env.local` olarak kopyalayın ve local-only değerleri
+doldurun.
 
-Required for local database-backed work:
+Local veritabanı destekli çalışma için gerekli değerler:
 
 ```bash
 APP_ORIGIN=http://localhost:3000
@@ -80,7 +95,7 @@ DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/orontes_medikal?schema=p
 MAIL_PROVIDER=development
 ```
 
-Never commit real secrets.
+Gerçek secret değerleri asla commit etmeyin.
 
 ## PostgreSQL
 
@@ -91,11 +106,11 @@ npm run db:migrate
 npm run db:seed
 ```
 
-For production, use `npm run db:deploy` instead of `db:migrate`.
+Production ortamında `db:migrate` yerine `npm run db:deploy` kullanın.
 
-## First Admin
+## İlk Admin
 
-There are no default admin credentials.
+Varsayılan admin kullanıcı bilgisi yoktur.
 
 ```bash
 ADMIN_BOOTSTRAP_EMAIL="admin@example.com" ^
@@ -104,18 +119,18 @@ ADMIN_BOOTSTRAP_PASSWORD="use-a-real-secret" ^
 npm run admin:bootstrap
 ```
 
-Remove bootstrap environment values after use.
+Kullanımdan sonra bootstrap ortam değişkenlerini kaldırın.
 
-## Development
+## Geliştirme
 
 ```bash
 npm run env:check
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+`http://localhost:3000` adresini açın.
 
-## Quality Gates
+## Kalite Kontrolleri
 
 ```bash
 npm run db:validate
@@ -127,17 +142,17 @@ npm run qa:visual
 npm run security:audit
 ```
 
-Release E2E checks:
+Release E2E kontrolleri:
 
 ```bash
 npm run test:e2e:service-requests
 npm run test:e2e:rbac
 ```
 
-## Mail
+## E-posta
 
-Development mail is captured under private storage. Production capture mode is
-not allowed.
+Development e-postaları private storage altında capture edilir. Production’da
+capture mode kullanılamaz.
 
 ```bash
 npm run mail:verify
@@ -145,10 +160,10 @@ MAIL_TEST_RECIPIENT="operator@example.com" MAIL_TEST_CONFIRM=SEND_TEST_EMAIL npm
 npm run mail:process
 ```
 
-Real SMTP delivery requires provider credentials and DNS work: SPF, DKIM, DMARC
-and MAIL FROM alignment.
+Gerçek SMTP gönderimi provider credential’ları ve DNS çalışması gerektirir:
+SPF, DKIM, DMARC ve MAIL FROM alignment.
 
-## Backups
+## Yedekler
 
 ```bash
 npm run backup:database
@@ -156,45 +171,45 @@ npm run backup:verify -- backups/database/example.dump
 npm run storage:migrate:dry-run
 ```
 
-The local backup command creates a PostgreSQL dump and checksum metadata. It does
-not prove off-host backup is active. Production must configure a remote backup
-destination and test restore procedures.
+Local backup komutu PostgreSQL dump ve checksum metadata oluşturur. Bu komut,
+off-host backup’ın aktif olduğunu kanıtlamaz. Production ortamında uzak backup
+hedefi yapılandırılmalı ve restore prosedürleri test edilmelidir.
 
 ## Production Docker
 
-The build needs database access during `next build`; pass `DATABASE_URL` as a
-BuildKit secret.
+`next build` sırasında build’in veritabanı erişimine ihtiyacı vardır;
+`DATABASE_URL` değerini BuildKit secret olarak geçin.
 
 ```bash
 docker build --secret id=database_url,env=DATABASE_URL --target runner -t orontes-medikal-platform:release .
 docker build --target worker -t orontes-medikal-platform:worker .
 ```
 
-Run smoke tests against a started environment:
+Başlatılmış bir ortama karşı smoke test çalıştırın:
 
 ```bash
 SMOKE_BASE_URL=https://example.com npm run smoke
 ```
 
-## Readiness
+## Hazırlık Kontrolü
 
 ```bash
 npm run production:check
 ```
 
-This command prints safe diagnostics only. It exits non-zero when launch blockers
-remain.
+Bu komut yalnızca güvenli diagnostik çıktılar üretir. Launch blocker kaldığında
+non-zero exit code ile çıkar.
 
-## Security Cautions
+## Güvenlik Uyarıları
 
-- Do not expose `.env` files.
-- Do not expose private storage.
-- Do not run `Prisma Studio` publicly.
-- Use HTTPS and `TRUST_PROXY=true` only behind a trusted reverse proxy.
-- In-memory rate limiting is single-instance only.
-- MFA is foundation-only until an end-to-end enforcement flow is enabled.
+- `.env` dosyalarını açığa çıkarmayın.
+- Private storage alanını açığa çıkarmayın.
+- `Prisma Studio`yu public olarak çalıştırmayın.
+- HTTPS kullanın ve `TRUST_PROXY=true` değerini yalnızca güvenilir reverse proxy arkasında etkinleştirin.
+- In-memory rate limiting yalnızca single-instance çalışma için uygundur.
+- MFA, end-to-end enforcement akışı etkinleştirilene kadar foundation seviyesindedir.
 
-## Documentation Index
+## Dokümantasyon İndeksi
 
 - `docs/08-architecture.md`
 - `docs/09-api.md`
@@ -207,9 +222,9 @@ remain.
 - `docs/17-release-candidate-audit.md`
 - `docs/18-production-values-checklist.md`
 
-## Deployment Warning
+## Deployment Uyarısı
 
-This repository can prepare a release candidate, but it does not configure real
-production DNS, TLS, SMTP, object storage, monitoring, legal approval or off-host
-backup by itself. Do not treat a local green build as a completed production
-deployment.
+Bu repository bir release candidate hazırlayabilir; ancak gerçek production DNS,
+TLS, SMTP, object storage, monitoring, hukuki onay veya off-host backup
+yapılandırmasını tek başına sağlamaz. Local ortamda yeşil build almak,
+production deployment’ın tamamlandığı anlamına gelmez.
